@@ -57,7 +57,7 @@ export function Header() {
             onClick={() => setOpen(false)}
             aria-label="Fermer le menu"
           />
-          <aside className="relative flex h-dvh w-[min(88vw,360px)] flex-col border-r border-neutral-200 bg-white shadow-2xl shadow-neutral-950/25">
+          <aside className="relative flex h-dvh w-screen flex-col bg-white shadow-2xl shadow-neutral-950/25">
             <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="MATLI accueil">
                 <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>
