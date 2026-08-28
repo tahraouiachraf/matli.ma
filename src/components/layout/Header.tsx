@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Search, X } from "lucide-react";
+import { ChevronRight, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
@@ -50,20 +50,55 @@ export function Header() {
       </div>
 
       {open ? (
-        <div className="border-t border-neutral-200 bg-white px-4 py-4 lg:hidden">
-          <nav className="mx-auto grid max-w-7xl gap-2" aria-label="Navigation mobile">
-            {nav.map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-100"
-              >
-                {label}
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu mobile">
+          <button
+            type="button"
+            className="absolute inset-0 bg-neutral-950/45 backdrop-blur-[2px]"
+            onClick={() => setOpen(false)}
+            aria-label="Fermer le menu"
+          />
+          <aside className="relative flex h-dvh w-[min(88vw,360px)] flex-col border-r border-neutral-200 bg-white shadow-2xl shadow-neutral-950/25">
+            <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
+              <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="MATLI accueil">
+                <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>
               </Link>
-            ))}
-            <AuthNav mobile onNavigate={() => setOpen(false)} />
-          </nav>
+              <button
+                type="button"
+                className="grid size-10 place-items-center rounded-md border border-neutral-200 text-neutral-700"
+                onClick={() => setOpen(false)}
+                aria-label="Fermer le menu"
+              >
+                <X size={21} aria-hidden />
+              </button>
+            </div>
+
+            <nav className="flex-1 overflow-y-auto px-4 py-5" aria-label="Navigation mobile">
+              <div className="grid gap-2">
+                {nav.map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-3 text-sm font-black text-neutral-900 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                  >
+                    <span>{label}</span>
+                    <ChevronRight size={17} aria-hidden />
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-5 rounded-md bg-neutral-50 p-3">
+                <p className="text-xs font-black uppercase text-neutral-500">Compte</p>
+                <AuthNav mobile onNavigate={() => setOpen(false)} />
+              </div>
+            </nav>
+
+            <div className="border-t border-neutral-200 p-4">
+              <ButtonLink href="/deposer" className="w-full" onClick={() => setOpen(false)}>
+                Déposer une machine
+              </ButtonLink>
+            </div>
+          </aside>
         </div>
       ) : null}
     </header>

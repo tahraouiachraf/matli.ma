@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { demoAccount } from "@/lib/data";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 function GoogleIcon() {
   return (
@@ -33,11 +33,10 @@ type GoogleConnectButtonProps = {
 
 export function GoogleConnectButton({ className = "", compact = false }: GoogleConnectButtonProps) {
   const router = useRouter();
+  const { loginDemo } = useAuth();
 
   function handleClick() {
-    window.localStorage.setItem("matli-authenticated", "true");
-    window.localStorage.setItem("matli-demo-account", JSON.stringify(demoAccount));
-    window.dispatchEvent(new Event("matli-auth-change"));
+    loginDemo();
     router.push("/profil");
   }
 

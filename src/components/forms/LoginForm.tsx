@@ -2,15 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { demoAccount } from "@/lib/data";
 
 export function LoginForm() {
   const router = useRouter();
+  const { loginDemo: connectDemo } = useAuth();
 
   function loginDemo() {
-    window.localStorage.setItem("matli-authenticated", "true");
-    window.localStorage.setItem("matli-demo-account", JSON.stringify(demoAccount));
-    window.dispatchEvent(new Event("matli-auth-change"));
+    connectDemo();
     router.push("/espace");
   }
 

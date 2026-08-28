@@ -21,11 +21,11 @@ export function SearchPanel() {
           <h2 className="text-xl font-black text-neutral-950">Créez votre compte et louez votre matériel</h2>
         </div>
         <Link
-          href="/compte"
+          href="/inscription"
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-neutral-200 px-4 text-sm font-bold text-neutral-800 hover:border-orange-400 hover:text-orange-600"
         >
           <CircleUserRound size={18} aria-hidden />
-          Mon compte
+          Créer compte
         </Link>
       </div>
 
