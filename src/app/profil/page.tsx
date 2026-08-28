@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cities } from "@/lib/data";
+import { cities, demoAccount } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Profil",
@@ -19,22 +19,22 @@ export default function ProfilePage() {
 
       <form className="grid gap-6 rounded-md border border-neutral-200 bg-white p-5 md:grid-cols-2">
         {[
-          ["Nom complet", "Ahmed El Mansouri"],
-          ["Téléphone", "+212 6 00 00 00 00"],
-          ["Nom entreprise", "Atlas Location"],
-          ["ICE", "001234567000089"],
-          ["Email", "contact@entreprise.ma"],
-          ["Adresse", "Zone industrielle, Casablanca"],
-        ].map(([label, placeholder]) => (
+          ["Nom complet", demoAccount.name],
+          ["Téléphone", demoAccount.phone],
+          ["Nom entreprise", demoAccount.company],
+          ["ICE", demoAccount.ice],
+          ["Email", demoAccount.email],
+          ["Adresse", demoAccount.address],
+        ].map(([label, defaultValue]) => (
           <label key={label} className="grid gap-2 text-sm font-semibold">
             {label}
-            <input className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder={placeholder} />
+            <input className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" defaultValue={defaultValue} />
           </label>
         ))}
 
         <label className="grid gap-2 text-sm font-semibold">
           Ville
-          <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <select defaultValue={demoAccount.city} className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
             {cities.map((city) => (
               <option key={city}>{city}</option>
             ))}
@@ -43,7 +43,7 @@ export default function ProfilePage() {
 
         <label className="grid gap-2 text-sm font-semibold">
           Type de compte
-          <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <select defaultValue={demoAccount.role} className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
             <option>Propriétaire</option>
             <option>Locataire</option>
             <option>Entreprise BTP</option>
@@ -54,7 +54,7 @@ export default function ProfilePage() {
           Description publique
           <textarea
             className="min-h-28 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500"
-            placeholder="Décrivez votre parc, vos zones de livraison et vos services."
+            defaultValue={demoAccount.description}
           />
         </label>
 

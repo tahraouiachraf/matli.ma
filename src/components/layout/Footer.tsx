@@ -44,11 +44,12 @@ export function Footer() {
             </Link>
           </div>
         </div>
-        <div className="grid gap-8 sm:grid-cols-3">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["Marketplace", [["Location", "/location"], ["Machines JCB", "/machines-jcb"], ["Entreprises", "/entreprise/atlas-location"]]],
+            ["Marketplace", [["Location", "/location"], ["Machines", "/machines"], ["Entreprises", "/entreprise/atlas-location"]]],
             ["Propriétaires", [["Déposer un matériel", "/deposer"], ["Créer un compte", "/inscription"], ["Se connecter", "/connexion"]]],
-            ["MATLI", [["Guide", "/guide"], ["Fonctionnement", "/fonctionnement"], ["Dashboard", "/espace"]]],
+            ["Compte", [["Profil", "/profil"], ["Mes locations", "/mes-locations"], ["Dashboard", "/espace"]]],
+            ["MATLI", [["Guide", "/guide"], ["Fonctionnement", "/fonctionnement"], ["Contact", "/compte"]]],
           ].map(([title, links]) => (
             <div key={title as string}>
               <h3 className="font-semibold text-neutral-950">{title}</h3>

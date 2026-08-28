@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | MATLI",
   },
   description:
-    "Trouvez des engins et machines JCB disponibles à la location partout au Maroc. Mini-pelles, tracteurs, telescopic, chargeuses et plus.",
+    "Trouvez des engins et machines professionnelles disponibles à la location partout au Maroc. Tractopelles, mini-pelles, chariots télescopiques, chargeuses et plus.",
   openGraph: {
     title: "MATLI.ma",
     description: "Louez. Gérez. Rentabilisez votre matériel.",
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main>{children}</main>
         <Footer />
+        <MobileBottomNav />
       </body>
     </html>
   );

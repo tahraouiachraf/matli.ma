@@ -40,6 +40,33 @@ export type Equipment = {
   specs: string[];
 };
 
+export type ClientRequest = {
+  id: string;
+  machine: string;
+  city: string;
+  dateRange: string;
+  budgetDay: number;
+  contact: string;
+  status: "OPEN" | "QUOTED" | "RESERVED";
+};
+
+export type DashboardMetric = {
+  label: string;
+  value: string;
+  helper: string;
+};
+
+export type RentalHistoryItem = {
+  id: string;
+  equipmentTitle: string;
+  companyName: string;
+  city: string;
+  period: string;
+  total: number;
+  status: "COMPLETED" | "ONGOING" | "RESERVED" | "CANCELLED";
+  image: string;
+};
+
 export type Company = {
   slug: string;
   name: string;
