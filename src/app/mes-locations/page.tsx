@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { RentalHistorySection } from "@/components/sections/RentalHistorySection";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function MyRentalsPage() {
-  return <RentalHistorySection />;
+  return (
+    <AuthGuard title="Connectez-vous pour consulter vos locations">
+      <RentalHistorySection />
+    </AuthGuard>
+  );
 }

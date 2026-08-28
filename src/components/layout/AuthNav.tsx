@@ -1,28 +1,11 @@
 "use client";
 
-import { ChevronDown, CircleUserRound, History, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
+import { ChevronDown, History, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { demoAccount } from "@/lib/data";
-
-function subscribe(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener("matli-auth-change", callback);
-
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("matli-auth-change", callback);
-  };
-}
-
-function getSnapshot() {
-  return window.localStorage.getItem("matli-authenticated") === "true";
-}
-
-function getServerSnapshot() {
-  return false;
-}
 
 export function AuthNav({
   compact = false,
@@ -33,24 +16,25 @@ export function AuthNav({
   mobile?: boolean;
   onNavigate?: () => void;
 }) {
-  const connected = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { connected, ready, logout: logoutFromProvider } = useAuth();
   const [open, setOpen] = useState(false);
 
   function logout() {
-    window.localStorage.removeItem("matli-authenticated");
-    window.localStorage.removeItem("matli-demo-account");
-    window.dispatchEvent(new Event("matli-auth-change"));
+    logoutFromProvider();
     setOpen(false);
     onNavigate?.();
   }
 
   const accountLinks = [
-    [CircleUserRound, "Mon compte", "/compte"],
     [UserRound, "Profil", "/profil"],
     [LayoutDashboard, "Dashboard", "/espace"],
     [History, "Mes locations", "/mes-locations"],
     [Settings, "Paramètres", "/profil"],
   ] as const;
+
+  if (!ready) {
+    return <div className={`${mobile ? "mt-2 h-11 w-full" : "h-11 w-28"} rounded-md bg-neutral-100`} aria-hidden />;
+  }
 
   if (connected) {
     if (mobile) {

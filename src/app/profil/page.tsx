@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { cities, demoAccount } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
 
 export default function ProfilePage() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <AuthGuard title="Connectez-vous pour modifier votre profil">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="mb-8">
         <p className="font-bold text-orange-600">Profil propriétaire</p>
         <h1 className="mt-2 text-4xl font-black">Compléter mon profil</h1>
@@ -70,6 +72,7 @@ export default function ProfilePage() {
           </a>
         </div>
       </form>
-    </section>
+      </section>
+    </AuthGuard>
   );
 }

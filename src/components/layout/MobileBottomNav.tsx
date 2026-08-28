@@ -19,9 +19,9 @@ export function MobileBottomNav() {
           <PlusCircle size={20} aria-hidden />
           Déposer
         </Link>
-        <Link href="/compte" className="grid justify-items-center gap-1 rounded-md px-2 py-2 text-xs font-bold text-neutral-700">
+        <Link href="/profil" className="grid justify-items-center gap-1 rounded-md px-2 py-2 text-xs font-bold text-neutral-700">
           <CircleUserRound size={20} aria-hidden />
-          Compte
+          Profil
         </Link>
       </div>
     </nav>

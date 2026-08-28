@@ -13,7 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/guide",
     "/connexion",
     "/inscription",
-    "/compte",
     "/profil",
     "/mes-locations",
     "/espace",

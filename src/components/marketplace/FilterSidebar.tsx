@@ -1,4 +1,4 @@
-import { Check, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { categories, cities } from "@/lib/data";
 
 const priceRanges = ["Tous les prix", "Moins de 1 000 DH", "1 000 - 1 700 DH", "Plus de 1 700 DH"];
@@ -22,15 +22,24 @@ export function FilterSidebar() {
 
       <div className="mt-5 grid gap-6">
         <div>
-          <p className="mb-3 text-xs font-black uppercase text-neutral-500">Catégorie</p>
-          <div className="flex flex-wrap gap-2">
-            <button className="rounded-full bg-neutral-950 px-3 py-2 text-xs font-black text-white">Toutes</button>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-xs font-black uppercase text-neutral-500">Catégorie</p>
+            <span className="rounded-full bg-neutral-100 px-2 py-1 text-[11px] font-black text-neutral-500">
+              {categories.length} types
+            </span>
+          </div>
+          <div className="grid gap-2">
+            <button className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md border border-neutral-950 bg-neutral-950 px-3 py-2.5 text-left text-sm font-black text-white">
+              <span>Toutes les machines</span>
+              <Check size={16} aria-hidden />
+            </button>
             {categories.map((category) => (
               <button
                 key={category.slug}
-                className="rounded-full border border-neutral-200 bg-white px-3 py-2 text-xs font-bold text-neutral-700 transition hover:border-orange-400 hover:text-orange-600"
+                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-3 py-2.5 text-left text-sm font-bold leading-5 text-neutral-700 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
               >
-                {category.name}
+                <span className="min-w-0 flex-1">{category.name}</span>
+                <ChevronRight size={16} className="shrink-0 text-neutral-400" aria-hidden />
               </button>
             ))}
           </div>
