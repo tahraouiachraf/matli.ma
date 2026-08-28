@@ -29,7 +29,6 @@ export function AuthNav({
     [UserRound, "Profil", "/profil"],
     [LayoutDashboard, "Dashboard", "/espace"],
     [History, "Mes locations", "/mes-locations"],
-    [Settings, "Paramètres", "/profil"],
   ] as const;
 
   if (!ready) {
@@ -39,41 +38,57 @@ export function AuthNav({
   if (connected) {
     if (mobile) {
       return (
-        <div className="mt-2 rounded-md border border-neutral-200 bg-neutral-50 p-2">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <div className="grid size-9 place-items-center rounded-full bg-orange-500 text-sm font-black text-white">
-              {demoAccount.name
-                .split(" ")
-                .map((part) => part[0])
-                .slice(0, 2)
-                .join("")}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-black text-neutral-950">{demoAccount.name}</p>
-              <p className="truncate text-xs text-neutral-500">{demoAccount.company}</p>
-            </div>
-          </div>
-          <div className="mt-1 grid gap-1">
-            {accountLinks.map(([Icon, label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={onNavigate}
-                className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold text-neutral-700 hover:bg-white"
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            className="flex w-full items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-3 py-3 text-left text-sm font-black text-neutral-900 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+            aria-expanded={open}
+          >
+            <span>Profil</span>
+            <ChevronDown
+              size={17}
+              className={`shrink-0 transition ${open ? "rotate-180" : ""}`}
+              aria-hidden
+            />
+          </button>
+
+          {open ? (
+            <div className="mt-2 grid gap-1 rounded-md border border-neutral-200 bg-neutral-50 p-2">
+              <div className="flex items-center gap-3 px-2 py-2">
+                <div className="grid size-9 shrink-0 place-items-center rounded-full bg-orange-500 text-sm font-black text-white">
+                  {demoAccount.name
+                    .split(" ")
+                    .map((part) => part[0])
+                    .slice(0, 2)
+                    .join("")}
+                </div>
+                <div className="min-w-0">
+                <p className="truncate text-sm font-black text-neutral-950">{demoAccount.name}</p>
+                <p className="truncate text-xs text-neutral-500">{demoAccount.email}</p>
+                </div>
+              </div>
+              {accountLinks.map(([Icon, label, href]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={onNavigate}
+                  className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold text-neutral-700 hover:bg-white"
+                >
+                  <Icon size={17} aria-hidden />
+                  {label}
+                </Link>
+              ))}
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-black text-red-600 hover:bg-white"
               >
-                <Icon size={17} aria-hidden />
-                {label}
-              </Link>
-            ))}
-            <button
-              type="button"
-              onClick={logout}
-              className="flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-black text-red-600 hover:bg-white"
-            >
-              <LogOut size={17} aria-hidden />
-              Déconnexion
-            </button>
-          </div>
+                <LogOut size={17} aria-hidden />
+                Déconnexion
+              </button>
+            </div>
+          ) : null}
         </div>
       );
     }
@@ -94,7 +109,6 @@ export function AuthNav({
               .slice(0, 2)
               .join("")}
           </span>
-          {!compact ? <span>Compte</span> : null}
           <ChevronDown size={16} aria-hidden />
         </button>
 
