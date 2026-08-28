@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Building2, ChevronRight, CircleUserRound, ListChecks, ShieldCheck } from "lucide-react";
+import { Building2, ChevronRight, CircleUserRound, History, ListChecks, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { demoAccount } from "@/lib/data";
 import { GoogleConnectButton } from "@/components/ui/GoogleConnectButton";
 
 export const metadata: Metadata = {
@@ -27,15 +28,22 @@ export default function AccountPage() {
               Compléter mon profil
             </Link>
           </div>
+          <div className="mt-6 rounded-md border border-orange-200 bg-orange-50 p-4">
+            <p className="text-sm font-black text-orange-700">Compte démo disponible</p>
+            <p className="mt-2 text-sm text-neutral-700">
+              {demoAccount.name} · {demoAccount.company} · {demoAccount.email}
+            </p>
+          </div>
         </div>
         <div className="grid gap-4">
           {[
             [CircleUserRound, "Profil", "Nom, téléphone, ville, entreprise et rôle."],
             [Building2, "Entreprise", "ICE, adresse, logo et informations publiques."],
             [ListChecks, "Machines", "JCB, mini-pelle, chargeuse, prix, photos et disponibilité."],
+            [History, "Mes locations", "Historique, réservations, factures et relouer rapidement."],
             [ShieldCheck, "Sécurité", "Connexion Google et permissions côté backend Laravel."],
           ].map(([Icon, title, text]) => (
-            <Link key={title as string} href="/profil" className="flex items-center gap-4 rounded-md border border-neutral-200 bg-white p-5 hover:border-orange-300">
+            <Link key={title as string} href={title === "Mes locations" ? "/mes-locations" : "/profil"} className="flex items-center gap-4 rounded-md border border-neutral-200 bg-white p-5 hover:border-orange-300">
               <Icon className="text-orange-500" size={24} aria-hidden />
               <div className="flex-1">
                 <h2 className="font-black">{title as string}</h2>

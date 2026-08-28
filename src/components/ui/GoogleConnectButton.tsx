@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { demoAccount } from "@/lib/data";
 
 function GoogleIcon() {
   return (
@@ -35,6 +36,7 @@ export function GoogleConnectButton({ className = "", compact = false }: GoogleC
 
   function handleClick() {
     window.localStorage.setItem("matli-authenticated", "true");
+    window.localStorage.setItem("matli-demo-account", JSON.stringify(demoAccount));
     window.dispatchEvent(new Event("matli-auth-change"));
     router.push("/profil");
   }

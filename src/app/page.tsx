@@ -1,11 +1,14 @@
 import { BadgeCheck, Building2, CalendarCheck, Search, ShieldCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { HeroMachineAnimation } from "@/components/hero/HeroMachineAnimation";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { ClientDemandSection } from "@/components/sections/ClientDemandSection";
 import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
 import { MachinesSection } from "@/components/sections/MachinesSection";
+import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
+import { SeoPagesSection } from "@/components/sections/SeoPagesSection";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { equipment } from "@/lib/data";
@@ -84,11 +87,7 @@ export default function Home() {
 
             <div className="relative hidden min-h-[420px] lg:block">
               <div className="absolute right-0 top-8 h-80 w-[92%] rounded-xl bg-white/10" />
-              <div
-                className="absolute inset-x-0 bottom-0 h-[390px] rounded-xl bg-contain bg-center bg-no-repeat drop-shadow-2xl"
-                style={{ backgroundImage: "url(/equipment/jcb-3cx-studio.png)" }}
-                aria-hidden
-              />
+              <HeroMachineAnimation />
             </div>
           </div>
         </div>
@@ -132,6 +131,8 @@ export default function Home() {
       </section>
 
       <DepositSection />
+      <RequestsPreviewSection />
+      <SeoPagesSection />
 
       <section id="proprietaires" className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
         <div>
