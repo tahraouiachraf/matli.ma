@@ -2,20 +2,26 @@
 
 import { ChevronRight, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 
 const nav = [
+  ["Accueil", "/"],
   ["Louer", "/location"],
   ["Machines", "/machines"],
   ["Déposer un matériel", "/deposer"],
   ["Comment ça marche ?", "/fonctionnement"],
-  ["Guide", "/guide"],
 ];
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  function isActive(href: string) {
+    return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200/80 bg-white/95 backdrop-blur">
@@ -25,11 +31,22 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Navigation principale">
-          {nav.map(([label, href]) => (
-            <Link key={href} href={href} className="text-sm font-medium text-neutral-700 hover:text-neutral-950">
-              {label}
-            </Link>
-          ))}
+          {nav.map(([label, href]) => {
+            const active = isActive(href);
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={`text-sm font-bold transition ${
+                  active ? "text-orange-500" : "text-neutral-700 hover:text-neutral-950"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -74,17 +91,26 @@ export function Header() {
 
             <nav className="flex-1 overflow-y-auto px-4 py-5" aria-label="Navigation mobile">
               <div className="grid gap-2">
-                {nav.map(([label, href]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-3 text-sm font-black text-neutral-900 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
-                  >
-                    <span>{label}</span>
-                    <ChevronRight size={17} aria-hidden />
-                  </Link>
-                ))}
+                {nav.map(([label, href]) => {
+                  const active = isActive(href);
+
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setOpen(false)}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex items-center justify-between rounded-md border px-3 py-3 text-sm font-black transition ${
+                        active
+                          ? "border-orange-200 bg-orange-50 text-orange-600"
+                          : "border-neutral-200 bg-white text-neutral-900 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                      }`}
+                    >
+                      <span>{label}</span>
+                      <ChevronRight size={17} aria-hidden />
+                    </Link>
+                  );
+                })}
               </div>
 
               <div className="mt-5 rounded-md bg-neutral-50 p-3">

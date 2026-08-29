@@ -1,7 +1,8 @@
 "use client";
 
-import { ChevronDown, History, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
+import { ChevronDown, History, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -18,11 +19,14 @@ export function AuthNav({
 }) {
   const { connected, ready, logout: logoutFromProvider } = useAuth();
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   function logout() {
     logoutFromProvider();
     setOpen(false);
     onNavigate?.();
+    router.push("/connexion");
   }
 
   const accountLinks = [
@@ -30,6 +34,10 @@ export function AuthNav({
     [LayoutDashboard, "Dashboard", "/espace"],
     [History, "Mes locations", "/mes-locations"],
   ] as const;
+
+  function isActive(href: string) {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
 
   if (!ready) {
     return <div className={`${mobile ? "mt-2 h-11 w-full" : "h-11 w-28"} rounded-md bg-neutral-100`} aria-hidden />;
@@ -64,8 +72,8 @@ export function AuthNav({
                     .join("")}
                 </div>
                 <div className="min-w-0">
-                <p className="truncate text-sm font-black text-neutral-950">{demoAccount.name}</p>
-                <p className="truncate text-xs text-neutral-500">{demoAccount.email}</p>
+                  <p className="truncate text-sm font-black text-neutral-950">{demoAccount.name}</p>
+                  <p className="truncate text-xs text-neutral-500">{demoAccount.email}</p>
                 </div>
               </div>
               {accountLinks.map(([Icon, label, href]) => (
@@ -73,7 +81,10 @@ export function AuthNav({
                   key={href}
                   href={href}
                   onClick={onNavigate}
-                  className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold text-neutral-700 hover:bg-white"
+                  aria-current={isActive(href) ? "page" : undefined}
+                  className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm font-bold transition ${
+                    isActive(href) ? "bg-white text-orange-600" : "text-neutral-700 hover:bg-white hover:text-orange-600"
+                  }`}
                 >
                   <Icon size={17} aria-hidden />
                   {label}
@@ -130,7 +141,10 @@ export function AuthNav({
                     setOpen(false);
                     onNavigate?.();
                   }}
-                  className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
+                  aria-current={isActive(href) ? "page" : undefined}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-bold transition ${
+                    isActive(href) ? "bg-orange-50 text-orange-600" : "text-neutral-700 hover:bg-neutral-50 hover:text-orange-600"
+                  }`}
                   role="menuitem"
                 >
                   <Icon size={18} className="text-orange-500" aria-hidden />

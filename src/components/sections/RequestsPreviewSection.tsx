@@ -8,9 +8,9 @@ export function RequestsPreviewSection() {
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="font-bold text-orange-600">Demandes clients</p>
-          <h2 className="mt-2 text-3xl font-black text-neutral-950">Des clients cherchent déjà ces machines.</h2>
+          <h2 className="mt-2 text-3xl font-black text-neutral-950">Des demandes claires, prêtes à devenir des devis.</h2>
           <p className="mt-3 max-w-2xl text-neutral-600">
-            Ces cartes statiques préparent le futur module API: demandes, devis, réservation et suivi propriétaire.
+            Chaque demande contient le matériel recherché, la ville, la durée, le budget et le type de client. C&apos;est la base du futur module de devis et réservation.
           </p>
         </div>
       </div>

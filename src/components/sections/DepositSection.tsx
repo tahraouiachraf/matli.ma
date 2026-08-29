@@ -10,14 +10,14 @@ export function DepositSection() {
         <div>
           <SectionHeading
             eyebrow="Déposer un matériel"
-            title="Vous avez un JCB, une pelle ou une nacelle ? Publiez votre matériel et recevez des demandes."
-            description="MATLI est pensé pour les propriétaires: vous présentez votre engin, la ville, le prix et les options. Le client vous contacte pour louer, sans parcours compliqué au départ."
+            title="Publiez votre machine comme une vraie annonce professionnelle."
+            description="Photos, prix, ville, disponibilité, opérateur, livraison, documents et maintenance: MATLI prépare l&apos;interface qui permettra ensuite de gérer tout le cycle de location."
           />
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {[
-              [ClipboardList, "1. Déposer", "Nom, ville, prix et photos."],
-              [MessageSquareText, "2. Recevoir", "Demandes client et devis."],
-              [Truck, "3. Louer", "Avec livraison ou opérateur."],
+              [ClipboardList, "1. Déposer", "Machine, marque, année, photos et prix."],
+              [MessageSquareText, "2. Recevoir", "Demandes qualifiées avec budget et durée."],
+              [Truck, "3. Louer", "Confirmation, livraison, opérateur et suivi."],
             ].map(([Icon, title, text]) => (
               <div key={title as string} className="rounded-md border border-neutral-200 bg-white p-4">
                 <Icon className="text-orange-500" size={22} aria-hidden />
