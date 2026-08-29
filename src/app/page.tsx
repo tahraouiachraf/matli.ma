@@ -9,15 +9,16 @@ import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
 import { MachinesSection } from "@/components/sections/MachinesSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
 import { SeoPagesSection } from "@/components/sections/SeoPagesSection";
+import { ValuePropositionSection } from "@/components/sections/ValuePropositionSection";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { equipment } from "@/lib/data";
 
 const trustItems: Array<[LucideIcon, string, string]> = [
-  [Building2, "Entreprises vérifiées", "Parcs professionnels et propriétaires locaux."],
-  [CalendarCheck, "Disponibilité claire", "Recherche par ville, date et statut."],
-  [ShieldCheck, "Gestion gratuite", "Locations, maintenance, clients et paiements."],
-  [BadgeCheck, "SEO Maroc", "Pages catégorie, ville, matériel et entreprise."],
+  [Building2, "Propriétaires visibles", "Chaque parc peut afficher machines, ville, prix, options et contact."],
+  [CalendarCheck, "Disponibilité lisible", "Le client comprend rapidement si la machine est libre, réservée ou en maintenance."],
+  [ShieldCheck, "Demandes qualifiées", "Budget, durée, chantier et téléphone avant de mobiliser la machine."],
+  [BadgeCheck, "Prêt pour API Laravel", "Données statiques structurées pour brancher utilisateurs, réservations et devis."],
 ];
 
 export default function Home() {
@@ -35,7 +36,7 @@ export default function Home() {
                 au Maroc
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-orange-50 sm:text-lg">
-                Comparez les prix, réservez une machine disponible ou créez un compte pour publier votre JCB, mini-pelle ou chargeuse.
+                Trouvez une machine disponible, comparez les prix entre propriétaires et envoyez une demande claire. Les propriétaires déposent leur matériel et reçoivent des clients qualifiés.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -107,6 +108,7 @@ export default function Home() {
         </div>
       </section>
 
+      <ValuePropositionSection />
       <MachinesSection />
       <ClientDemandSection />
 
@@ -116,7 +118,7 @@ export default function Home() {
             <SectionHeading
               eyebrow="Marketplace"
               title="Offres disponibles maintenant"
-              description="Plusieurs propriétaires peuvent proposer la même machine. Le client compare les prix et réserve la meilleure offre."
+              description="Chaque annonce affiche les informations utiles avant contact: prix par jour, ville, disponibilité, opérateur, livraison, entreprise et état de la machine."
             />
             <ButtonLink href="/location" variant="secondary">
               Voir tout le matériel

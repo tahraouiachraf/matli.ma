@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
 
 export const metadata: Metadata = {
   title: "Déposer un matériel",
-  description: "Publiez votre JCB, pelle, chargeuse ou nacelle sur MATLI et recevez des demandes de location.",
+  description: "Publiez votre tractopelle, pelle, chargeuse ou nacelle sur MATLI et recevez des demandes de location.",
 };
 
 export default function DepositPage() {
   return (
-    <>
+    <AuthGuard
+      title="Connectez-vous pour déposer une machine"
+      message="La publication de matériel est réservée aux comptes connectés afin de protéger les propriétaires, les clients et les futures réservations."
+    >
       <DepositSection />
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
         <div>
@@ -23,6 +27,6 @@ export default function DepositPage() {
         <DepositMachineForm />
       </section>
       <RequestsPreviewSection />
-    </>
+    </AuthGuard>
   );
 }

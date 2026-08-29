@@ -10,7 +10,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/machines",
     "/deposer",
     "/fonctionnement",
-    "/guide",
     "/connexion",
     "/inscription",
     "/profil",

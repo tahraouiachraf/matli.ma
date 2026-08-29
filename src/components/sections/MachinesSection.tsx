@@ -7,7 +7,7 @@ export function MachinesSection() {
       <SectionHeading
         eyebrow="Machines"
         title="Quel type de machine voulez-vous louer ?"
-        description="Sélection de machines demandées sur les chantiers marocains: tractopelles, mini-pelles, chariots télescopiques, pelles sur chenilles et chargeuses, toutes marques confondues."
+        description="Une taxonomie simple pour les besoins terrain: terrassement, levage, manutention, travaux publics et chargement. Chaque catégorie pourra ensuite recevoir ses propres filtres API."
       />
       <div className="mt-10">
         <CategoryGrid />

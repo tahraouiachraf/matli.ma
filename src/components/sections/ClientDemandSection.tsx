@@ -9,10 +9,10 @@ export function ClientDemandSection() {
         <div className="max-w-3xl">
           <p className="font-bold text-orange-600">Demande client</p>
           <h2 className="mt-2 text-3xl font-black text-neutral-950 md:text-4xl">
-            Les machines que les clients cherchent à louer.
+            Les demandes qui peuvent générer vos prochaines locations.
           </h2>
           <p className="mt-4 text-neutral-600">
-            MATLI affiche plusieurs offres pour une même machine. Le client compare les prix, la ville, l’opérateur et réserve l’offre la plus adaptée.
+            Le propriétaire ne publie pas seulement une annonce: il voit aussi les besoins du marché par machine, ville et budget. Cela aide à ajuster les prix et à répondre vite.
           </p>
         </div>
 
