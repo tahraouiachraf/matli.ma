@@ -17,7 +17,9 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDh } from "@/lib/format";
+import { categories, cities, statusLabels } from "@/lib/data";
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
+import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { getMarketplaceRequestsStrict, getWorkspaceCollectionStrict, getWorkspaceEquipmentStrict, getWorkspaceReservationsStrict } from "@/services/api/matli";
 import type { ClientRequest, Equipment, RentalHistoryItem } from "@/types";
@@ -114,8 +116,23 @@ export function OwnerSectionContent({ section }: { section: string }) {
           const payload = await getWorkspaceEquipmentStrict(token);
           if (mounted) setWorkspaceEquipment(payload);
         } else if (section === "locations") {
-          const payload = await getWorkspaceReservationsStrict(token);
-          if (mounted) setWorkspaceRentals(payload);
+          const [equipmentPayload, rentalsPayload] = await Promise.all([
+            getWorkspaceEquipmentStrict(token),
+            getWorkspaceReservationsStrict(token),
+          ]);
+          if (mounted) {
+            setWorkspaceEquipment(equipmentPayload);
+            setWorkspaceRentals(rentalsPayload);
+          }
+        } else if (section === "calendrier") {
+          const [equipmentPayload, rentalsPayload] = await Promise.all([
+            getWorkspaceEquipmentStrict(token),
+            getWorkspaceReservationsStrict(token),
+          ]);
+          if (mounted) {
+            setWorkspaceEquipment(equipmentPayload);
+            setWorkspaceRentals(rentalsPayload);
+          }
         } else if (section === "demandes") {
           const payload = await getMarketplaceRequestsStrict();
           if (mounted) setMarketplaceRequests(payload);
@@ -151,10 +168,16 @@ export function OwnerSectionContent({ section }: { section: string }) {
     return (
       <DashboardPanel
         title="Mon matériel"
-        description="Liste des machines publiées avec prix, ville, disponibilité et actions rapides."
+        description="Ajoutez vos machines, gardez vos prix à jour et suivez la disponibilité de chaque matériel."
         loading={loading}
+        actionLabel="Ajouter un matériel"
       >
         {apiError ? <InlineApiError /> : null}
+        <div className="mb-6">
+          <OwnerFormBlock title="Ajouter un matériel" description="Préparez l'annonce avec les informations nécessaires avant la connexion complète au backend.">
+            <DepositMachineForm />
+          </OwnerFormBlock>
+        </div>
         {!apiError && items.length ? (
           <div className="grid gap-4">
             {items.map((item) => (
@@ -166,6 +189,11 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   {item.category} · {item.city} · {item.brand} {item.model}
                 </p>
                 <p className="mt-2 text-sm font-bold text-orange-600">{formatDh(item.priceDay)} / jour</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">{statusLabels[item.status]}</span>
+                  {item.operator ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Avec opérateur</span> : null}
+                  {item.delivery ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Livraison</span> : null}
+                </div>
               </div>
               <div className="grid gap-2 sm:flex md:grid">
                 <button className="rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white">Modifier</button>
@@ -192,8 +220,13 @@ export function OwnerSectionContent({ section }: { section: string }) {
     ]);
 
     return (
-      <DashboardPanel title="Locations" description="Suivez les locations en cours, terminées et réservées." loading={loading}>
+      <DashboardPanel title="Locations" description="Créez une réservation et suivez les locations en cours, terminées ou annulées." loading={loading} actionLabel="Nouvelle réservation">
         {apiError ? <InlineApiError /> : null}
+        <div className="mb-6">
+          <OwnerFormBlock title="Ajouter une réservation" description="Enregistrez une location pour bloquer les dates dans le calendrier.">
+            <ReservationForm equipment={workspaceEquipment ?? []} />
+          </OwnerFormBlock>
+        </div>
         {!apiError && rows.length ? (
           <DashboardTable headers={["Référence", "Machine", "Période", "Ville", "Montant", "Statut"]} rows={rows} />
         ) : !apiError ? (
@@ -214,8 +247,13 @@ export function OwnerSectionContent({ section }: { section: string }) {
     ]);
 
     return (
-      <DashboardPanel title="Demandes" description="Demandes clients reçues depuis la marketplace." loading={loading}>
+      <DashboardPanel title="Demandes" description="Ajoutez ou qualifiez les demandes clients reçues depuis la marketplace." loading={loading} actionLabel="Nouvelle demande">
         {apiError ? <InlineApiError /> : null}
+        <div className="mb-6">
+          <OwnerFormBlock title="Ajouter une demande client" description="Saisissez le besoin du client pour comparer ensuite avec votre parc matériel.">
+            <ClientRequestForm />
+          </OwnerFormBlock>
+        </div>
         {!apiError && rows.length ? (
           <DashboardTable headers={["Référence", "Machine", "Ville", "Durée", "Budget", "Statut"]} rows={rows} />
         ) : !apiError ? (
@@ -225,8 +263,24 @@ export function OwnerSectionContent({ section }: { section: string }) {
     );
   }
 
+  if (section === "calendrier") {
+    const items = workspaceEquipment ?? [];
+    const rentals = workspaceRentals ?? [];
+
+    return (
+      <DashboardPanel
+        title="Calendrier"
+        description="Visualisez les machines disponibles, réservées et les périodes bloquées."
+        loading={loading}
+        actionLabel="Bloquer une date"
+      >
+        {apiError ? <InlineApiError /> : null}
+        {!apiError ? <OwnerCalendar equipment={items} rentals={rentals} loading={loading} /> : null}
+      </DashboardPanel>
+    );
+  }
+
   const fallbackContent: Record<string, [string, string, string[]]> = {
-    calendrier: ["Calendrier", "Vue mensuelle des disponibilités, réservations, maintenances et retours.", ["Réservation JCB 3CX: 12-15 août", "Maintenance mini-pelle: 30 août", "Retour telescopic: 9 septembre"]],
     maintenance: ["Maintenance", "Plans, interventions, alertes et coûts par machine.", ["Vidange JCB 3CX dans 18 h", "Contrôle hydraulique mini-pelle", "Assurance chargeuse expire bientôt"]],
     clients: ["Clients", "Fiches clients, contacts, historique, CA et incidents.", ["Entreprise VRD Casablanca", "Chantier industriel Tanger", "Promoteur Marrakech"]],
     operateurs: ["Opérateurs", "Conducteurs disponibles, permis, compétences et planning.", ["Youssef: tractopelle", "Amine: pelle sur chenilles", "Karim: telescopic"]],
@@ -284,11 +338,13 @@ function InlineApiError() {
 function DashboardPanel({
   children,
   description,
+  actionLabel = "Nouvelle action",
   loading = false,
   title,
 }: {
   children: React.ReactNode;
   description: string;
+  actionLabel?: string;
   loading?: boolean;
   title: string;
 }) {
@@ -300,10 +356,223 @@ function DashboardPanel({
           <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">{description}</p>
         </div>
         <button className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
-          {loading ? "Chargement..." : "Nouvelle action"}
+          {loading ? "Chargement..." : actionLabel}
         </button>
       </div>
       {children}
+    </div>
+  );
+}
+
+function OwnerFormBlock({
+  children,
+  description,
+  title,
+}: {
+  children: React.ReactNode;
+  description: string;
+  title: string;
+}) {
+  return (
+    <details className="group rounded-2xl border border-orange-200 bg-orange-50/60 p-3 open:bg-white sm:p-4">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+        <span>
+          <span className="block text-lg font-black text-neutral-950">{title}</span>
+          <span className="mt-1 block text-sm leading-6 text-neutral-600">{description}</span>
+        </span>
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-orange-500 text-xl font-black text-white transition group-open:rotate-45">
+          +
+        </span>
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
+  );
+}
+
+function ReservationForm({ equipment }: { equipment: Equipment[] }) {
+  return (
+    <form className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 md:grid-cols-2">
+      <label className="grid gap-2 text-sm font-semibold">
+        Machine
+        <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <option>Choisir une machine</option>
+          {equipment.map((item) => (
+            <option key={item.slug}>{item.title} - {item.city}</option>
+          ))}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Client
+        <input className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom du client ou entreprise" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Date début
+        <input type="date" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Date fin
+        <input type="date" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Prix / jour
+        <input inputMode="numeric" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 1700" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Statut
+        <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <option>Confirmée</option>
+          <option>En attente</option>
+          <option>En cours</option>
+          <option>Terminée</option>
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+        Notes
+        <textarea className="min-h-24 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="Adresse chantier, opérateur, conditions de livraison..." />
+      </label>
+      <button className="h-12 rounded-md bg-neutral-950 px-5 text-sm font-black text-white hover:bg-neutral-800 md:col-span-2">
+        Enregistrer la réservation
+      </button>
+    </form>
+  );
+}
+
+function ClientRequestForm() {
+  return (
+    <form className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 md:grid-cols-2">
+      <label className="grid gap-2 text-sm font-semibold">
+        Machine demandée
+        <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <option>Choisir une catégorie</option>
+          {categories.map((category) => (
+            <option key={category.slug}>{category.name}</option>
+          ))}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Ville
+        <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <option>Choisir une ville</option>
+          {cities.map((city) => (
+            <option key={city}>{city}</option>
+          ))}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Date début
+        <input type="date" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Date fin
+        <input type="date" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Budget / jour
+        <input inputMode="numeric" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 1500 DH" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Téléphone client
+        <input inputMode="tel" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+        Message
+        <textarea className="min-h-24 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="Besoin, chantier, urgence, livraison..." />
+      </label>
+      <button className="h-12 rounded-md bg-neutral-950 px-5 text-sm font-black text-white hover:bg-neutral-800 md:col-span-2">
+        Enregistrer la demande
+      </button>
+    </form>
+  );
+}
+
+function OwnerCalendar({
+  equipment,
+  loading,
+  rentals,
+}: {
+  equipment: Equipment[];
+  loading: boolean;
+  rentals: RentalHistoryItem[];
+}) {
+  const days = Array.from({ length: 30 }, (_, index) => index + 1);
+  const calendarEquipment = equipment.length ? equipment : [];
+  const calendarRentals = rentals.length ? rentals : [];
+  const reservedDays = new Map<number, RentalHistoryItem>();
+
+  calendarRentals.forEach((rental, index) => {
+    const start = 5 + index * 7;
+    [start, start + 1, start + 2].forEach((day) => reservedDays.set(day, rental));
+  });
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <div className="flex flex-col gap-3 border-b border-neutral-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="font-black text-neutral-950">Septembre 2026</h3>
+            <p className="mt-1 text-sm text-neutral-600">Dates réservées, retours et périodes disponibles.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs font-bold">
+            <span className="rounded-full bg-orange-50 px-3 py-1 text-orange-700">Réservé</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">Disponible</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-7 gap-px bg-neutral-200 text-center text-xs font-black uppercase text-neutral-500">
+          {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day) => (
+            <div key={day} className="bg-neutral-50 px-2 py-3">{day}</div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-px bg-neutral-200">
+          {days.map((day) => {
+            const rental = reservedDays.get(day);
+            return (
+              <div key={day} className={`min-h-24 bg-white p-2 text-xs sm:min-h-28 ${rental ? "bg-orange-50" : ""}`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-neutral-950">{day}</span>
+                  <span className={`h-2 w-2 rounded-full ${rental ? "bg-orange-500" : "bg-emerald-500"}`} />
+                </div>
+                {rental ? (
+                  <div className="mt-2 rounded-lg bg-orange-500 px-2 py-1.5 font-bold leading-4 text-white">
+                    {rental.equipmentTitle}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <h3 className="font-black text-neutral-950">Machines suivies</h3>
+          <div className="mt-4 grid gap-3">
+            {loading ? <p className="text-sm text-neutral-500">Chargement en cours...</p> : null}
+            {!loading && !calendarEquipment.length ? <p className="text-sm text-neutral-500">Aucune machine à afficher.</p> : null}
+            {calendarEquipment.slice(0, 5).map((item) => (
+              <div key={item.slug} className="flex items-center justify-between gap-3 rounded-xl bg-neutral-50 p-3">
+                <span className="min-w-0">
+                  <span className="block truncate font-bold text-neutral-950">{item.title}</span>
+                  <span className="text-xs text-neutral-500">{item.city} · {statusLabels[item.status]}</span>
+                </span>
+                <span className="text-sm font-black text-orange-600">{formatDh(item.priceDay)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <h3 className="font-black text-neutral-950">Réservations</h3>
+          <div className="mt-4 grid gap-3">
+            {!loading && !calendarRentals.length ? <p className="text-sm text-neutral-500">Aucune date réservée.</p> : null}
+            {calendarRentals.slice(0, 4).map((rental) => (
+              <div key={rental.id} className="rounded-xl border border-orange-100 bg-orange-50 p-3">
+                <p className="font-black text-neutral-950">{rental.equipmentTitle}</p>
+                <p className="mt-1 text-sm text-neutral-600">{rental.period}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
