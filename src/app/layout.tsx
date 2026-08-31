@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { JsonLd, organizationJsonLd, siteDescription, siteName, siteUrl, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,20 +18,69 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://matli.ma"),
+  metadataBase: new URL(siteUrl),
+  applicationName: siteName,
+  authors: [{ name: siteName, url: siteUrl }],
+  creator: siteName,
+  publisher: siteName,
+  category: "marketplace",
+  keywords: [
+    "location matériel BTP Maroc",
+    "location tractopelle Maroc",
+    "location mini pelle Maroc",
+    "location JCB Maroc",
+    "engins chantier Maroc",
+    "machines BTP Casablanca",
+    "location chariot télescopique",
+    "location chargeuse",
+  ],
   title: {
     default: "Location de matériel BTP et engins au Maroc | MATLI",
     template: "%s | MATLI",
   },
-  description:
-    "Trouvez des engins et machines professionnelles disponibles à la location partout au Maroc. Tractopelles, mini-pelles, chariots télescopiques, chargeuses et plus.",
+  description: siteDescription,
+  alternates: {
+    canonical: "/",
+    languages: {
+      "fr-MA": "/",
+      fr: "/",
+    },
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "MATLI.ma",
-    description: "Louez. Gérez. Rentabilisez votre matériel.",
-    url: "https://matli.ma",
-    siteName: "MATLI",
+    title: "MATLI.ma - Location de matériel BTP au Maroc",
+    description: siteDescription,
+    url: siteUrl,
+    siteName,
     locale: "fr_MA",
     type: "website",
+    images: [
+      {
+        url: "/equipment/jcb-3cx-yard.png",
+        width: 1200,
+        height: 630,
+        alt: "Location de machines BTP au Maroc avec MATLI",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MATLI.ma - Location de matériel BTP au Maroc",
+    description: siteDescription,
+    images: ["/equipment/jcb-3cx-yard.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
   },
 };
 
@@ -41,6 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-neutral-50 text-neutral-950">
+        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <AuthProvider>
           <Header />
           <main>{children}</main>

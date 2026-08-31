@@ -1,4 +1,15 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
+export const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 type RequestOptions = RequestInit & {
   token?: string;
@@ -16,11 +27,11 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     },
   });
 
-  const payload = await response.json();
+  const payload = await response.json().catch(() => null);
 
   if (!response.ok || payload?.success === false) {
-    throw new Error(payload?.message ?? "Une erreur est survenue.");
+    throw new ApiError(payload?.message ?? "Une erreur est survenue.", response.status);
   }
 
-  return payload.data as T;
+  return (payload?.data ?? payload) as T;
 }

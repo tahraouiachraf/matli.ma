@@ -1,8 +1,9 @@
 import { MessageSquareText } from "lucide-react";
-import { clientRequests } from "@/lib/data";
+import { clientRequests as fallbackRequests } from "@/lib/data";
 import { formatDh } from "@/lib/format";
+import type { ClientRequest } from "@/types";
 
-export function RequestsPreviewSection() {
+export function RequestsPreviewSection({ requests = fallbackRequests }: { requests?: ClientRequest[] }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -15,7 +16,7 @@ export function RequestsPreviewSection() {
         </div>
       </div>
       <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {clientRequests.map((request) => (
+        {requests.map((request) => (
           <article key={request.id} className="rounded-md border border-neutral-200 bg-white p-5">
             <div className="flex items-center justify-between gap-3">
               <MessageSquareText className="text-orange-500" size={22} aria-hidden />

@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MATLI.ma Frontend
 
-## Getting Started
+MATLI.ma est une marketplace marocaine pour louer et déposer des machines BTP. Le frontend Next.js permet aux clients de rechercher du matériel, comparer les prix, consulter les propriétaires et accéder à un espace connecté pour suivre les locations.
 
-First, run the development server:
+## Fonctionnalités
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Accueil marketplace avec offres machines chargées depuis l’API Laravel.
+- Catalogue `/location` avec machines, catégories, villes et demandes clients.
+- Détail matériel `/materiel/[slug]`.
+- Page entreprise `/entreprise/[slug]`.
+- Authentification frontend via token Bearer Laravel.
+- Inscription propriétaire/client.
+- Espace connecté propriétaire/client protégé.
+- Pages d’erreurs professionnelles: 400, 403, 404, 500 et backend indisponible.
+
+## Stack technique
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS
+- Lucide React
+- API Laravel: `NEXT_PUBLIC_API_URL`
+
+## Structure
+
+```text
+src/app                 Routes Next.js
+src/components          UI, layout, dashboard, forms, marketplace
+src/components/errors   Composants pages erreurs
+src/services/api        Client API Laravel et mappers
+src/lib                 Données fallback et helpers
+src/types               Types métier frontend
+public/equipment        Images machines locales
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuration
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Créer un fichier `.env.local` si besoin:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+```
 
-## Learn More
+## Lancer le projet
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Frontend local:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+http://localhost:3000
+```
 
-## Deploy on Vercel
+## Backend requis
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Le backend Laravel doit tourner sur:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+http://127.0.0.1:8000/api
+```
+
+Commande côté backend:
+
+```bash
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+## Endpoints consommés
+
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+- `GET /api/categories`
+- `GET /api/equipment`
+- `GET /api/equipment/{slug}`
+- `GET /api/companies/{slug}`
+- `GET /api/marketplace/requests`
+- `GET /api/workspace/dashboard`
+
+## Vérification
+
+```bash
+npm run build
+```

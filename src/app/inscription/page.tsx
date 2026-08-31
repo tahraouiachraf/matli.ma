@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { cities } from "@/lib/data";
+import { RegisterForm } from "@/components/forms/RegisterForm";
 import { GoogleConnectButton } from "@/components/ui/GoogleConnectButton";
 
 export const metadata: Metadata = {
-  title: "Créer un compte",
-  description: "Créez un compte MATLI pour déposer vos machines ou réserver du matériel professionnel.",
+  title: "Créer un compte propriétaire ou client",
+  description: "Créez un compte MATLI pour publier vos machines BTP, recevoir des demandes ou réserver du matériel au Maroc.",
+  alternates: {
+    canonical: "/inscription",
+  },
 };
 
 export default function RegisterPage() {
@@ -28,40 +31,7 @@ export default function RegisterPage() {
           <span className="h-px flex-1 bg-neutral-200" />
         </div>
 
-        <form className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm font-semibold">
-            Nom complet
-            <input className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
-          </label>
-          <label className="grid gap-2 text-sm font-semibold">
-            Téléphone
-            <input className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
-          </label>
-          <label className="grid gap-2 text-sm font-semibold">
-            Email
-            <input type="email" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
-          </label>
-          <label className="grid gap-2 text-sm font-semibold">
-            Ville
-            <select defaultValue="" className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
-              <option value="" disabled>Choisir une ville</option>
-              {cities.map((city) => (
-                <option key={city}>{city}</option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold md:col-span-2">
-            Je suis
-            <select className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
-              <option>Propriétaire de machines</option>
-              <option>Client qui veut louer</option>
-              <option>Entreprise BTP</option>
-            </select>
-          </label>
-          <button className="h-12 rounded-md bg-orange-500 text-sm font-black text-white hover:bg-orange-600 md:col-span-2">
-            Créer mon compte
-          </button>
-        </form>
+        <RegisterForm />
 
         <p className="mt-5 text-sm text-neutral-600">
           Déjà inscrit ?{" "}

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bell,
   CalendarDays,
@@ -13,9 +15,12 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { clientRequests, equipment, rentalHistory } from "@/lib/data";
+import { useEffect, useState } from "react";
 import { formatDh } from "@/lib/format";
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { getMarketplaceRequestsStrict, getWorkspaceCollectionStrict, getWorkspaceEquipmentStrict, getWorkspaceReservationsStrict } from "@/services/api/matli";
+import type { ClientRequest, Equipment, RentalHistoryItem } from "@/types";
 
 export const ownerMenu: Array<[string, string, LucideIcon]> = [
   ["Tableau de bord", "/espace", LayoutDashboard],
@@ -41,27 +46,35 @@ type OwnerWorkspaceProps = {
 
 export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
   return (
-    <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-      <aside className="h-fit rounded-xl border border-neutral-200 bg-white p-3 shadow-sm lg:sticky lg:top-24">
-        <h1 className="px-3 py-2 text-lg font-black">Espace propriétaire</h1>
-        <nav className="mt-2 grid gap-1" aria-label="Menu espace propriétaire">
+    <section className="mx-auto grid max-w-7xl grid-cols-[72px_minmax(0,1fr)] gap-3 px-3 py-5 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">
+      <aside className="sticky top-20 h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-sm sm:p-3 lg:top-24">
+        <div className="mb-2 hidden px-3 py-2 sm:block">
+          <h1 className="text-lg font-black text-neutral-950">Espace propriétaire</h1>
+          <p className="mt-1 text-xs font-semibold text-neutral-500">Gestion du parc</p>
+        </div>
+        <div className="mb-2 grid place-items-center rounded-xl bg-orange-50 py-3 sm:hidden">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 font-black text-white">M</span>
+        </div>
+        <nav className="grid max-h-[calc(100dvh-10rem)] gap-1 overflow-y-auto pr-0.5" aria-label="Menu espace propriétaire">
           {ownerMenu.map(([label, href, Icon]) => (
             <Link
               key={href}
-              className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition ${
+              title={label}
+              aria-label={label}
+              className={`flex h-11 items-center justify-center gap-3 rounded-xl px-2 text-sm font-semibold transition sm:justify-start sm:px-3 ${
                 href === activeHref
-                  ? "bg-orange-50 text-orange-700"
-                  : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950"
+                  ? "bg-orange-50 text-orange-700 shadow-sm shadow-orange-950/5"
+                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950"
               }`}
               href={href}
             >
-              <Icon size={17} aria-hidden />
-              {label}
+              <Icon className="h-5 w-5 shrink-0" aria-hidden />
+              <span className="hidden min-w-0 truncate sm:inline">{label}</span>
             </Link>
           ))}
         </nav>
       </aside>
-      <div className="min-w-0">{children}</div>
+      <div className="min-w-0 overflow-hidden">{children}</div>
     </section>
   );
 }
@@ -69,11 +82,11 @@ export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
 export function DashboardHome() {
   return (
     <>
-      <h2 className="text-3xl font-black">Tableau de bord</h2>
-      <p className="mt-3 text-neutral-600">
+      <h2 className="text-2xl font-black text-neutral-950 sm:text-3xl">Tableau de bord</h2>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 sm:text-base">
         Vue de pilotage pour comprendre immédiatement l&apos;état du parc, les retards, les paiements et la maintenance.
       </p>
-      <div className="mt-8">
+      <div className="mt-5 sm:mt-8">
         <OwnerPreview />
       </div>
     </>
@@ -81,66 +94,133 @@ export function DashboardHome() {
 }
 
 export function OwnerSectionContent({ section }: { section: string }) {
+  const { token } = useAuth();
+  const [workspaceEquipment, setWorkspaceEquipment] = useState<Equipment[] | null>(null);
+  const [workspaceRentals, setWorkspaceRentals] = useState<RentalHistoryItem[] | null>(null);
+  const [marketplaceRequests, setMarketplaceRequests] = useState<ClientRequest[] | null>(null);
+  const [workspaceItems, setWorkspaceItems] = useState<Record<string, unknown>[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setApiError(null);
+    setWorkspaceItems(null);
+
+    async function loadSection() {
+      try {
+        if (section === "materiel") {
+          const payload = await getWorkspaceEquipmentStrict(token);
+          if (mounted) setWorkspaceEquipment(payload);
+        } else if (section === "locations") {
+          const payload = await getWorkspaceReservationsStrict(token);
+          if (mounted) setWorkspaceRentals(payload);
+        } else if (section === "demandes") {
+          const payload = await getMarketplaceRequestsStrict();
+          if (mounted) setMarketplaceRequests(payload);
+        } else {
+          const endpointBySection: Record<string, string> = {
+            maintenance: "maintenance",
+            operateurs: "operators",
+            finances: "finances",
+            documents: "documents",
+            notifications: "notifications",
+          };
+          const endpoint = endpointBySection[section];
+          const payload = endpoint ? await getWorkspaceCollectionStrict<Record<string, unknown>>(endpoint, token) : [];
+          if (mounted) setWorkspaceItems(payload);
+        }
+      } catch {
+        if (mounted) setApiError("Merci de réessayer plus tard");
+      }
+
+      if (mounted) setLoading(false);
+    }
+
+    loadSection();
+
+    return () => {
+      mounted = false;
+    };
+  }, [section, token]);
+
   if (section === "materiel") {
+    const items = workspaceEquipment ?? [];
+
     return (
       <DashboardPanel
         title="Mon matériel"
         description="Liste des machines publiées avec prix, ville, disponibilité et actions rapides."
+        loading={loading}
       >
-        <div className="grid gap-4">
-          {equipment.map((item) => (
-            <div key={item.id} className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-4 md:grid-cols-[140px_1fr_auto] md:items-center">
-              <div className="h-28 rounded-md bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} />
+        {apiError ? <InlineApiError /> : null}
+        {!apiError && items.length ? (
+          <div className="grid gap-4">
+            {items.map((item) => (
+            <div key={item.id} className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-3 sm:p-4 md:grid-cols-[140px_1fr_auto] md:items-center">
+              <div className="h-28 rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} />
               <div>
-                <h3 className="text-xl font-black">{item.title}</h3>
+                <h3 className="text-lg font-black sm:text-xl">{item.title}</h3>
                 <p className="mt-1 text-sm text-neutral-600">
                   {item.category} · {item.city} · {item.brand} {item.model}
                 </p>
                 <p className="mt-2 text-sm font-bold text-orange-600">{formatDh(item.priceDay)} / jour</p>
               </div>
-              <div className="flex gap-2 md:grid">
-                <button className="rounded-md bg-neutral-950 px-4 py-2 text-sm font-black text-white">Modifier</button>
-                <button className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-bold">Disponibilité</button>
+              <div className="grid gap-2 sm:flex md:grid">
+                <button className="rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white">Modifier</button>
+                <button className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-bold">Disponibilité</button>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : !apiError ? (
+          <EmptyApiState loading={loading} label="Aucune machine trouvée dans votre compte." />
+        ) : null}
       </DashboardPanel>
     );
   }
 
   if (section === "locations") {
+    const rows = (workspaceRentals ?? []).map((rental) => [
+      rental.id,
+      rental.equipmentTitle,
+      rental.period,
+      rental.city,
+      formatDh(rental.total),
+      rental.status,
+    ]);
+
     return (
-      <DashboardPanel title="Locations" description="Suivez les locations en cours, terminées et réservées.">
-        <DashboardTable
-          headers={["Référence", "Machine", "Période", "Ville", "Montant", "Statut"]}
-          rows={rentalHistory.map((rental) => [
-            rental.id,
-            rental.equipmentTitle,
-            rental.period,
-            rental.city,
-            formatDh(rental.total),
-            rental.status,
-          ])}
-        />
+      <DashboardPanel title="Locations" description="Suivez les locations en cours, terminées et réservées." loading={loading}>
+        {apiError ? <InlineApiError /> : null}
+        {!apiError && rows.length ? (
+          <DashboardTable headers={["Référence", "Machine", "Période", "Ville", "Montant", "Statut"]} rows={rows} />
+        ) : !apiError ? (
+          <EmptyApiState loading={loading} label="Aucune réservation trouvée pour le moment." />
+        ) : null}
       </DashboardPanel>
     );
   }
 
   if (section === "demandes") {
+    const rows = (marketplaceRequests ?? []).map((request) => [
+      request.id,
+      request.machine,
+      request.city,
+      request.dateRange,
+      `${formatDh(request.budgetDay)} / jour`,
+      request.status,
+    ]);
+
     return (
-      <DashboardPanel title="Demandes" description="Demandes clients reçues depuis la marketplace.">
-        <DashboardTable
-          headers={["Référence", "Machine", "Ville", "Durée", "Budget", "Statut"]}
-          rows={clientRequests.map((request) => [
-            request.id,
-            request.machine,
-            request.city,
-            request.dateRange,
-            `${formatDh(request.budgetDay)} / jour`,
-            request.status,
-          ])}
-        />
+      <DashboardPanel title="Demandes" description="Demandes clients reçues depuis la marketplace." loading={loading}>
+        {apiError ? <InlineApiError /> : null}
+        {!apiError && rows.length ? (
+          <DashboardTable headers={["Référence", "Machine", "Ville", "Durée", "Budget", "Statut"]} rows={rows} />
+        ) : !apiError ? (
+          <EmptyApiState loading={loading} label="Aucune demande client trouvée pour le moment." />
+        ) : null}
       </DashboardPanel>
     );
   }
@@ -159,44 +239,118 @@ export function OwnerSectionContent({ section }: { section: string }) {
   };
 
   const [title, description, items] = fallbackContent[section] ?? fallbackContent.parametres;
+  const apiItems = workspaceItems ?? [];
+  const hasApiEndpoint = ["maintenance", "operateurs", "finances", "documents", "notifications"].includes(section);
 
   return (
-    <DashboardPanel title={title} description={description}>
-      <div className="grid gap-3 md:grid-cols-3">
-        {items.map((item) => (
-          <div key={item} className="rounded-xl border border-neutral-200 bg-white p-5">
-            <p className="font-bold text-neutral-950">{item}</p>
-            <p className="mt-2 text-sm text-neutral-600">Donnée statique prête à connecter avec l’API Laravel.</p>
+    <DashboardPanel title={title} description={description} loading={hasApiEndpoint ? loading : false}>
+      {hasApiEndpoint ? (
+        apiError ? (
+          <InlineApiError />
+        ) : apiItems.length ? (
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {apiItems.slice(0, 9).map((item, index) => (
+              <ApiSummaryCard key={String(item.id ?? index)} item={item} />
+            ))}
           </div>
-        ))}
-      </div>
+        ) : (
+          <EmptyApiState loading={loading} label="Aucune information trouvée pour cette rubrique." />
+        )
+      ) : (
+        <div className="grid gap-3 md:grid-cols-3">
+          {items.map((item) => (
+            <div key={item} className="rounded-xl border border-neutral-200 bg-white p-5">
+              <p className="font-bold text-neutral-950">{item}</p>
+              <p className="mt-2 text-sm text-neutral-600">Rubrique prête pour une prochaine synchronisation.</p>
+            </div>
+          ))}
+        </div>
+      )}
     </DashboardPanel>
+  );
+}
+
+function InlineApiError() {
+  return (
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+      <p className="font-black text-red-700">Merci de réessayer plus tard</p>
+      <p className="mt-2 text-sm leading-6 text-red-700/80">
+        Nous n'arrivons pas à afficher ces données pour le moment.
+      </p>
+    </div>
   );
 }
 
 function DashboardPanel({
   children,
   description,
+  loading = false,
   title,
 }: {
   children: React.ReactNode;
   description: string;
+  loading?: boolean;
   title: string;
 }) {
   return (
     <div>
-      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-8 md:flex-row md:items-end">
         <div>
-          <h2 className="text-3xl font-black text-neutral-950">{title}</h2>
-          <p className="mt-3 max-w-2xl text-neutral-600">{description}</p>
+          <h2 className="text-2xl font-black text-neutral-950 sm:text-3xl">{title}</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">{description}</p>
         </div>
-        <button className="h-11 rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
-          Nouvelle action
+        <button className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
+          {loading ? "Chargement..." : "Nouvelle action"}
         </button>
       </div>
       {children}
     </div>
   );
+}
+
+function EmptyApiState({ label, loading }: { label: string; loading: boolean }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-6 text-center">
+      <p className="font-black text-neutral-950">{loading ? "Chargement en cours..." : label}</p>
+      <p className="mt-2 text-sm leading-6 text-neutral-600">
+        {loading
+          ? "Chargement des informations en cours."
+          : "Ajoutez des données depuis votre espace admin ou réessayez plus tard."}
+      </p>
+    </div>
+  );
+}
+
+function ApiSummaryCard({ item }: { item: Record<string, unknown> }) {
+  const title =
+    stringValue(item.title) ??
+    stringValue(item.name) ??
+    stringValue(item.reference) ??
+    stringValue(item.type) ??
+    "Information";
+  const status = stringValue(item.status) ?? stringValue(item.method) ?? stringValue(item.category) ?? "Info";
+  const date = stringValue(item.created_at) ?? stringValue(item.scheduled_at) ?? stringValue(item.paid_at);
+  const amount = numberValue(item.amount) ?? numberValue(item.total_amount) ?? numberValue(item.cost);
+
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-black text-neutral-950">{title}</p>
+        <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">{status}</span>
+      </div>
+      {date ? <p className="mt-3 text-sm font-semibold text-neutral-500">{date}</p> : null}
+      {amount ? <p className="mt-3 text-lg font-black text-neutral-950">{formatDh(amount)}</p> : null}
+      <p className="mt-3 text-sm leading-6 text-neutral-600">Information synchronisée avec votre espace de gestion.</p>
+    </div>
+  );
+}
+
+function stringValue(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function numberValue(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function DashboardTable({ headers, rows }: { headers: string[]; rows: string[][] }) {

@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { demoAccount } from "@/lib/data";
 
 export function AuthNav({
   compact = false,
@@ -17,13 +16,13 @@ export function AuthNav({
   mobile?: boolean;
   onNavigate?: () => void;
 }) {
-  const { connected, ready, logout: logoutFromProvider } = useAuth();
+  const { connected, ready, user, logout: logoutFromProvider } = useAuth();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
-  function logout() {
-    logoutFromProvider();
+  async function logout() {
+    await logoutFromProvider();
     setOpen(false);
     onNavigate?.();
     router.push("/connexion");
@@ -65,15 +64,15 @@ export function AuthNav({
             <div className="mt-2 grid gap-1 rounded-md border border-neutral-200 bg-neutral-50 p-2">
               <div className="flex items-center gap-3 px-2 py-2">
                 <div className="grid size-9 shrink-0 place-items-center rounded-full bg-orange-500 text-sm font-black text-white">
-                  {demoAccount.name
+                  {(user?.name ?? "Compte MATLI")
                     .split(" ")
                     .map((part) => part[0])
                     .slice(0, 2)
                     .join("")}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-neutral-950">{demoAccount.name}</p>
-                  <p className="truncate text-xs text-neutral-500">{demoAccount.email}</p>
+                  <p className="truncate text-sm font-black text-neutral-950">{user?.name ?? "Compte MATLI"}</p>
+                  <p className="truncate text-xs text-neutral-500">{user?.email ?? ""}</p>
                 </div>
               </div>
               {accountLinks.map(([Icon, label, href]) => (
@@ -114,7 +113,7 @@ export function AuthNav({
           aria-haspopup="menu"
         >
           <span className="grid size-8 place-items-center rounded-full bg-orange-500 text-xs font-black text-white">
-            {demoAccount.name
+            {(user?.name ?? "Compte MATLI")
               .split(" ")
               .map((part) => part[0])
               .slice(0, 2)
@@ -126,10 +125,10 @@ export function AuthNav({
         {open ? (
           <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-72 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-2xl shadow-neutral-950/15" role="menu">
             <div className="border-b border-neutral-100 p-4">
-              <p className="font-black text-neutral-950">{demoAccount.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">{demoAccount.email}</p>
+              <p className="font-black text-neutral-950">{user?.name ?? "Compte MATLI"}</p>
+              <p className="mt-1 text-sm text-neutral-500">{user?.email ?? ""}</p>
               <p className="mt-2 w-fit rounded-md bg-orange-50 px-2 py-1 text-xs font-black text-orange-700">
-                {demoAccount.company}
+                {user?.company_name ?? user?.role ?? "Compte connecté"}
               </p>
             </div>
             <div className="grid p-2">

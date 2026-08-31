@@ -23,7 +23,7 @@ export default function HowItWorksPage() {
           <p className="font-bold text-orange-600">Conseils pratiques</p>
           <h1 className="mt-2 text-4xl font-black text-neutral-950">Louer ou publier une machine sans perdre du temps.</h1>
           <p className="mt-4 text-lg leading-8 text-neutral-600">
-            Cette page remplace l&apos;ancien guide séparé. Elle regroupe le workflow MATLI et les conseils essentiels pour préparer les futures pages API et SEO.
+            Cette page remplace l&apos;ancien guide séparé. Elle regroupe le workflow MATLI et les conseils essentiels pour préparer les futures pages utiles au référencement.
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:grid-cols-2">
