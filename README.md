@@ -39,7 +39,11 @@ public/equipment        Images machines locales
 Créer un fichier `.env.local` si besoin:
 
 ```env
+# Local:
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+
+# Production:
+NEXT_PUBLIC_API_URL=https://portail.joblik.ma/api
 ```
 
 ## Lancer le projet
