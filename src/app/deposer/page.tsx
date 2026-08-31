@@ -21,7 +21,7 @@ export default function DepositPage() {
           <p className="font-bold text-orange-600">Publication rapide</p>
           <h1 className="mt-2 text-4xl font-black">Ajoutez votre machine à louer.</h1>
           <p className="mt-4 text-neutral-600">
-            Ce formulaire est statique pour l’instant. Il prépare exactement les champs que l’API Laravel recevra ensuite: propriétaire, machine, ville, prix, options, photos et disponibilité.
+            Ce formulaire prépare les informations nécessaires pour publier une machine: propriétaire, machine, ville, prix, options, photos et disponibilité.
           </p>
         </div>
         <DepositMachineForm />

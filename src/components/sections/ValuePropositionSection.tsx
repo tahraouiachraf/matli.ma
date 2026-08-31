@@ -11,7 +11,7 @@ const clientBenefits: Array<[LucideIcon, string, string]> = [
 
 const ownerBenefits: Array<[LucideIcon, string, string]> = [
   [BadgeCheck, "Présenter un parc crédible", "Photos, modèle, année, état, prix, ville et options visibles sur une fiche propre."],
-  [FileCheck2, "Préparer la gestion API", "Machines, devis, contrats, factures et maintenance déjà structurés côté interface."],
+  [FileCheck2, "Préparer la gestion", "Machines, devis, contrats, factures et maintenance déjà structurés côté interface."],
   [ShieldCheck, "Garder le contrôle", "Le propriétaire confirme les demandes et évite les locations non vérifiées."],
 ];
 

@@ -2,12 +2,43 @@
 
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react";
 import { demoAccount } from "@/lib/data";
+import { apiRequest } from "@/services/api/client";
+
+type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  phone?: string | null;
+  company_name?: string | null;
+  city?: string | null;
+};
 
 type AuthContextValue = {
   connected: boolean;
   ready: boolean;
-  loginDemo: () => void;
-  logout: () => void;
+  user: AuthUser | null;
+  token: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
+  loginDemo: () => Promise<void>;
+  logout: () => Promise<void>;
+};
+
+type AuthPayload = {
+  access_token: string;
+  token_type: "Bearer";
+  user: AuthUser;
+};
+
+type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  city?: string;
+  company_name?: string;
+  account_type: "owner" | "client";
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -27,7 +58,7 @@ function getConnectedSnapshot() {
     return false;
   }
 
-  return window.localStorage.getItem("matli-authenticated") === "true";
+  return Boolean(window.localStorage.getItem("matli-api-token"));
 }
 
 function getServerConnectedSnapshot() {
@@ -49,23 +80,57 @@ function getServerReadySnapshot() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const connected = useSyncExternalStore(subscribeAuth, getConnectedSnapshot, getServerConnectedSnapshot);
   const ready = useSyncExternalStore(subscribeReady, getReadySnapshot, getServerReadySnapshot);
+  const token = typeof window === "undefined" ? null : window.localStorage.getItem("matli-api-token");
+  const user = typeof window === "undefined" ? null : JSON.parse(window.localStorage.getItem("matli-user") ?? "null") as AuthUser | null;
+
+  function persistAuth(payload: AuthPayload) {
+    window.localStorage.setItem("matli-api-token", payload.access_token);
+    window.localStorage.setItem("matli-user", JSON.stringify(payload.user));
+    window.localStorage.setItem("matli-authenticated", "true");
+    window.dispatchEvent(new Event("matli-auth-change"));
+  }
 
   const value = useMemo<AuthContextValue>(
     () => ({
       connected,
       ready,
-      loginDemo() {
-        window.localStorage.setItem("matli-authenticated", "true");
-        window.localStorage.setItem("matli-demo-account", JSON.stringify(demoAccount));
-        window.dispatchEvent(new Event("matli-auth-change"));
+      user,
+      token,
+      async login(email: string, password: string) {
+        const payload = await apiRequest<AuthPayload>("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+        });
+        persistAuth(payload);
       },
-      logout() {
+      async register(payload: RegisterPayload) {
+        const response = await apiRequest<AuthPayload>("/auth/register", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        persistAuth(response);
+      },
+      async loginDemo() {
+        const payload = await apiRequest<AuthPayload>("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email: demoAccount.email, password: demoAccount.password }),
+        });
+        persistAuth(payload);
+        window.localStorage.setItem("matli-demo-account", JSON.stringify(demoAccount));
+      },
+      async logout() {
+        const currentToken = window.localStorage.getItem("matli-api-token");
+        if (currentToken) {
+          await apiRequest("/auth/logout", { method: "POST", token: currentToken }).catch(() => null);
+        }
         window.localStorage.removeItem("matli-authenticated");
         window.localStorage.removeItem("matli-demo-account");
+        window.localStorage.removeItem("matli-api-token");
+        window.localStorage.removeItem("matli-user");
         window.dispatchEvent(new Event("matli-auth-change"));
       },
     }),
-    [connected, ready],
+    [connected, ready, token, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

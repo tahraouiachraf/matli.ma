@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, MessageCircle, Share2, Truck, UserRoundCheck } from "lucide-react";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { equipment, statusLabels } from "@/lib/data";
+import { statusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
+import { JsonLd, absoluteUrl, equipmentJsonLd } from "@/lib/seo";
+import { ApiError } from "@/services/api/client";
+import { getEquipmentDetailStrict } from "@/services/api/matli";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -11,24 +14,45 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = equipment.find((entry) => entry.slug === slug);
+  const item = await getEquipmentDetailStrict(slug).catch(() => null);
 
   if (!item) return {};
 
   return {
-    title: `${item.title} à louer à ${item.city}`,
+    title: `${item.title} à louer à ${item.city} - ${formatDh(item.priceDay)}/jour`,
     description: `${item.title}, ${item.brand} ${item.model}, disponible à la location à ${item.city}. Demandez une location ou un devis sur MATLI.`,
+    alternates: {
+      canonical: `/materiel/${item.slug}`,
+    },
+    openGraph: {
+      title: `${item.title} à louer à ${item.city}`,
+      description: `${item.brand} ${item.model} à ${formatDh(item.priceDay)}/jour. ${statusLabels[item.status]} sur MATLI.`,
+      url: `/materiel/${item.slug}`,
+      type: "website",
+      images: [
+        {
+          url: item.image.startsWith("http") ? item.image : absoluteUrl(item.image),
+          width: 1200,
+          height: 630,
+          alt: `${item.title} à louer à ${item.city}`,
+        },
+      ],
+    },
   };
 }
 
 export default async function EquipmentDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const item = equipment.find((entry) => entry.slug === slug);
+  const item = await getEquipmentDetailStrict(slug).catch((error) => {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  });
 
   if (!item) notFound();
 
   return (
     <div className="bg-white">
+      <JsonLd data={equipmentJsonLd(item)} />
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>
           <div className="h-[420px] rounded-md bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} />

@@ -8,22 +8,30 @@ import { ClientDemandSection } from "@/components/sections/ClientDemandSection";
 import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
 import { MachinesSection } from "@/components/sections/MachinesSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
-import { SeoPagesSection } from "@/components/sections/SeoPagesSection";
 import { ValuePropositionSection } from "@/components/sections/ValuePropositionSection";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { equipment } from "@/lib/data";
+import { JsonLd, marketplaceJsonLd } from "@/lib/seo";
+import { getEquipmentListStrict, getMarketplaceRequestsStrict } from "@/services/api/matli";
 
 const trustItems: Array<[LucideIcon, string, string]> = [
   [Building2, "Propriétaires visibles", "Chaque parc peut afficher machines, ville, prix, options et contact."],
   [CalendarCheck, "Disponibilité lisible", "Le client comprend rapidement si la machine est libre, réservée ou en maintenance."],
   [ShieldCheck, "Demandes qualifiées", "Budget, durée, chantier et téléphone avant de mobiliser la machine."],
-  [BadgeCheck, "Prêt pour API Laravel", "Données statiques structurées pour brancher utilisateurs, réservations et devis."],
+  [BadgeCheck, "Données structurées", "Machines, demandes, réservations et devis suivent une logique claire pour préparer le lancement."],
 ];
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const [equipment, requests] = await Promise.all([
+    getEquipmentListStrict({ perPage: 6 }),
+    getMarketplaceRequestsStrict(),
+  ]);
+
   return (
     <>
+      <JsonLd data={marketplaceJsonLd()} />
       <section className="bg-neutral-100 px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 px-5 py-8 text-white shadow-2xl shadow-orange-950/20 sm:px-8 md:px-12 lg:py-14">
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
@@ -133,8 +141,7 @@ export default function Home() {
       </section>
 
       <DepositSection />
-      <RequestsPreviewSection />
-      <SeoPagesSection />
+      <RequestsPreviewSection requests={requests} />
 
       <section id="proprietaires" className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
         <div>

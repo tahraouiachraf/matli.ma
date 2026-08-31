@@ -36,6 +36,7 @@ export type Equipment = {
   image: string;
   companySlug: string;
   companyName: string;
+  companyVerified?: boolean;
   description: string;
   specs: string[];
 };
