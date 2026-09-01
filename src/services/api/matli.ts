@@ -92,10 +92,10 @@ type WorkspaceDashboard = {
 };
 
 const imageFallbacks = [
-  "/equipment/jcb-3cx-yard.png",
-  "/equipment/jcb-3cx-studio.png",
-  "/equipment/jcb-telescopic-site.png",
-  "/equipment/jcb-excavator-quarry.png",
+  "/equipment/jcb-3cx-yard.jpg",
+  "/equipment/jcb-3cx-studio.jpg",
+  "/equipment/jcb-telescopic-site.jpg",
+  "/equipment/jcb-excavator-quarry.jpg",
 ];
 
 const statusMap: Record<ApiEquipment["status"], Equipment["status"]> = {
@@ -117,8 +117,13 @@ const requestStatusMap: Record<ApiRentalRequest["status"], ClientRequest["status
 function localImage(url: string | null | undefined, index = 0) {
   if (!url) return imageFallbacks[index % imageFallbacks.length];
   if (url.includes("default-machine")) return imageFallbacks[index % imageFallbacks.length];
-  if (url.startsWith("/storage/")) return `${API_ORIGIN}${url}`;
-  return url;
+  const optimizedUrl = url
+    .replace("jcb-3cx-yard.png", "jcb-3cx-yard.jpg")
+    .replace("jcb-3cx-studio.png", "jcb-3cx-studio.jpg")
+    .replace("jcb-telescopic-site.png", "jcb-telescopic-site.jpg")
+    .replace("jcb-excavator-quarry.png", "jcb-excavator-quarry.jpg");
+  if (optimizedUrl.startsWith("/storage/")) return `${API_ORIGIN}${optimizedUrl}`;
+  return optimizedUrl;
 }
 
 function dateRange(start?: string | null, end?: string | null) {

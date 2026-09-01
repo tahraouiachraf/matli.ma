@@ -137,7 +137,7 @@ export function DepositMachineForm({ onCreated }: DepositMachineFormProps) {
       </div>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Image URL
-        <input name="image_url" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="/equipment/jcb-3cx-yard.png" />
+        <input name="image_url" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="/equipment/jcb-3cx-yard.jpg" />
       </label>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description

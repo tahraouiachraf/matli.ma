@@ -36,7 +36,7 @@ export function DepositSection() {
             className="h-64 rounded-md bg-cover bg-center sm:h-80"
             style={{
               backgroundImage:
-                "url(/equipment/jcb-3cx-yard.png)",
+                "url(/equipment/jcb-3cx-yard.jpg)",
             }}
           />
           <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">

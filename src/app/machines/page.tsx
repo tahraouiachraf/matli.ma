@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     title: "Machines BTP à louer au Maroc | MATLI",
     description: "Découvrez les principales catégories de machines BTP disponibles à la location au Maroc.",
     url: "/machines",
-    images: ["/equipment/jcb-excavator-quarry.png"],
+    images: ["/equipment/jcb-excavator-quarry.jpg"],
   },
 };
 

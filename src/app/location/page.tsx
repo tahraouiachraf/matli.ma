@@ -40,7 +40,7 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
       description: "Trouvez des machines BTP disponibles, comparez les prix et contactez les propriétaires au Maroc.",
       url: canonical,
       type: "website",
-      images: ["/equipment/jcb-3cx-yard.png"],
+      images: ["/equipment/jcb-3cx-yard.jpg"],
     },
   };
 }
