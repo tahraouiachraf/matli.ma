@@ -5,7 +5,6 @@ export function HeroMachineAnimation() {
       <svg
         viewBox="0 0 720 460"
         className="absolute inset-0 h-full w-full hero-machine"
-        role="img"
       >
         <defs>
           <linearGradient id="machineBody" x1="0" x2="1" y1="0" y2="1">

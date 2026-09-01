@@ -2,7 +2,6 @@ import { BadgeCheck, Building2, CalendarCheck, Search, ShieldCheck } from "lucid
 import type { LucideIcon } from "lucide-react";
 import { HeroMachineAnimation } from "@/components/hero/HeroMachineAnimation";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
-import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { ClientDemandSection } from "@/components/sections/ClientDemandSection";
 import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
@@ -108,7 +107,7 @@ export default async function Home() {
             <div key={title} className="flex gap-3">
               <Icon className="mt-1 text-amber-700" size={22} aria-hidden />
               <div>
-                <h3 className="font-bold text-neutral-950">{title}</h3>
+                <p className="font-bold text-neutral-950">{title}</p>
                 <p className="mt-1 text-sm leading-6 text-neutral-600">{text}</p>
               </div>
             </div>
@@ -157,7 +156,33 @@ export default async function Home() {
             </ButtonLink>
           </div>
         </div>
-        <OwnerPreview />
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl shadow-neutral-950/5">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              ["Machines publiées", String(equipment.length || 0), "offres visibles"],
+              ["Demandes clients", String(requests.length || 0), "besoins qualifiés"],
+              ["Réservations", "API", "suivi propriétaire"],
+              ["Finances", "MAD", "paiements et cautions"],
+            ].map(([label, value, helper]) => (
+              <div key={label} className="rounded-xl bg-neutral-50 p-4">
+                <p className="text-xs font-bold uppercase text-neutral-500">{label}</p>
+                <p className="mt-2 text-2xl font-black text-neutral-950">{value}</p>
+                <p className="mt-1 text-xs font-semibold text-orange-700">{helper}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-xl border border-neutral-200 p-4">
+            <h3 className="font-black text-neutral-950">Pilotage propriétaire</h3>
+            <div className="mt-4 grid gap-3">
+              {["Matériel publié", "Demandes reçues", "Calendrier réservé"].map((label, index) => (
+                <div key={label} className="flex items-center justify-between gap-3 rounded-xl bg-orange-50 p-3">
+                  <span className="font-bold text-neutral-950">{label}</span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-orange-700">{index + 1}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       <HowItWorksSection />

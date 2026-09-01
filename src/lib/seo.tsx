@@ -81,6 +81,39 @@ export function equipmentJsonLd(item: Equipment) {
       priceCurrency: "MAD",
       availability: item.status === "AVAILABLE" ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
       url: absoluteUrl(`/materiel/${item.slug}`),
+      itemCondition: "https://schema.org/UsedCondition",
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: item.delivery ? 0 : 0,
+          currency: "MAD",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "MA",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: item.delivery ? 1 : 0,
+            maxValue: item.delivery ? 3 : 0,
+            unitCode: "DAY",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "MA",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+      },
       seller: {
         "@type": "Organization",
         name: item.companyName,
