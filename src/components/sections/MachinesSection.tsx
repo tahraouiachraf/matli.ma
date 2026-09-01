@@ -1,7 +1,11 @@
 import { CategoryGrid } from "@/components/marketplace/CategoryGrid";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { categories as fallbackCategories } from "@/lib/data";
+import { getCategoriesStrict } from "@/services/api/matli";
 
-export function MachinesSection() {
+export async function MachinesSection() {
+  const categories = await getCategoriesStrict().catch(() => fallbackCategories);
+
   return (
     <section id="categories" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <SectionHeading
@@ -10,7 +14,7 @@ export function MachinesSection() {
         description="Une taxonomie simple pour les besoins terrain: terrassement, levage, manutention, travaux publics et chargement. Chaque catégorie pourra ensuite recevoir ses propres filtres avancés."
       />
       <div className="mt-10">
-        <CategoryGrid />
+        <CategoryGrid items={categories} />
       </div>
     </section>
   );

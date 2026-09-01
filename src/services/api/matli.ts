@@ -63,12 +63,16 @@ type ApiRentalRequest = {
   date_start?: string | null;
   date_end?: string | null;
   budget_day: number | null;
+  client_name?: string | null;
+  client_phone?: string | null;
+  client_email?: string | null;
   status: "open" | "quoted" | "reserved" | "closed" | "cancelled";
 };
 
 type ApiReservation = {
   id: string;
   reference: string;
+  client_name?: string | null;
   date_start: string;
   date_end: string;
   total_amount: number;
@@ -130,6 +134,7 @@ function listData<T>(payload: ApiListResponse<T>) {
 export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
   return {
     id: Number.parseInt(item.id.replace(/\D/g, "").slice(0, 8), 10) || index + 1,
+    backendId: item.id,
     slug: item.slug,
     title: item.title,
     category: item.category?.name ?? "Machine BTP",
@@ -227,8 +232,9 @@ export function getEquipmentListStrict(params?: { perPage?: number; city?: strin
 function mapRental(reservation: ApiReservation): RentalHistoryItem {
   return {
     id: reservation.reference,
+    backendId: reservation.id,
     equipmentTitle: reservation.equipment?.title ?? "Machine BTP",
-    companyName: "MATLI.ma",
+    companyName: reservation.client_name ?? "Client réservation",
     city: reservation.equipment?.city ?? "Maroc",
     period: dateRange(reservation.date_start, reservation.date_end),
     total: reservation.total_amount,
@@ -256,6 +262,95 @@ export function getWorkspaceEquipmentStrict(token?: string | null) {
   return apiRequest<ApiListResponse<ApiEquipment>>("/workspace/equipment?per_page=30", { token }).then((payload) => listData(payload).map(mapEquipment));
 }
 
+export type CreateEquipmentPayload = {
+  category_slug: string;
+  title: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  city: string;
+  region?: string;
+  price_day: number;
+  price_week?: number;
+  status: ApiEquipment["status"];
+  image_url?: string;
+  description?: string;
+  operator_available?: boolean;
+  delivery_available?: boolean;
+  is_sponsored?: boolean;
+  specs?: string[];
+};
+
+export function createWorkspaceEquipment(payload: CreateEquipmentPayload, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+
+  return apiRequest<ApiEquipment>("/workspace/equipment", {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  }).then((item) => mapEquipment(item));
+}
+
+export type CreateReservationPayload = {
+  equipment_id: string;
+  date_start: string;
+  date_end: string;
+  client_name: string;
+  client_phone: string;
+  notes?: string;
+};
+
+export function createReservation(payload: CreateReservationPayload) {
+  return apiRequest<{
+    id: string;
+    reference: string;
+    status: ApiReservation["status"];
+    total_amount: number;
+    message: string;
+  }>("/reservations", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export type CreateRentalRequestPayload = {
+  machine: string;
+  city: string;
+  date_start?: string;
+  date_end?: string;
+  budget_day?: number;
+  client_name: string;
+  client_phone: string;
+  client_email?: string;
+  message?: string;
+};
+
+export function createRentalRequest(payload: CreateRentalRequestPayload) {
+  return apiRequest<{
+    id: string;
+    reference: string;
+    status: ApiRentalRequest["status"];
+    message: string;
+  }>("/rental-requests", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }).then((response) =>
+    mapRequest({
+      id: response.id,
+      reference: response.reference,
+      machine: payload.machine,
+      city: payload.city,
+      date_start: payload.date_start,
+      date_end: payload.date_end,
+      budget_day: payload.budget_day ?? null,
+      client_name: payload.client_name,
+      client_phone: payload.client_phone,
+      client_email: payload.client_email,
+      status: response.status,
+    }),
+  );
+}
+
 export function getWorkspaceReservations(token?: string | null) {
   if (!token) return Promise.resolve<RentalHistoryItem[]>([]);
 
@@ -278,6 +373,37 @@ export function getWorkspaceCollectionStrict<T = Record<string, unknown>>(endpoi
   if (!token) return Promise.resolve<T[]>([]);
 
   return apiRequest<T[] | LaravelPaginator<T>>(`/workspace/${endpoint}`, { token }).then((payload) => Array.isArray(payload) ? payload : payload.data);
+}
+
+export type WorkspaceCrudPayload = Record<string, string | number | boolean | null | undefined>;
+
+export function createWorkspaceItem<T = Record<string, unknown>>(endpoint: string, payload: WorkspaceCrudPayload, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+
+  return apiRequest<T>(`/workspace/${endpoint}`, {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateWorkspaceItem<T = Record<string, unknown>>(endpoint: string, id: string, payload: WorkspaceCrudPayload, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+
+  return apiRequest<T>(`/workspace/${endpoint}/${id}`, {
+    method: "PUT",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteWorkspaceItem(endpoint: string, id: string, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+
+  return apiRequest<{ message: string }>(`/workspace/${endpoint}/${id}`, {
+    method: "DELETE",
+    token,
+  });
 }
 
 export function getEquipmentDetail(slug: string) {

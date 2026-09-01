@@ -3,13 +3,16 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
+import { getMarketplaceRequestsStrict } from "@/services/api/matli";
 
 export const metadata: Metadata = {
   title: "Déposer un matériel",
   description: "Publiez votre tractopelle, pelle, chargeuse ou nacelle sur MATLI et recevez des demandes de location.",
 };
 
-export default function DepositPage() {
+export default async function DepositPage() {
+  const requests = await getMarketplaceRequestsStrict().catch(() => []);
+
   return (
     <AuthGuard
       title="Connectez-vous pour déposer une machine"
@@ -26,7 +29,7 @@ export default function DepositPage() {
         </div>
         <DepositMachineForm />
       </section>
-      <RequestsPreviewSection />
+      <RequestsPreviewSection requests={requests} />
     </AuthGuard>
   );
 }

@@ -1,13 +1,14 @@
 import { ArrowUp, Factory, Layers, Mountain, Package, Tractor } from "lucide-react";
 import Link from "next/link";
 import { categories } from "@/lib/data";
+import type { Category } from "@/types";
 
 const icons = { Mountain, ArrowUp, Package, Layers, Factory, Tractor };
 
-export function CategoryGrid() {
+export function CategoryGrid({ items = categories }: { items?: Category[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {categories.map((category) => {
+      {items.map((category) => {
         const Icon = icons[category.icon as keyof typeof icons] ?? Mountain;
 
         return (
