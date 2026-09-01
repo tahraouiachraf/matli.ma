@@ -27,8 +27,6 @@ export function RentalHistorySection() {
 
     async function loadRentals() {
       try {
-        setLoading(true);
-        setError(false);
         const payload = await getWorkspaceReservationsStrict(token);
         if (mounted) setItems(payload);
       } catch {
@@ -65,7 +63,7 @@ export function RentalHistorySection() {
       {error ? (
         <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
           <p className="font-black text-red-700">Merci de réessayer plus tard</p>
-          <p className="mt-2 text-sm leading-6 text-red-700/80">Nous n'arrivons pas à afficher vos locations pour le moment.</p>
+          <p className="mt-2 text-sm leading-6 text-red-700/80">Nous n&apos;arrivons pas à afficher vos locations pour le moment.</p>
         </div>
       ) : loading ? (
         <div className="mt-8 grid gap-4">

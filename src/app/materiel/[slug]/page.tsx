@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, MessageCircle, Share2, Truck, UserRoundCheck } from "lucide-react";
 import { EquipmentReservationForm } from "@/components/forms/EquipmentReservationForm";
@@ -56,10 +57,21 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
       <JsonLd data={equipmentJsonLd(item)} />
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>
-          <div className="h-[420px] rounded-md bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} />
+          <div className="relative h-[420px] overflow-hidden rounded-md bg-neutral-100">
+            <Image
+              src={item.image}
+              alt={`${item.title} à louer à ${item.city}`}
+              className="object-cover"
+              fill
+              priority
+              sizes="(min-width: 1024px) 58vw, 100vw"
+            />
+          </div>
           <div className="mt-4 grid grid-cols-3 gap-3">
             {[item.image, item.image, item.image].map((image, index) => (
-              <div key={index} className="h-28 rounded-md bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
+              <div key={index} className="relative h-28 overflow-hidden rounded-md bg-neutral-100">
+                <Image src={image} alt="" className="object-cover" fill sizes="(min-width: 1024px) 20vw, 33vw" />
+              </div>
             ))}
           </div>
         </div>

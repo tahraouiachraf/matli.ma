@@ -29,16 +29,16 @@ export default function LoginPage() {
               </span>
               <div>
                 <p className="font-black leading-tight">MATLI.ma</p>
-                <p className="text-xs font-semibold text-white/60">Marketplace BTP au Maroc</p>
+                <p className="text-xs font-semibold text-white/85">Marketplace BTP au Maroc</p>
               </div>
             </div>
 
             <div className="max-w-2xl py-10 lg:py-0">
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-100">Espace sécurisé</p>
+              <p className="text-sm font-black uppercase tracking-[0.18em] text-white">Espace sécurisé</p>
               <h1 className="mt-4 text-4xl font-black leading-[1.05] sm:text-5xl lg:text-6xl">
                 Louer, déposer et gérer vos machines depuis un seul compte.
               </h1>
-              <p className="mt-5 max-w-xl text-base leading-8 text-white/75">
+              <p className="mt-5 max-w-xl text-base leading-8 text-white/90">
                 Accédez aux demandes clients, réservations, prix par jour, disponibilités et historique de location avec une interface pensée pour les propriétaires et locataires.
               </p>
             </div>
@@ -51,9 +51,9 @@ export default function LoginPage() {
                 { title: "Accès protégé", description: "Connexion sécurisée avec session locale.", Icon: ShieldCheck },
               ].map(({ title, description, Icon }) => (
                 <div key={title} className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                  <Icon className="h-5 w-5 text-orange-200" />
+                  <Icon className="h-5 w-5 text-white" aria-hidden />
                   <p className="mt-3 text-sm font-black">{title}</p>
-                  <p className="mt-1 text-xs leading-5 text-white/65">{description}</p>
+                  <p className="mt-1 text-xs leading-5 text-white/85">{description}</p>
                 </div>
               ))}
             </div>

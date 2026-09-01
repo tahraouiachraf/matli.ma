@@ -26,8 +26,6 @@ export function OwnerPreview() {
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setApiError(false);
 
     Promise.all([
       getWorkspaceDashboardStrict(token),
@@ -72,7 +70,7 @@ export function OwnerPreview() {
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
         <p className="font-black text-red-700">Merci de réessayer plus tard</p>
         <p className="mt-2 text-sm leading-6 text-red-700/80">
-          Nous n'arrivons pas à afficher ces données pour le moment.
+          Nous n&apos;arrivons pas à afficher ces données pour le moment.
         </p>
       </div>
     );
