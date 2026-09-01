@@ -50,8 +50,9 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <ButtonLink href="/location" variant="ghost" className="px-3">
+          <ButtonLink href="/location" variant="ghost" className="px-3" aria-label="Rechercher une machine" title="Rechercher une machine">
             <Search size={18} aria-hidden />
+            <span className="sr-only">Rechercher une machine</span>
           </ButtonLink>
           <AuthNav />
         </div>
