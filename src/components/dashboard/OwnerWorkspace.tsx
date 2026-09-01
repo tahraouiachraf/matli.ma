@@ -127,9 +127,6 @@ export function OwnerSectionContent({ section }: { section: string }) {
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setApiError(null);
-    setWorkspaceItems(null);
 
     async function loadSection() {
       try {
@@ -426,7 +423,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
             <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
               <div className="border-b border-neutral-200 p-4">
                 <h3 className="font-black text-neutral-950">Historique clients</h3>
-                <p className="mt-1 text-sm text-neutral-600">Aucun client n'est ajouté manuellement. Une fiche apparaît après réservation.</p>
+                <p className="mt-1 text-sm text-neutral-600">Aucun client n&apos;est ajouté manuellement. Une fiche apparaît après réservation.</p>
               </div>
               <div className="divide-y divide-neutral-100">
                 {clients.map((client) => (
@@ -456,7 +453,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
             <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
               <h3 className="font-black text-neutral-950">Règle métier</h3>
               <p className="mt-2 text-sm leading-6 text-neutral-700">
-                Le client est créé depuis une réservation confirmée. Cela évite les doublons et garde l'historique propre: machine, ville, période, montant et statut.
+                Le client est créé depuis une réservation confirmée. Cela évite les doublons et garde l&apos;historique propre: machine, ville, période, montant et statut.
               </p>
             </div>
           </div>
@@ -472,7 +469,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
       id: String(item.id ?? `api-${index}`),
       title: stringValue(item.title) ?? stringValue(item.message) ?? "Notification",
       description: stringValue(item.body) ?? stringValue(item.description) ?? stringValue(item.message) ?? "Nouvelle information dans votre espace.",
-      createdAt: stringValue(item.created_at) ?? "Aujourd'hui",
+      createdAt: stringValue(item.created_at) ?? "Aujourd&apos;hui",
       source: "Compte",
     }));
     const localNotifications = notifications.map((notification) => ({ ...notification, source: "Réservation" }));
@@ -522,12 +519,12 @@ export function OwnerSectionContent({ section }: { section: string }) {
               <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
                 <p className="text-sm font-bold text-neutral-500">Notifications locales</p>
                 <p className="mt-2 text-3xl font-black text-neutral-950">{localNotifications.length}</p>
-                <p className="mt-2 text-sm leading-6 text-neutral-600">Créées lors d'une réservation effectuée dans l'interface frontend.</p>
+                <p className="mt-2 text-sm leading-6 text-neutral-600">Créées lors d&apos;une réservation effectuée dans l&apos;interface frontend.</p>
               </div>
               <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
                 <h3 className="font-black text-neutral-950">Synchronisation Laravel</h3>
                 <p className="mt-2 text-sm leading-6 text-neutral-700">
-                  Les réservations créent une notification côté portail. L'affichage combine les retours backend et les confirmations immédiates de l'interface.
+                  Les réservations créent une notification côté portail. L&apos;affichage combine les retours backend et les confirmations immédiates de l&apos;interface.
                 </p>
               </div>
             </div>
@@ -651,7 +648,6 @@ function WorkspaceCrudSection({
       >
         <WorkspaceCrudForm
           editing={editing}
-          endpoint={endpoint}
           equipment={equipment}
           rentals={rentals}
           section={section}
@@ -717,7 +713,6 @@ function WorkspaceCrudSection({
 
 function WorkspaceCrudForm({
   editing,
-  endpoint,
   equipment,
   rentals,
   section,
@@ -725,7 +720,6 @@ function WorkspaceCrudForm({
   onSaved,
 }: {
   editing: Record<string, unknown> | null;
-  endpoint: string;
   equipment: Equipment[];
   rentals: RentalHistoryItem[];
   section: string;
@@ -957,7 +951,7 @@ function InlineApiError() {
     <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
       <p className="font-black text-red-700">Merci de réessayer plus tard</p>
       <p className="mt-2 text-sm leading-6 text-red-700/80">
-        Nous n'arrivons pas à afficher ces données pour le moment.
+        Nous n&apos;arrivons pas à afficher ces données pour le moment.
       </p>
     </div>
   );
@@ -992,11 +986,11 @@ function DashboardPanel({
           <h2 className="text-2xl font-black text-neutral-950 sm:text-3xl">{title}</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">{description}</p>
         </div>
-        {/* {actionLabel ? (
+        {actionLabel ? (
           <button disabled={loading} className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-wait disabled:bg-orange-200">
             {loading ? <span className="block h-4 w-28 animate-pulse rounded-full bg-white/70" aria-label="Chargement" /> : actionLabel}
           </button>
-        ) : null} */}
+        ) : null}
       </div>
       {children}
     </div>
@@ -1075,7 +1069,7 @@ function ReservationForm({
       {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700 md:col-span-2">{error}</p> : null}
       {!apiEquipment.length ? (
         <p className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-sm font-bold text-orange-800 md:col-span-2">
-          Ajoutez d'abord un matériel connecté au backend pour créer une réservation.
+          Ajoutez d&apos;abord un matériel connecté au backend pour créer une réservation.
         </p>
       ) : null}
       <label className="grid gap-2 text-sm font-semibold">
@@ -1325,7 +1319,7 @@ function OwnerCalendar({
                   onClick={() => setMonthDate(new Date())}
                   className="h-10 rounded-full border border-neutral-200 px-4 text-sm font-black text-neutral-700 hover:border-orange-400 hover:text-orange-600"
                 >
-                  Aujourd'hui
+                  Aujourd&apos;hui
                 </button>
                 <button
                   type="button"

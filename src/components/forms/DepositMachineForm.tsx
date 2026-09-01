@@ -76,7 +76,7 @@ export function DepositMachineForm({ onCreated }: DepositMachineFormProps) {
         </select>
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Titre de l'annonce
+        Titre de l&apos;annonce
         <input name="title" required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: Tractopelle JCB 3CX disponible" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">

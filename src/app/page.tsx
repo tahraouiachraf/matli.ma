@@ -37,12 +37,12 @@ export default async function Home() {
             <div className="animate-fade-up">
               <h1 className="max-w-4xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
                 La marketplace pour louer et déposer vos machines{" "}
-                <span className="text-amber-200 underline decoration-amber-200 decoration-8 underline-offset-[-4px]">
+                <span className="text-white underline decoration-white decoration-8 underline-offset-[-4px]">
                   BTP
                 </span>{" "}
                 au Maroc
               </h1>
-              <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-orange-50 sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-white sm:text-lg">
                 Trouvez une machine disponible, comparez les prix entre propriétaires et envoyez une demande claire. Les propriétaires déposent leur matériel et reçoivent des clients qualifiés.
               </p>
 
@@ -90,7 +90,7 @@ export default async function Home() {
               </form>
 
               <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
-                <span className="font-black text-orange-50">Populaires :</span>
+                <span className="font-black text-white">Populaires :</span>
                 {["JCB 3CX", "Mini-pelle", "Telescopic", "Chargeuse", "Pelle sur chenilles"].map((tag) => (
                   <span key={tag} className="rounded-full bg-white/15 px-4 py-2 font-semibold text-white">
                     {tag}

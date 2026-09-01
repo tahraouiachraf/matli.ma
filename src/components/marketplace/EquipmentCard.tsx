@@ -1,5 +1,6 @@
 import { BadgeCheck, MapPin, Star, Truck, UserRoundCheck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatDh } from "@/lib/format";
 import { statusLabels } from "@/lib/data";
 import type { Equipment } from "@/types";
@@ -7,7 +8,14 @@ import type { Equipment } from "@/types";
 export function EquipmentCard({ item }: { item: Equipment }) {
   return (
     <article className="overflow-hidden rounded-md border border-neutral-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl hover:shadow-neutral-950/10">
-      <div className="relative h-52 bg-cover bg-center sm:h-56" style={{ backgroundImage: `url(${item.image})` }}>
+      <div className="relative h-52 overflow-hidden bg-neutral-100 sm:h-56">
+        <Image
+          src={item.image}
+          alt=""
+          className="object-cover"
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        />
         {item.sponsored ? (
           <span className="absolute left-3 top-3 rounded-md bg-amber-400 px-3 py-1 text-xs font-black text-neutral-950">
             Sponsorisé
