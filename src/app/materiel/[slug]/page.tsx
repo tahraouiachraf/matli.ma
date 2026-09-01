@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, MessageCircle, Share2, Truck, UserRoundCheck } from "lucide-react";
+import { EquipmentReservationForm } from "@/components/forms/EquipmentReservationForm";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { statusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
@@ -92,17 +93,12 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
             </span>
           </div>
           <div className="mt-8 grid gap-3">
-            <ButtonLink href={`https://wa.me/?text=${encodeURIComponent(`Bonjour, je souhaite louer ${item.title} à ${item.city} via MATLI`)}`}>
-              Demander une location
-            </ButtonLink>
-            <ButtonLink href={`mailto:contact@matli.ma?subject=${encodeURIComponent(`Demande de devis - ${item.title}`)}`} variant="secondary">
-              Demander un devis
-            </ButtonLink>
             <ButtonLink href={`https://wa.me/?text=${encodeURIComponent(`Je souhaite louer ${item.title} sur MATLI`)}`} variant="ghost">
               <MessageCircle size={18} aria-hidden />
               Partager sur WhatsApp
             </ButtonLink>
           </div>
+          <EquipmentReservationForm equipmentId={item.backendId} equipmentTitle={item.title} />
         </aside>
       </section>
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">

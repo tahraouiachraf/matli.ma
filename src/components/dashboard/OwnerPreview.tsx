@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CalendarDays, ChartNoAxesCombined, CreditCard, Wrench } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { ownerDashboardMetrics } from "@/lib/data";
+import { ownerDashboardMetrics, requestStatusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { getEquipmentListStrict, getMarketplaceRequestsStrict, getWorkspaceDashboardStrict, getWorkspaceEquipmentStrict, mapWorkspaceRentals } from "@/services/api/matli";
@@ -118,7 +118,7 @@ export function OwnerPreview() {
               <div key={request.id} className="rounded-xl bg-orange-50 p-3">
                 <div className="grid gap-1 sm:flex sm:items-center sm:justify-between sm:gap-3">
                   <p className="font-bold text-neutral-950">{request.machine}</p>
-                  <span className="text-xs font-black text-orange-700">{request.status}</span>
+                  <span className="text-xs font-black text-orange-700">{requestStatusLabels[request.status]}</span>
                 </div>
                 <p className="mt-1 text-xs text-neutral-600">
                   {request.city} · budget {formatDh(request.budgetDay)}/j

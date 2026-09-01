@@ -327,3 +327,53 @@ export const statusLabels: Record<Equipment["status"], string> = {
   MAINTENANCE: "En maintenance",
   UNAVAILABLE: "Indisponible",
 };
+
+export const requestStatusLabels: Record<ClientRequest["status"], string> = {
+  OPEN: "Ouverte",
+  QUOTED: "Devis envoyé",
+  RESERVED: "Réservée",
+};
+
+export const rentalStatusLabels: Record<RentalHistoryItem["status"], string> = {
+  COMPLETED: "Terminée",
+  ONGOING: "En cours",
+  RESERVED: "Réservée",
+  CANCELLED: "Annulée",
+};
+
+export const apiStatusLabels: Record<string, string> = {
+  active: "Actif",
+  available: "Disponible",
+  busy: "Occupé",
+  card: "Carte",
+  cash: "Espèces",
+  cancelled: "Annulé",
+  cheque: "Chèque",
+  closed: "Fermé",
+  completed: "Terminé",
+  corrective: "Corrective",
+  confirmed: "Confirmé",
+  failed: "Échoué",
+  inactive: "Inactif",
+  inspection: "Inspection",
+  maintenance: "En maintenance",
+  missing: "Manquant",
+  open: "Ouvert",
+  paid: "Payé",
+  pending: "En attente",
+  planned: "Planifié",
+  preventive: "Préventive",
+  quoted: "Devis envoyé",
+  rented: "En location",
+  reserved: "Réservé",
+  suspended: "Suspendu",
+  transfer: "Virement",
+  unavailable: "Indisponible",
+  valid: "Valide",
+  expired: "Expiré",
+  insurance: "Assurance",
+  registration: "Carte grise",
+  invoice: "Facture",
+  technical_visit: "Visite technique",
+  in_progress: "En cours",
+};

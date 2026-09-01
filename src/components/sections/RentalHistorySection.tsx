@@ -1,15 +1,13 @@
+"use client";
+
 import { CalendarDays, FileText, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { rentalHistory } from "@/lib/data";
+import { useEffect, useState } from "react";
 import { formatDh } from "@/lib/format";
+import { rentalStatusLabels } from "@/lib/data";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { getWorkspaceReservationsStrict } from "@/services/api/matli";
 import type { RentalHistoryItem } from "@/types";
-
-const statusLabels: Record<RentalHistoryItem["status"], string> = {
-  COMPLETED: "Terminée",
-  ONGOING: "En cours",
-  RESERVED: "Réservée",
-  CANCELLED: "Annulée",
-};
 
 const statusStyles: Record<RentalHistoryItem["status"], string> = {
   COMPLETED: "bg-green-50 text-green-700",
@@ -19,6 +17,36 @@ const statusStyles: Record<RentalHistoryItem["status"], string> = {
 };
 
 export function RentalHistorySection() {
+  const { token } = useAuth();
+  const [items, setItems] = useState<RentalHistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadRentals() {
+      try {
+        setLoading(true);
+        setError(false);
+        const payload = await getWorkspaceReservationsStrict(token);
+        if (mounted) setItems(payload);
+      } catch {
+        if (mounted) setError(true);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    loadRentals();
+
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
+
+  const rentals = items.length ? items : [];
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -34,15 +62,27 @@ export function RentalHistorySection() {
         </Link>
       </div>
 
+      {error ? (
+        <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+          <p className="font-black text-red-700">Merci de réessayer plus tard</p>
+          <p className="mt-2 text-sm leading-6 text-red-700/80">Nous n'arrivons pas à afficher vos locations pour le moment.</p>
+        </div>
+      ) : loading ? (
+        <div className="mt-8 grid gap-4">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="h-36 animate-pulse rounded-xl border border-neutral-200 bg-neutral-100" />
+          ))}
+        </div>
+      ) : rentals.length ? (
       <div className="mt-8 grid gap-4">
-        {rentalHistory.map((rental) => (
+        {rentals.map((rental) => (
           <article key={rental.id} className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm md:grid-cols-[150px_1fr_auto] md:items-center">
             <div className="h-32 rounded-md bg-cover bg-center md:h-24" style={{ backgroundImage: `url(${rental.image})` }} />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-xl font-black text-neutral-950">{rental.equipmentTitle}</h3>
                 <span className={`rounded-md px-2 py-1 text-xs font-black ${statusStyles[rental.status]}`}>
-                  {statusLabels[rental.status]}
+                  {rentalStatusLabels[rental.status]}
                 </span>
               </div>
               <p className="mt-2 text-sm font-semibold text-neutral-600">
@@ -69,6 +109,12 @@ export function RentalHistorySection() {
           </article>
         ))}
       </div>
+      ) : (
+        <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-6 text-center">
+          <p className="font-black text-neutral-950">Aucune location pour le moment</p>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">Vos réservations apparaîtront ici après validation.</p>
+        </div>
+      )}
     </section>
   );
 }

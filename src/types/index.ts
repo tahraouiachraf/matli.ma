@@ -18,6 +18,7 @@ export type Category = {
 
 export type Equipment = {
   id: number;
+  backendId?: string;
   slug: string;
   title: string;
   category: string;
@@ -59,6 +60,7 @@ export type DashboardMetric = {
 
 export type RentalHistoryItem = {
   id: string;
+  backendId?: string;
   equipmentTitle: string;
   companyName: string;
   city: string;
