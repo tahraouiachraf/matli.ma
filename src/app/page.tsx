@@ -20,7 +20,7 @@ const trustItems: Array<[LucideIcon, string, string]> = [
   [BadgeCheck, "Données structurées", "Machines, demandes, réservations et devis suivent une logique claire pour préparer le lancement."],
 ];
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Home() {
   const [equipment, requests] = await Promise.all([
@@ -60,24 +60,30 @@ export default async function Home() {
 
               <form className="mt-6 grid gap-3 rounded-md bg-white p-3 shadow-xl shadow-orange-950/20 md:grid-cols-[1fr_0.8fr_auto]">
                 <label className="relative">
+                  <span className="sr-only">Machine recherchée</span>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={19} aria-hidden />
                   <input
+                    name="machine"
                     className="h-12 w-full rounded-md border border-neutral-200 pl-10 pr-3 text-sm font-medium text-neutral-900 outline-none focus:border-orange-500"
                     placeholder="JCB 3CX, mini-pelle, chargeuse..."
                   />
                 </label>
-                <select
-                  defaultValue=""
-                  className="h-12 rounded-md border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-900 outline-none focus:border-orange-500"
-                >
-                  <option value="" disabled>
-                    Ville
-                  </option>
-                  <option>Casablanca</option>
-                  <option>Rabat</option>
-                  <option>Marrakech</option>
-                  <option>Tanger</option>
-                </select>
+                <label>
+                  <span className="sr-only">Ville</span>
+                  <select
+                    name="city"
+                    defaultValue=""
+                    className="h-12 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-900 outline-none focus:border-orange-500"
+                  >
+                    <option value="" disabled>
+                      Ville
+                    </option>
+                    <option>Casablanca</option>
+                    <option>Rabat</option>
+                    <option>Marrakech</option>
+                    <option>Tanger</option>
+                  </select>
+                </label>
                 <ButtonLink href="/location" className="h-12 px-8">
                   Rechercher
                 </ButtonLink>
