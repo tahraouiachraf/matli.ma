@@ -31,7 +31,6 @@ export function AuthNav({
   const accountLinks = [
     [UserRound, "Profil", "/profil"],
     [LayoutDashboard, "Dashboard", "/espace"],
-    [History, "Mes locations", "/mes-locations"],
   ] as const;
 
   function isActive(href: string) {

@@ -57,7 +57,6 @@ export const ownerMenu: Array<[string, string, LucideIcon]> = [
   ["Documents", "/espace/documents", FileText],
   ["Statistiques", "/espace/statistiques", ChartNoAxesCombined],
   ["Notifications", "/espace/notifications", Bell],
-  ["Paramètres", "/espace/parametres", Settings],
 ];
 
 type OwnerWorkspaceProps = {
