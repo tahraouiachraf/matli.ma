@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { categories, cities } from "@/lib/data";
-import { createWorkspaceEquipment } from "@/services/api/matli";
+import { createWorkspaceEquipment, uploadEquipmentImage } from "@/services/api/matli";
 import type { CreateEquipmentPayload } from "@/services/api/matli";
 import type { Equipment } from "@/types";
 
@@ -29,8 +29,15 @@ export function DepositMachineForm({ onCreated }: DepositMachineFormProps) {
       .split("\n")
       .map((item) => item.trim())
       .filter(Boolean);
+    const imageFile = formData.get("image");
 
     try {
+      if (imageFile instanceof File && imageFile.size > 8 * 1024 * 1024) {
+        throw new Error("Image trop lourde");
+      }
+      const uploadedImage = imageFile instanceof File && imageFile.size > 0
+        ? await uploadEquipmentImage(imageFile, token)
+        : null;
       const item = await createWorkspaceEquipment(
         {
           category_slug: String(formData.get("category_slug") ?? ""),
@@ -43,7 +50,7 @@ export function DepositMachineForm({ onCreated }: DepositMachineFormProps) {
           price_day: Number(formData.get("price_day")),
           price_week: Number(formData.get("price_week")) || undefined,
           status: String(formData.get("status") ?? "available") as CreateEquipmentPayload["status"],
-          image_url: String(formData.get("image_url") ?? ""),
+          image_url: uploadedImage?.url,
           description: String(formData.get("description") ?? ""),
           operator_available: formData.get("operator_available") === "1",
           delivery_available: formData.get("delivery_available") === "1",
@@ -136,8 +143,9 @@ export function DepositMachineForm({ onCreated }: DepositMachineFormProps) {
         </label>
       </div>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
-        Image URL
-        <input name="image_url" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="/equipment/jcb-3cx-yard.jpg" />
+        Photo principale
+        <input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="min-h-12 rounded-md border border-neutral-200 bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700" />
+        <span className="text-xs font-normal text-neutral-500">JPEG, PNG, WebP ou AVIF, 8 Mo maximum. La photo sera automatiquement compressée.</span>
       </label>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description

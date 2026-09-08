@@ -1,5 +1,6 @@
 import type { Category, ClientRequest, Company, Equipment, RentalHistoryItem } from "@/types";
 import { categories, clientRequests, companies, equipment, rentalHistory } from "@/lib/data";
+import { formatDateRange } from "@/lib/format";
 import { API_ORIGIN, apiRequest } from "@/services/api/client";
 
 type LaravelPaginator<T> = {
@@ -11,6 +12,29 @@ type LaravelPaginator<T> = {
 };
 
 type ApiListResponse<T> = LaravelPaginator<T> | T[];
+
+export type CatalogMeta = {
+  cities: string[];
+  brands: string[];
+  models: string[];
+};
+
+export type EquipmentSearchParams = {
+  perPage?: number;
+  q?: string;
+  city?: string;
+  category?: string;
+  status?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  operator?: boolean;
+  delivery?: boolean;
+  verified?: boolean;
+  brand?: string;
+  model?: string;
+  availableNow?: boolean;
+  sort?: "recent" | "price_asc" | "price_desc";
+};
 
 type ApiCategory = {
   id: string;
@@ -126,19 +150,24 @@ function localImage(url: string | null | undefined, index = 0) {
   return optimizedUrl;
 }
 
-function dateRange(start?: string | null, end?: string | null) {
-  if (!start && !end) return "Dates à confirmer";
-  if (!start || !end) return start ?? end ?? "Dates à confirmer";
-  return `${start} - ${end}`;
-}
-
 function listData<T>(payload: ApiListResponse<T>) {
   return Array.isArray(payload) ? payload : payload.data;
 }
 
+function stableNumericId(value: string, fallback: number) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0) || fallback;
+}
+
 export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
   return {
-    id: Number.parseInt(item.id.replace(/\D/g, "").slice(0, 8), 10) || index + 1,
+    id: stableNumericId(item.id, index + 1),
     backendId: item.id,
     slug: item.slug,
     title: item.title,
@@ -194,7 +223,7 @@ function mapRequest(item: ApiRentalRequest): ClientRequest {
     id: item.reference,
     machine: item.machine,
     city: item.city,
-    dateRange: dateRange(item.date_start, item.date_end),
+    dateRange: formatDateRange(item.date_start, item.date_end),
     budgetDay: item.budget_day ?? 0,
     contact: "Client marketplace",
     status: requestStatusMap[item.status] ?? "OPEN",
@@ -217,21 +246,35 @@ export function getCategoriesStrict() {
   return apiRequest<ApiCategory[]>("/categories").then((payload) => payload.map(mapCategory));
 }
 
-export function getEquipmentList(params?: { perPage?: number; city?: string; category?: string; status?: string }) {
+export function getEquipmentList(params?: EquipmentSearchParams) {
   return safeApi(() => getEquipmentListStrict(params), []);
 }
 
-export function getEquipmentListStrict(params?: { perPage?: number; city?: string; category?: string; status?: string }) {
+export function getEquipmentListStrict(params?: EquipmentSearchParams) {
   const search = new URLSearchParams();
   if (params?.perPage) search.set("per_page", String(params.perPage));
+  if (params?.q) search.set("q", params.q);
   if (params?.city) search.set("city", params.city);
   if (params?.category) search.set("category", params.category);
   if (params?.status) search.set("status", params.status);
+  if (params?.minPrice !== undefined) search.set("min_price", String(params.minPrice));
+  if (params?.maxPrice !== undefined) search.set("max_price", String(params.maxPrice));
+  if (params?.operator !== undefined) search.set("operator", params.operator ? "1" : "0");
+  if (params?.delivery) search.set("delivery", "1");
+  if (params?.verified) search.set("verified", "1");
+  if (params?.brand) search.set("brand", params.brand);
+  if (params?.model) search.set("model", params.model);
+  if (params?.availableNow) search.set("available_now", "1");
+  if (params?.sort) search.set("sort", params.sort);
 
   return (async () => {
     const payload = await apiRequest<ApiListResponse<ApiEquipment>>(`/equipment?${search.toString()}`);
     return listData(payload).map(mapEquipment);
   })();
+}
+
+export function getCatalogMetaStrict() {
+  return apiRequest<CatalogMeta & Record<string, unknown>>("/meta");
 }
 
 function mapRental(reservation: ApiReservation): RentalHistoryItem {
@@ -241,7 +284,9 @@ function mapRental(reservation: ApiReservation): RentalHistoryItem {
     equipmentTitle: reservation.equipment?.title ?? "Machine BTP",
     companyName: reservation.client_name ?? "Client réservation",
     city: reservation.equipment?.city ?? "Maroc",
-    period: dateRange(reservation.date_start, reservation.date_end),
+    dateStart: reservation.date_start ?? undefined,
+    dateEnd: reservation.date_end ?? undefined,
+    period: formatDateRange(reservation.date_start, reservation.date_end),
     total: reservation.total_amount,
     status:
       reservation.status === "completed"
@@ -305,7 +350,9 @@ export type CreateReservationPayload = {
   notes?: string;
 };
 
-export function createReservation(payload: CreateReservationPayload) {
+export function createReservation(payload: CreateReservationPayload, token?: string | null) {
+  if (!token) throw new Error("Connectez-vous pour réserver ce matériel.");
+
   return apiRequest<{
     id: string;
     reference: string;
@@ -314,7 +361,21 @@ export function createReservation(payload: CreateReservationPayload) {
     message: string;
   }>("/reservations", {
     method: "POST",
+    token,
     body: JSON.stringify(payload),
+  });
+}
+
+export function uploadEquipmentImage(file: File, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+
+  const body = new FormData();
+  body.append("image", file);
+
+  return apiRequest<{ url: string; variants: Record<string, string> }>("/workspace/equipment/images", {
+    method: "POST",
+    token,
+    body,
   });
 }
 

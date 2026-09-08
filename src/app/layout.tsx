@@ -18,6 +18,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID ?? "G-1CYERG8JGX";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: siteName,
@@ -83,22 +85,26 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-neutral-50 text-neutral-950">
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-1CYERG8JGX" strategy="lazyOnload" />
+      <body suppressHydrationWarning className="min-h-full bg-neutral-50 text-neutral-950">
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`} strategy="lazyOnload" />
         <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-1CYERG8JGX');
+            gtag('config', '${googleAnalyticsId}', { anonymize_ip: true });
           `}
         </Script>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />

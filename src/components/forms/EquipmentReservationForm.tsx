@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { createReservation } from "@/services/api/matli";
 
 type EquipmentReservationFormProps = {
@@ -9,6 +11,7 @@ type EquipmentReservationFormProps = {
 };
 
 export function EquipmentReservationForm({ equipmentId, equipmentTitle }: EquipmentReservationFormProps) {
+  const { connected, token, user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +37,7 @@ export function EquipmentReservationForm({ equipmentId, equipmentTitle }: Equipm
         client_name: String(formData.get("client_name") ?? ""),
         client_phone: String(formData.get("client_phone") ?? ""),
         notes: String(formData.get("notes") ?? ""),
-      });
+      }, token);
       setMessage("Votre demande est envoyée. Le propriétaire peut maintenant vous contacter.");
       event.currentTarget.reset();
     } catch {
@@ -42,6 +45,18 @@ export function EquipmentReservationForm({ equipmentId, equipmentTitle }: Equipm
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!connected) {
+    return (
+      <div className="mt-8 rounded-xl border border-orange-200 bg-white p-4">
+        <p className="font-black text-neutral-950">Connectez-vous pour réserver</p>
+        <p className="mt-2 text-sm leading-6 text-neutral-600">Votre compte permet de suivre la demande, sa confirmation et son historique.</p>
+        <Link href="/connexion" className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
+          Se connecter ou créer un compte
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -54,11 +69,11 @@ export function EquipmentReservationForm({ equipmentId, equipmentTitle }: Equipm
       {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p> : null}
       <label className="grid gap-2 text-sm font-semibold">
         Nom
-        <input name="client_name" required className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom ou entreprise" />
+        <input name="client_name" defaultValue={user?.name ?? ""} required className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom ou entreprise" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
         Téléphone
-        <input name="client_phone" required inputMode="tel" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
+        <input name="client_phone" defaultValue={user?.phone ?? ""} required inputMode="tel" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
       </label>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-semibold">

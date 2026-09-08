@@ -1,4 +1,4 @@
-import { BadgeCheck, MapPin, Star, Truck, UserRoundCheck } from "lucide-react";
+import { BadgeCheck, MapPin, Truck, UserRoundCheck } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDh } from "@/lib/format";
@@ -7,12 +7,12 @@ import type { Equipment } from "@/types";
 
 export function EquipmentCard({ item }: { item: Equipment }) {
   return (
-    <article className="overflow-hidden rounded-md border border-neutral-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl hover:shadow-neutral-950/10">
-      <div className="relative h-52 overflow-hidden bg-neutral-100 sm:h-56">
+    <article className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition duration-300 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-xl hover:shadow-orange-950/8">
+      <div className="relative aspect-[4/3] overflow-hidden bg-orange-50">
         <Image
           src={item.image}
-          alt=""
-          className="object-cover"
+          alt={`${item.title} à louer à ${item.city}`}
+          className="object-cover transition duration-500 group-hover:scale-[1.025]"
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
         />
@@ -21,19 +21,15 @@ export function EquipmentCard({ item }: { item: Equipment }) {
             Sponsorisé
           </span>
         ) : null}
-        <span className="absolute bottom-3 left-3 rounded-md bg-white px-3 py-1 text-xs font-bold text-neutral-900">
+        <span className="absolute bottom-3 left-3 rounded-md border border-white/80 bg-white/95 px-3 py-1 text-xs font-bold text-neutral-900 shadow-sm">
           {statusLabels[item.status]}
         </span>
       </div>
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-amber-700">{item.category}</p>
-            <h3 className="mt-1 text-xl font-bold text-neutral-950">{item.title}</h3>
-          </div>
-          <div className="inline-flex items-center gap-1 text-sm font-bold text-neutral-800">
-            <Star size={16} className="fill-amber-400 text-amber-400" aria-hidden />
-            {item.rating}
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase text-orange-700">{item.category}</p>
+            <h3 className="mt-1 line-clamp-2 text-xl font-bold text-neutral-950">{item.title}</h3>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-sm text-neutral-600">
@@ -53,12 +49,10 @@ export function EquipmentCard({ item }: { item: Equipment }) {
               Opérateur
             </span>
           ) : null}
-          {item.delivery ? (
-            <span className="inline-flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-1">
-              <Truck size={14} aria-hidden />
-              Livraison
-            </span>
-          ) : null}
+          <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 ${item.delivery ? "bg-emerald-50 text-emerald-800" : "bg-neutral-100 text-neutral-600"}`}>
+            <Truck size={14} aria-hidden />
+            {item.delivery ? "Livraison possible" : "Retrait sur place"}
+          </span>
         </div>
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -67,7 +61,7 @@ export function EquipmentCard({ item }: { item: Equipment }) {
           </div>
           <Link
             href={`/materiel/${item.slug}`}
-            className="inline-flex h-11 w-full items-center justify-center rounded-md bg-neutral-950 px-4 text-sm font-bold text-white hover:bg-neutral-800 sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-600 px-4 text-sm font-bold text-white hover:bg-orange-700 sm:w-auto"
           >
             Voir le matériel
           </Link>

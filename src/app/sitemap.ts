@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { categories } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
+import { localSeoPages } from "@/lib/local-seo";
 import { getCompanies, getEquipmentList } from "@/services/api/matli";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -12,7 +13,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     page("", 1, "daily"),
     page("/location", 0.95, "daily"),
-    page("/machines", 0.85, "weekly"),
     page("/deposer", 0.75, "weekly"),
     page("/fonctionnement", 0.7, "monthly"),
     page("/inscription", 0.35, "monthly"),
@@ -20,6 +20,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryPages = categories.map((category) =>
     page(`/location?category=${category.slug}`, 0.78, "weekly"),
+  );
+
+  const localPages = localSeoPages.map((item) =>
+    page(`/location/${item.slug}`, 0.8, "daily"),
   );
 
   const equipmentPages = equipment.map((item) =>
@@ -30,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page(`/entreprise/${company.slug}`, 0.72, "weekly"),
   );
 
-  return [...staticPages, ...categoryPages, ...equipmentPages, ...companyPages];
+  return [...staticPages, ...categoryPages, ...localPages, ...equipmentPages, ...companyPages];
 }
 
 function page(
