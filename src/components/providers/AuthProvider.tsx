@@ -20,7 +20,8 @@ type AuthContextValue = {
   user: AuthUser | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<{ message: string; email: string }>;
+  resendVerification: (email: string) => Promise<string>;
   loginDemo: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -35,6 +36,7 @@ type RegisterPayload = {
   name: string;
   email: string;
   password: string;
+  password_confirmation: string;
   phone?: string;
   city?: string;
   company_name?: string;
@@ -104,11 +106,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         persistAuth(payload);
       },
       async register(payload: RegisterPayload) {
-        const response = await apiRequest<AuthPayload>("/auth/register", {
+        return apiRequest<{ message: string; email: string }>("/auth/register", {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        persistAuth(response);
+      },
+      async resendVerification(email: string) {
+        const response = await apiRequest<{ message: string }>("/auth/email/resend", {
+          method: "POST",
+          body: JSON.stringify({ email }),
+        });
+        return response.message;
       },
       async loginDemo() {
         const payload = await apiRequest<AuthPayload>("/auth/login", {

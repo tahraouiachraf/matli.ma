@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -51,9 +53,9 @@ const nextConfig: NextConfig = {
           "img-src 'self' data: blob: https:",
           "font-src 'self' data:",
           "style-src 'self' 'unsafe-inline'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
-          "connect-src 'self' http://127.0.0.1:8000 https://portail.joblik.ma https://www.google-analytics.com https://region1.google-analytics.com",
-          "upgrade-insecure-requests",
+          `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://www.googletagmanager.com https://www.google-analytics.com`,
+          `connect-src 'self'${isProduction ? "" : " http://127.0.0.1:8000"} https://portail.joblik.ma https://www.google-analytics.com https://region1.google-analytics.com`,
+          ...(isProduction ? ["upgrade-insecure-requests"] : []),
         ].join("; "),
       },
     ];

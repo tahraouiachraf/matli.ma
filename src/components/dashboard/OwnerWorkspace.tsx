@@ -16,7 +16,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatDh } from "@/lib/format";
+import { formatDate, formatDateTime, formatDh } from "@/lib/format";
 import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusLabels, statusLabels } from "@/lib/data";
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
@@ -248,13 +248,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
       id: `notif-${Date.now()}`,
       title: "Nouvelle réservation enregistrée",
       description: `${client || "Un client"} a réservé ${machine || "une machine"}. Le client sera ajouté automatiquement dans l'historique.`,
-      createdAt: new Date().toLocaleString("fr-FR", {
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
+      createdAt: new Date().toISOString(),
     };
     const nextNotifications = [notification, ...readStoredNotifications()].slice(0, 20);
     localStorage.setItem(notificationStorageKey, JSON.stringify(nextNotifications));
@@ -468,7 +462,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
       id: String(item.id ?? `api-${index}`),
       title: stringValue(item.title) ?? stringValue(item.message) ?? "Notification",
       description: stringValue(item.body) ?? stringValue(item.description) ?? stringValue(item.message) ?? "Nouvelle information dans votre espace.",
-      createdAt: stringValue(item.created_at) ?? "Aujourd&apos;hui",
+      createdAt: stringValue(item.created_at) ?? new Date().toISOString(),
       source: "Compte",
     }));
     const localNotifications = notifications.map((notification) => ({ ...notification, source: "Réservation" }));
@@ -483,11 +477,16 @@ export function OwnerSectionContent({ section }: { section: string }) {
       >
         {apiError ? <InlineApiError /> : null}
         {!apiError && allNotifications.length ? (
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid gap-5">
             <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-              <div className="border-b border-neutral-200 p-4">
-                <h3 className="font-black text-neutral-950">Centre de notifications</h3>
-                <p className="mt-1 text-sm text-neutral-600">Les nouvelles réservations remontent ici automatiquement.</p>
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 p-4">
+                <div>
+                  <h3 className="font-black text-neutral-950">Centre de notifications</h3>
+                  <p className="mt-1 text-sm text-neutral-600">Les nouvelles réservations remontent ici automatiquement.</p>
+                </div>
+                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">
+                  {allNotifications.length} notification{allNotifications.length > 1 ? "s" : ""}
+                </span>
               </div>
               <div className="divide-y divide-neutral-100">
                 {allNotifications.map((notification, index) => (
@@ -504,7 +503,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
                           <h4 className="mt-1 font-black text-neutral-950">{notification.title}</h4>
                         </div>
                         <span className="shrink-0 rounded-full bg-neutral-100 px-3 py-1 text-xs font-black text-neutral-600">
-                          {notification.createdAt}
+                          {formatDateTime(notification.createdAt)}
                         </span>
                       </div>
                       <p className="mt-2 text-sm leading-6 text-neutral-600">{notification.description}</p>
@@ -514,19 +513,6 @@ export function OwnerSectionContent({ section }: { section: string }) {
               </div>
             </div>
 
-            <div className="grid gap-4">
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-                <p className="text-sm font-bold text-neutral-500">Notifications locales</p>
-                <p className="mt-2 text-3xl font-black text-neutral-950">{localNotifications.length}</p>
-                <p className="mt-2 text-sm leading-6 text-neutral-600">Créées lors d&apos;une réservation effectuée dans l&apos;interface frontend.</p>
-              </div>
-              <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
-                <h3 className="font-black text-neutral-950">Synchronisation Laravel</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-700">
-                  Les réservations créent une notification côté portail. L&apos;affichage combine les retours backend et les confirmations immédiates de l&apos;interface.
-                </p>
-              </div>
-            </div>
           </div>
         ) : !apiError ? (
           <EmptyApiState loading={loading} label="Aucune notification pour le moment." />
@@ -1236,12 +1222,10 @@ function formatMonthTitle(date: Date) {
   return new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(date);
 }
 
-function parseRentalPeriod(period: string) {
-  const matches = period.match(/\d{4}-\d{2}-\d{2}/g);
-  if (!matches?.length) return null;
-
-  const start = parseDate(matches[0]);
-  const end = parseDate(matches[1] ?? matches[0]);
+function parseRentalPeriod(rental: RentalHistoryItem) {
+  const matches = rental.period.match(/\d{4}-\d{2}-\d{2}/g);
+  const start = parseDate(rental.dateStart ?? matches?.[0] ?? "");
+  const end = parseDate(rental.dateEnd ?? matches?.[1] ?? matches?.[0] ?? "");
 
   if (!start || !end) return null;
 
@@ -1281,7 +1265,7 @@ function OwnerCalendar({
   const [monthDate, setMonthDate] = useState(() => new Date());
   const monthDays = buildMonthDays(monthDate);
   const reservationRanges = calendarRentals
-    .map((rental) => ({ rental, range: parseRentalPeriod(rental.period) }))
+    .map((rental) => ({ rental, range: parseRentalPeriod(rental) }))
     .filter((item): item is { rental: RentalHistoryItem; range: { start: Date; end: Date } } => Boolean(item.range));
 
   function reservationForDay(day: Date) {
@@ -1472,7 +1456,8 @@ function ApiSummaryCard({ item }: { item: Record<string, unknown> }) {
     "Information";
   const rawStatus = stringValue(item.status) ?? stringValue(item.method) ?? stringValue(item.category) ?? "Info";
   const status = apiStatusLabels[rawStatus.toLowerCase()] ?? rawStatus;
-  const date = stringValue(item.created_at) ?? stringValue(item.scheduled_at) ?? stringValue(item.paid_at);
+  const createdAt = stringValue(item.created_at);
+  const scheduledAt = stringValue(item.scheduled_at) ?? stringValue(item.paid_at);
   const amount = numberValue(item.amount) ?? numberValue(item.total_amount) ?? numberValue(item.cost);
 
   return (
@@ -1481,7 +1466,11 @@ function ApiSummaryCard({ item }: { item: Record<string, unknown> }) {
         <p className="font-black text-neutral-950">{title}</p>
         <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">{status}</span>
       </div>
-      {date ? <p className="mt-3 text-sm font-semibold text-neutral-500">{date}</p> : null}
+      {createdAt || scheduledAt ? (
+        <p className="mt-3 text-sm font-semibold text-neutral-500">
+          {createdAt ? formatDateTime(createdAt) : formatDate(scheduledAt)}
+        </p>
+      ) : null}
       {amount ? <p className="mt-3 text-lg font-black text-neutral-950">{formatDh(amount)}</p> : null}
       <p className="mt-3 text-sm leading-6 text-neutral-600">Information synchronisée avec votre espace de gestion.</p>
     </div>

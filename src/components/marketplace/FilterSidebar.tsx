@@ -2,6 +2,7 @@ import { Check, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { categories as fallbackCategories, cities } from "@/lib/data";
 import type { Category } from "@/types";
+import { filterHref } from "@/lib/marketplace-filters";
 
 const priceRanges = [
   { label: "Tous les prix", value: "" },
@@ -12,7 +13,6 @@ const priceRanges = [
 
 const quickFilters = [
   { label: "Disponible maintenant", key: "available" },
-  { label: "Avec opérateur", key: "operator" },
   { label: "Livraison possible", key: "delivery" },
   { label: "Propriétaire vérifié", key: "verified" },
 ];
@@ -20,10 +20,13 @@ const quickFilters = [
 type FilterSidebarProps = {
   items?: Category[];
   active?: Record<string, string | undefined>;
+  brands?: string[];
+  models?: string[];
 };
 
-export function FilterSidebar({ active = {}, items = fallbackCategories }: FilterSidebarProps) {
+export function FilterSidebar({ active = {}, brands = [], items = fallbackCategories, models = [] }: FilterSidebarProps) {
   const activeCount = [
+    active.q,
     active.category,
     active.city,
     active.price,
@@ -31,13 +34,16 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
     active.operator,
     active.delivery,
     active.verified,
+    active.brand,
+    active.model,
+    active.sort,
   ].filter(Boolean).length;
 
   return (
-    <aside className="h-fit rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm lg:sticky lg:top-24">
+    <aside className="h-fit rounded-lg border border-orange-100 bg-white p-4 shadow-sm lg:sticky lg:top-24">
       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-4">
         <div className="flex items-center gap-2">
-          <span className="grid size-10 place-items-center rounded-xl bg-orange-50 text-orange-600">
+          <span className="grid size-10 place-items-center rounded-md bg-orange-50 text-orange-600">
             <SlidersHorizontal size={18} aria-hidden />
           </span>
           <div>
@@ -47,7 +53,7 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
         </div>
         <Link
           href="/location"
-          className="inline-flex h-9 items-center gap-1 rounded-full border border-neutral-200 px-3 text-xs font-black text-neutral-700 transition hover:border-orange-300 hover:text-orange-700"
+          className="inline-flex h-9 items-center gap-1 rounded-md border border-neutral-200 px-3 text-xs font-black text-neutral-700 transition hover:border-orange-300 hover:text-orange-700"
         >
           <X size={14} aria-hidden />
           Réinitialiser
@@ -55,7 +61,7 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
       </div>
 
       {activeCount ? (
-        <div className="mt-4 rounded-xl bg-orange-50 px-3 py-2 text-xs font-black text-orange-700">
+        <div className="mt-4 rounded-md bg-orange-50 px-3 py-2 text-xs font-black text-orange-700">
           {activeCount} filtre{activeCount > 1 ? "s" : ""} actif{activeCount > 1 ? "s" : ""}
         </div>
       ) : null}
@@ -65,10 +71,10 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
           badge={`${items.length} types`}
           title="Catégorie"
           options={[
-            { label: "Toutes les machines", href: hrefWith(active, { category: null }) },
+            { label: "Toutes les machines", href: filterHref(active, { category: null }) },
             ...items.map((category) => ({
               label: category.name,
-              href: hrefWith(active, { category: category.slug }),
+              href: filterHref(active, { category: category.slug }),
               active: active.category === category.slug,
             })),
           ]}
@@ -79,10 +85,10 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
           title="Ville"
           scroll
           options={[
-            { label: "Toutes les villes", href: hrefWith(active, { city: null }) },
+            { label: "Toutes les villes", href: filterHref(active, { city: null }) },
             ...cities.map((city) => ({
               label: city,
-              href: hrefWith(active, { city }),
+              href: filterHref(active, { city }),
               active: active.city === city,
             })),
           ]}
@@ -93,10 +99,54 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
           title="Prix par jour"
           options={priceRanges.map((range) => ({
             label: range.label,
-            href: hrefWith(active, { price: range.value || null }),
+            href: filterHref(active, { price: range.value || null }),
             active: active.price === range.value,
           }))}
           activeFirst={!active.price}
+        />
+
+        <FilterGroup
+          title="Opérateur"
+          options={[
+            { label: "Avec ou sans opérateur", href: filterHref(active, { operator: null }) },
+            { label: "Avec opérateur", href: filterHref(active, { operator: "1" }), active: active.operator === "1" },
+            { label: "Sans opérateur", href: filterHref(active, { operator: "0" }), active: active.operator === "0" },
+          ]}
+          activeFirst={active.operator === undefined}
+        />
+
+        {brands.length ? (
+          <FilterGroup
+            title="Marque"
+            scroll
+            options={[
+              { label: "Toutes les marques", href: filterHref(active, { brand: null }) },
+              ...brands.map((brand) => ({ label: brand, href: filterHref(active, { brand }), active: active.brand === brand })),
+            ]}
+            activeFirst={!active.brand}
+          />
+        ) : null}
+
+        {models.length ? (
+          <FilterGroup
+            title="Modèle"
+            scroll
+            options={[
+              { label: "Tous les modèles", href: filterHref(active, { model: null }) },
+              ...models.map((model) => ({ label: model, href: filterHref(active, { model }), active: active.model === model })),
+            ]}
+            activeFirst={!active.model}
+          />
+        ) : null}
+
+        <FilterGroup
+          title="Trier"
+          options={[
+            { label: "Plus récentes", href: filterHref(active, { sort: null }) },
+            { label: "Prix croissant", href: filterHref(active, { sort: "price_asc" }), active: active.sort === "price_asc" },
+            { label: "Prix décroissant", href: filterHref(active, { sort: "price_desc" }), active: active.sort === "price_desc" },
+          ]}
+          activeFirst={!active.sort || active.sort === "recent"}
         />
 
         <div>
@@ -108,8 +158,8 @@ export function FilterSidebar({ active = {}, items = fallbackCategories }: Filte
               return (
                 <Link
                   key={filter.key}
-                  href={hrefWith(active, { [filter.key]: selected ? null : "1" })}
-                  className={`flex min-h-11 items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm font-bold leading-5 transition ${
+                  href={filterHref(active, { [filter.key]: selected ? null : "1" })}
+                className={`flex min-h-11 items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm font-bold leading-5 transition ${
                     selected
                       ? "border-orange-500 bg-orange-50 text-orange-700"
                       : "border-neutral-200 bg-white text-neutral-700 hover:border-orange-300 hover:bg-orange-50"
@@ -156,9 +206,9 @@ function FilterGroup({
             <Link
               key={`${title}-${option.label}`}
               href={option.href}
-              className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm leading-5 transition ${
+              className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md border px-3 py-2.5 text-left text-sm leading-5 transition ${
                 selected
-                  ? "border-neutral-950 bg-neutral-950 font-black text-white"
+                  ? "border-orange-500 bg-orange-50 font-black text-orange-800"
                   : "border-neutral-200 bg-white font-bold text-neutral-700 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
               }`}
             >
@@ -170,23 +220,4 @@ function FilterGroup({
       </div>
     </div>
   );
-}
-
-function hrefWith(active: Record<string, string | undefined>, patch: Record<string, string | null>) {
-  const params = new URLSearchParams();
-
-  Object.entries(active).forEach(([key, value]) => {
-    if (value) params.set(key, value);
-  });
-
-  Object.entries(patch).forEach(([key, value]) => {
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-  });
-
-  const query = params.toString();
-  return query ? `/location?${query}` : "/location";
 }

@@ -46,7 +46,7 @@ export function Footer() {
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["Marketplace", [["Location", "/location"], ["Machines", "/machines"], ["Entreprises", "/entreprise/atlas-location"]]],
+            ["Marketplace", [["Location", "/location"], ["Entreprises", "/entreprise/atlas-location"]]],
             ["Propriétaires", [["Déposer un matériel", "/deposer"], ["Créer un compte", "/inscription"], ["Se connecter", "/connexion"]]],
             ["Compte", [["Profil", "/profil"], ["Mes locations", "/mes-locations"], ["Dashboard", "/espace"]]],
             ["MATLI", [["Fonctionnement", "/fonctionnement"], ["Conseils location", "/fonctionnement#conseils"], ["Contact", "mailto:contact@matli.ma"]]],

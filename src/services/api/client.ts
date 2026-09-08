@@ -22,7 +22,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     ...init,
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },

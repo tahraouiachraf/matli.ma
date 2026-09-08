@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { BadgeCheck, HardHat, Truck } from "lucide-react";
+import Link from "next/link";
+import { ActiveFilters } from "@/components/marketplace/ActiveFilters";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
 import { MarketplaceSearch } from "@/components/marketplace/MarketplaceSearch";
+import { ResponsiveFilters } from "@/components/marketplace/ResponsiveFilters";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { JsonLd, marketplaceJsonLd } from "@/lib/seo";
-import { getCategoriesStrict, getEquipmentListStrict } from "@/services/api/matli";
-import type { Equipment } from "@/types";
+import { getCatalogMetaStrict, getCategoriesStrict, getEquipmentListStrict } from "@/services/api/matli";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +51,7 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
 export default async function LocationPage({ searchParams }: LocationPageProps) {
   const params = await searchParams;
   const active = {
+    q: singleParam(params?.q),
     category: singleParam(params?.category),
     city: singleParam(params?.city),
     price: singleParam(params?.price),
@@ -55,42 +59,76 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
     operator: singleParam(params?.operator),
     delivery: singleParam(params?.delivery),
     verified: singleParam(params?.verified),
+    brand: singleParam(params?.brand),
+    model: singleParam(params?.model),
+    sort: singleParam(params?.sort),
   };
+  const price = priceBounds(active.price);
+  const activeCount = Object.entries(active).filter(([key, value]) => value && key !== "sort").length;
 
-  const [apiEquipment, categories] = await Promise.all([
+  const [equipment, categories, meta] = await Promise.all([
     getEquipmentListStrict({
       perPage: 30,
+      q: active.q,
       category: active.category,
       city: active.city,
-      status: active.available === "1" ? "available" : undefined,
+      availableNow: active.available === "1",
+      minPrice: price.min,
+      maxPrice: price.max,
+      operator: active.operator === "1" ? true : active.operator === "0" ? false : undefined,
+      delivery: active.delivery === "1",
+      verified: active.verified === "1",
+      brand: active.brand,
+      model: active.model,
+      sort: active.sort === "price_asc" || active.sort === "price_desc" ? active.sort : "recent",
     }),
     getCategoriesStrict(),
+    getCatalogMetaStrict(),
   ]);
-  const equipment = applyLocalFilters(apiEquipment, active);
 
   return (
     <div>
       <JsonLd data={marketplaceJsonLd()} />
-      <section className="bg-neutral-950 px-4 py-12 text-white sm:px-6 lg:px-8">
+      <section className="border-b border-orange-100 bg-orange-50 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <h1 className="text-4xl font-black">Location de matériel BTP au Maroc</h1>
-          <p className="mt-4 max-w-2xl text-neutral-300">
-            Comparez les prix de plusieurs propriétaires, vérifiez les options et envoyez une demande de réservation.
-          </p>
-          <div className="mt-8">
-            <MarketplaceSearch />
+          <div className="max-w-4xl">
+            <p className="inline-flex items-center gap-2 rounded-md border border-orange-200 bg-white px-3 py-1.5 text-xs font-black uppercase text-orange-700">
+              <HardHat size={15} aria-hidden /> Marketplace BTP au Maroc
+            </p>
+            <h1 className="mt-5 text-4xl font-black leading-tight text-neutral-950 sm:text-5xl lg:text-6xl">Trouvez la bonne machine, au bon endroit, au bon prix.</h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600 sm:text-lg">
+              Comparez les matériels disponibles près de votre chantier et envoyez une demande directement au propriétaire.
+            </p>
+          </div>
+          <div className="mt-7">
+            <MarketplaceSearch active={active} />
+          </div>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold text-neutral-700">
+            <span className="inline-flex items-center gap-2"><BadgeCheck size={17} className="text-orange-600" aria-hidden /> Propriétaires identifiés</span>
+            <span className="inline-flex items-center gap-2"><Truck size={17} className="text-orange-600" aria-hidden /> Livraison selon l’offre</span>
+            <Link href="#offres" className="font-black text-orange-700 hover:text-orange-800">Voir les machines disponibles</Link>
           </div>
         </div>
       </section>
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-        <FilterSidebar items={categories} active={active} />
-        <div>
-          <SectionHeading
-            title="Offres disponibles"
-            description={`${equipment.length} offre${equipment.length > 1 ? "s" : ""} trouvée${equipment.length > 1 ? "s" : ""} selon vos filtres.`}
-          />
+      <section id="offres" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 lg:hidden">
+          <ResponsiveFilters count={activeCount}>
+            <FilterSidebar items={categories} active={active} brands={meta.brands} models={meta.models} />
+          </ResponsiveFilters>
+          <span className="text-sm font-bold text-neutral-600">{equipment.length} résultat{equipment.length > 1 ? "s" : ""}</span>
+        </div>
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+          <div className="hidden lg:block">
+            <FilterSidebar items={categories} active={active} brands={meta.brands} models={meta.models} />
+          </div>
+          <div className="min-w-0">
+            <SectionHeading
+              title="Machines disponibles"
+              description={`${equipment.length} offre${equipment.length > 1 ? "s" : ""} trouvée${equipment.length > 1 ? "s" : ""} selon vos critères.`}
+            />
+            <div className="mt-5"><ActiveFilters active={active} categories={categories} /></div>
           {equipment.length ? (
-            <div className="mt-8 grid gap-6 xl:grid-cols-2">
+            <div className="mt-7 grid gap-5 md:grid-cols-2">
               {equipment.map((item) => (
                 <EquipmentCard key={item.id} item={item} />
               ))}
@@ -103,6 +141,7 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
               </p>
             </div>
           )}
+          </div>
         </div>
       </section>
     </div>
@@ -117,15 +156,9 @@ function readableSlug(value: string) {
   return value.replaceAll("-", " ");
 }
 
-function applyLocalFilters(items: Equipment[], active: Record<string, string | undefined>) {
-  return items.filter((item) => {
-    if (active.price === "under-1000" && item.priceDay >= 1000) return false;
-    if (active.price === "1000-1700" && (item.priceDay < 1000 || item.priceDay > 1700)) return false;
-    if (active.price === "over-1700" && item.priceDay <= 1700) return false;
-    if (active.operator === "1" && !item.operator) return false;
-    if (active.delivery === "1" && !item.delivery) return false;
-    if (active.verified === "1" && !item.companyVerified) return false;
-
-    return true;
-  });
+function priceBounds(price?: string) {
+  if (price === "under-1000") return { max: 999 };
+  if (price === "1000-1700") return { min: 1000, max: 1700 };
+  if (price === "over-1700") return { min: 1701 };
+  return {};
 }

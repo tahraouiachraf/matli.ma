@@ -64,6 +64,8 @@ export type RentalHistoryItem = {
   equipmentTitle: string;
   companyName: string;
   city: string;
+  dateStart?: string;
+  dateEnd?: string;
   period: string;
   total: number;
   status: "COMPLETED" | "ONGOING" | "RESERVED" | "CANCELLED";

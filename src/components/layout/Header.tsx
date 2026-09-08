@@ -10,7 +10,6 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 const nav = [
   ["Accueil", "/"],
   ["Louer", "/location"],
-  ["Machines", "/machines"],
   ["Déposer un matériel", "/deposer"],
   ["Comment ça marche ?", "/fonctionnement"],
 ];

@@ -44,7 +44,7 @@ export function GoogleConnectButton({ className = "", compact = false }: GoogleC
     <button
       type="button"
       onClick={handleClick}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-neutral-200 bg-white px-4 text-sm font-bold text-neutral-800 transition hover:border-orange-400 hover:text-orange-600 ${className}`}
+      className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800 shadow-sm transition hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-100 ${className}`}
     >
       <GoogleIcon />
       {compact ? "Google" : "Continuer avec Google"}
