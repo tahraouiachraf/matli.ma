@@ -29,7 +29,7 @@ export function Footer() {
           </p>
           <div className="mt-5 flex items-center gap-3">
             <Link
-              href="https://www.instagram.com/"
+              href="https://www.instagram.com/matlimaroc/"
               aria-label="MATLI sur Instagram"
               className="grid size-10 place-items-center rounded-md border border-neutral-200 text-neutral-700 transition hover:border-orange-500 hover:text-orange-600"
             >
