@@ -18,15 +18,21 @@ type RequestOptions = RequestInit & {
 
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token, headers, ...init } = options;
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+    });
+  } catch {
+    throw new ApiError("Service momentanément indisponible. Merci de réessayer dans quelques instants.", 0);
+  }
 
   const payload = await response.json().catch(() => null);
 
