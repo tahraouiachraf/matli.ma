@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { OwnerWorkspace } from "@/components/dashboard/OwnerWorkspace";
 import { RentalHistorySection } from "@/components/sections/RentalHistorySection";
 
 export const metadata: Metadata = {
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function MyRentalsPage() {
   return (
     <AuthGuard title="Connectez-vous pour consulter vos locations">
-      <RentalHistorySection />
+      <OwnerWorkspace activeHref="/mes-locations">
+        <RentalHistorySection embedded />
+      </OwnerWorkspace>
     </AuthGuard>
   );
 }
