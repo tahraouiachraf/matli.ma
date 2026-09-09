@@ -1417,7 +1417,7 @@ function OwnerCalendar({
   rentals: RentalHistoryItem[];
 }) {
   const calendarEquipment = equipment.length ? equipment : [];
-  const calendarRentals = rentals.length ? rentals : [];
+  const calendarRentals = rentals.filter((rental) => ["confirmed", "active"].includes(rental.statusKey ?? ""));
   const availableEquipment = calendarEquipment.filter((item) => item.status === "AVAILABLE").length;
   const [monthDate, setMonthDate] = useState(() => new Date());
   const monthDays = buildMonthDays(monthDate);
@@ -1655,15 +1655,32 @@ function ReservationActions({ rental, loading, onChange }: {
         ? [["Terminer", "completed"], ["Annuler", "cancelled"]] as const
         : [];
 
-  return actions.length ? (
-    <div className="flex flex-wrap gap-2">
-      {actions.map(([label, status]) => (
-        <button key={status} type="button" disabled={loading} onClick={() => onChange(rental, status)} className="rounded-md border border-orange-200 px-3 py-2 text-xs font-black text-orange-700 disabled:opacity-50">
-          {label}
-        </button>
-      ))}
+  return (
+    <div className="grid min-w-40 gap-2">
+      {actions.length ? (
+        <div className="flex flex-wrap gap-2">
+          {actions.map(([label, status]) => (
+            <button key={status} type="button" disabled={loading} onClick={() => onChange(rental, status)} className="rounded-md border border-orange-200 px-3 py-2 text-xs font-black text-orange-700 disabled:opacity-50">
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : <span className="text-xs text-neutral-400">Aucune action requise</span>}
+      {rental.statusHistory?.length ? (
+        <details>
+          <summary className="cursor-pointer text-xs font-bold text-neutral-600">Historique ({rental.statusHistory.length})</summary>
+          <ol className="mt-2 grid gap-2 border-l-2 border-orange-100 pl-3">
+            {[...rental.statusHistory].reverse().map((history) => (
+              <li key={history.id} className="text-xs">
+                <p className="font-black text-neutral-800">{apiStatusLabels[history.toStatus] ?? history.toStatus}</p>
+                <p className="text-neutral-500">{formatDateTime(history.createdAt)} · {history.actorName}</p>
+              </li>
+            ))}
+          </ol>
+        </details>
+      ) : null}
     </div>
-  ) : <span className="text-xs text-neutral-400">Terminée</span>;
+  );
 }
 
 function DashboardTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) {

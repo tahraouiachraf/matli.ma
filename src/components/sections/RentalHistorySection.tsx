@@ -3,7 +3,7 @@
 import { CalendarDays, FileText, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatDh } from "@/lib/format";
+import { formatDateTime, formatDh } from "@/lib/format";
 import { apiStatusLabels, rentalStatusLabels } from "@/lib/data";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cancelClientReservation, getClientReservationsStrict } from "@/services/api/matli";
@@ -139,6 +139,29 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
                 </div>
               ) : null}
             </div>
+            {rental.statusHistory?.length ? (
+              <details className="border-t border-neutral-100 pt-4 md:col-span-3">
+                <summary className="cursor-pointer text-sm font-black text-neutral-800">
+                  Voir l’historique ({rental.statusHistory.length})
+                </summary>
+                <ol className="mt-4 grid gap-3 border-l-2 border-orange-100 pl-4">
+                  {[...rental.statusHistory].reverse().map((history) => (
+                    <li key={history.id} className="relative">
+                      <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-orange-500" />
+                      <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-start">
+                        <div>
+                          <p className="text-sm font-black text-neutral-900">{apiStatusLabels[history.toStatus] ?? history.toStatus}</p>
+                          <p className="text-xs text-neutral-500">{history.actorName}{history.note ? ` · ${history.note}` : ""}</p>
+                        </div>
+                        <time className="shrink-0 text-xs font-semibold text-neutral-500" dateTime={history.createdAt}>
+                          {formatDateTime(history.createdAt)}
+                        </time>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            ) : null}
           </article>
         ))}
       </div>

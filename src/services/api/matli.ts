@@ -105,6 +105,14 @@ type ApiReservation = {
   total_amount: number;
   status: "pending" | "confirmed" | "active" | "completed" | "cancelled";
   equipment?: { title: string; city?: string; image_url?: string | null; company?: { name: string } };
+  status_histories?: Array<{
+    id: string;
+    from_status?: string | null;
+    to_status: string;
+    note?: string | null;
+    created_at: string;
+    actor?: { name: string } | null;
+  }>;
 };
 
 type WorkspaceDashboard = {
@@ -304,7 +312,40 @@ function mapRental(reservation: ApiReservation): RentalHistoryItem {
             : "RESERVED",
     image: localImage(reservation.equipment?.image_url),
     statusKey: reservation.status,
+    statusHistory: reservation.status_histories?.map((history) => ({
+      id: history.id,
+      fromStatus: history.from_status,
+      toStatus: history.to_status,
+      note: history.note,
+      actorName: history.actor?.name ?? "Système MATLI",
+      createdAt: history.created_at,
+    })) ?? [],
   };
+}
+
+export type EquipmentBlockedPeriod = {
+  dateStart: string;
+  dateEnd: string;
+  status: "reserved" | "confirmed" | "active" | "maintenance" | "unavailable";
+};
+
+type EquipmentAvailabilityResponse = {
+  availability: Array<{ date_start: string; date_end: string; status: EquipmentBlockedPeriod["status"] }>;
+  reservations: Array<{ date_start: string; date_end: string; status: "confirmed" | "active" }>;
+};
+
+export function getEquipmentBlockedPeriods(equipmentSlug: string) {
+  return apiRequest<EquipmentAvailabilityResponse>(`/equipment/${equipmentSlug}/availability`).then((payload) => {
+    const periods = [...payload.availability, ...payload.reservations].map((period) => ({
+      dateStart: period.date_start,
+      dateEnd: period.date_end,
+      status: period.status,
+    }));
+
+    return periods.filter((period, index) => periods.findIndex((candidate) =>
+      candidate.dateStart === period.dateStart && candidate.dateEnd === period.dateEnd,
+    ) === index);
+  });
 }
 
 export function getWorkspaceEquipment(token?: string | null) {
@@ -382,6 +423,7 @@ export function createReservation(payload: CreateReservationPayload, token?: str
     status: ApiReservation["status"];
     total_amount: number;
     message: string;
+    quote: { days: number; price_day: number; total_amount: number };
   }>("/reservations", {
     method: "POST",
     token,

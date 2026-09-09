@@ -74,6 +74,14 @@ export type RentalHistoryItem = {
   status: "COMPLETED" | "ONGOING" | "RESERVED" | "CANCELLED";
   image: string;
   statusKey?: "pending" | "confirmed" | "active" | "completed" | "cancelled";
+  statusHistory?: Array<{
+    id: string;
+    fromStatus?: string | null;
+    toStatus: string;
+    note?: string | null;
+    actorName: string;
+    createdAt: string;
+  }>;
 };
 
 export type Company = {
