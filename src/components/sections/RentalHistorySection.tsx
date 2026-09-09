@@ -16,7 +16,7 @@ const statusStyles: Record<RentalHistoryItem["status"], string> = {
   CANCELLED: "bg-red-50 text-red-700",
 };
 
-export function RentalHistorySection() {
+export function RentalHistorySection({ embedded = false }: { embedded?: boolean }) {
   const { token } = useAuth();
   const [items, setItems] = useState<RentalHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,7 @@ export function RentalHistorySection() {
   const rentals = items.length ? items : [];
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <section className={embedded ? "min-w-0" : "mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8"}>
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="font-bold text-orange-600">Historique</p>

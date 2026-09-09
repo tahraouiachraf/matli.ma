@@ -62,6 +62,7 @@ export const ownerMenu: WorkspaceMenuItem[] = [
   ["Documents", "/espace/documents", FileText],
   ["Statistiques", "/espace/statistiques", ChartNoAxesCombined],
   ["Notifications", "/espace/notifications", Bell],
+  ["Profil", "/profil", UserRound],
   ["Paramètres", "/espace/parametres", Settings],
 ];
 
