@@ -40,8 +40,8 @@ export function EquipmentReservationForm({ equipmentId, equipmentTitle }: Equipm
       }, token);
       setMessage("Votre demande est envoyée. Le propriétaire peut maintenant vous contacter.");
       event.currentTarget.reset();
-    } catch {
-      setError("Merci de réessayer plus tard.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
     } finally {
       setSubmitting(false);
     }

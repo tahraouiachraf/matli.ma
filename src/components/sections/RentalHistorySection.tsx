@@ -4,9 +4,9 @@ import { CalendarDays, FileText, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDh } from "@/lib/format";
-import { rentalStatusLabels } from "@/lib/data";
+import { apiStatusLabels, rentalStatusLabels } from "@/lib/data";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceReservationsStrict } from "@/services/api/matli";
+import { cancelClientReservation, getClientReservationsStrict } from "@/services/api/matli";
 import type { RentalHistoryItem } from "@/types";
 
 const statusStyles: Record<RentalHistoryItem["status"], string> = {
@@ -21,13 +21,16 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
   const [items, setItems] = useState<RentalHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function loadRentals() {
       try {
-        const payload = await getWorkspaceReservationsStrict(token);
+        const payload = await getClientReservationsStrict(token);
         if (mounted) setItems(payload);
       } catch {
         if (mounted) setError(true);
@@ -45,6 +48,22 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
 
   const rentals = items.length ? items : [];
 
+  async function cancelReservation(rental: RentalHistoryItem) {
+    if (!rental.backendId) return;
+    setCancelling(true);
+    setNotice(null);
+    try {
+      const response = await cancelClientReservation(rental.backendId, token);
+      setItems((current) => current.map((item) => item.backendId === rental.backendId ? response.reservation : item));
+      setNotice(response.message);
+      setConfirmCancelId(null);
+    } catch (exception) {
+      setNotice(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   return (
     <section className={embedded ? "min-w-0" : "mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8"}>
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -59,6 +78,8 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
           Louer encore
         </Link>
       </div>
+
+      {notice ? <p className="mt-6 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm font-bold text-orange-900">{notice}</p> : null}
 
       {error ? (
         <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
@@ -80,7 +101,7 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-xl font-black text-neutral-950">{rental.equipmentTitle}</h3>
                 <span className={`rounded-md px-2 py-1 text-xs font-black ${statusStyles[rental.status]}`}>
-                  {rentalStatusLabels[rental.status]}
+                  {apiStatusLabels[rental.statusKey ?? ""] ?? rentalStatusLabels[rental.status]}
                 </span>
               </div>
               <p className="mt-2 text-sm font-semibold text-neutral-600">
@@ -102,7 +123,21 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
                   <RotateCcw size={16} aria-hidden />
                   Relouer
                 </button>
+                {rental.backendId && ["pending", "confirmed"].includes(rental.statusKey ?? "") ? (
+                  <button type="button" onClick={() => setConfirmCancelId(rental.backendId ?? null)} className="inline-flex h-10 items-center rounded-md border border-red-200 px-3 text-sm font-black text-red-700 hover:bg-red-50">
+                    Annuler
+                  </button>
+                ) : null}
               </div>
+              {confirmCancelId === rental.backendId ? (
+                <div className="max-w-xs rounded-lg border border-red-200 bg-red-50 p-3 text-left">
+                  <p className="text-xs font-bold text-red-800">Confirmer l’annulation de cette réservation ?</p>
+                  <div className="mt-2 flex gap-2">
+                    <button type="button" disabled={cancelling} onClick={() => cancelReservation(rental)} className="rounded-md bg-red-600 px-3 py-2 text-xs font-black text-white disabled:opacity-60">Confirmer</button>
+                    <button type="button" onClick={() => setConfirmCancelId(null)} className="rounded-md bg-white px-3 py-2 text-xs font-bold text-neutral-700">Retour</button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </article>
         ))}

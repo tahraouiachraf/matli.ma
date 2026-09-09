@@ -3,6 +3,7 @@
 import { AlertCircle, Eye, EyeOff, Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 export function LoginForm({ notice }: { notice?: string }) {
@@ -92,6 +93,10 @@ export function LoginForm({ notice }: { notice?: string }) {
           </button>
         </span>
       </label>
+
+      <Link href="/mot-de-passe/oublie" className="justify-self-end text-sm font-black text-orange-700 hover:text-orange-800">
+        Mot de passe oublié ?
+      </Link>
 
       <button
         disabled={loading}

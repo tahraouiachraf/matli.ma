@@ -40,6 +40,9 @@ export type Equipment = {
   companyVerified?: boolean;
   description: string;
   specs: string[];
+  moderationStatus?: "draft" | "pending_review" | "approved" | "rejected";
+  moderationNotes?: string | null;
+  archivedAt?: string | null;
 };
 
 export type ClientRequest = {
@@ -70,6 +73,7 @@ export type RentalHistoryItem = {
   total: number;
   status: "COMPLETED" | "ONGOING" | "RESERVED" | "CANCELLED";
   image: string;
+  statusKey?: "pending" | "confirmed" | "active" | "completed" | "cancelled";
 };
 
 export type Company = {

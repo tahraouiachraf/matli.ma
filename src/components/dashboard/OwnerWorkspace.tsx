@@ -27,13 +27,18 @@ import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import {
   createRentalRequest,
   createReservation,
+  changeWorkspaceEquipmentState,
   createWorkspaceItem,
   deleteWorkspaceItem,
+  deleteWorkspaceEquipment,
   getMarketplaceRequestsStrict,
+  getClientNotifications,
+  markClientNotificationsRead,
   getWorkspaceCollectionStrict,
   getWorkspaceEquipmentStrict,
   getWorkspaceReservationsStrict,
   updateWorkspaceItem,
+  updateReservationStatus,
 } from "@/services/api/matli";
 import type { CreateRentalRequestPayload, CreateReservationPayload, WorkspaceCrudPayload } from "@/services/api/matli";
 import type { ClientRequest, Equipment, RentalHistoryItem } from "@/types";
@@ -177,7 +182,8 @@ function ClientDashboard({ name }: { name?: string }) {
 }
 
 export function OwnerSectionContent({ section }: { section: string }) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const ownerAccount = isOwnerWorkspaceRole(getWorkspaceRole(user));
   const [workspaceEquipment, setWorkspaceEquipment] = useState<Equipment[] | null>(null);
   const [workspaceRentals, setWorkspaceRentals] = useState<RentalHistoryItem[] | null>(null);
   const [marketplaceRequests, setMarketplaceRequests] = useState<ClientRequest[] | null>(null);
@@ -186,6 +192,10 @@ export function OwnerSectionContent({ section }: { section: string }) {
   const [uiNotice, setUiNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
+  const [confirmEquipmentDelete, setConfirmEquipmentDelete] = useState<string | null>(null);
+  const [equipmentAction, setEquipmentAction] = useState<string | null>(null);
+  const [reservationAction, setReservationAction] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -220,7 +230,9 @@ export function OwnerSectionContent({ section }: { section: string }) {
           const payload = await getWorkspaceReservationsStrict(token);
           if (mounted) setWorkspaceRentals(payload);
         } else if (section === "notifications") {
-          const payload = await getWorkspaceCollectionStrict<Record<string, unknown>>("notifications", token).catch(() => []);
+          const payload = ownerAccount
+            ? await getWorkspaceCollectionStrict<Record<string, unknown>>("notifications", token)
+            : (await getClientNotifications(token)).map((item) => ({ ...item } as Record<string, unknown>));
           if (mounted) {
             setWorkspaceItems(payload);
             setNotifications(readStoredNotifications());
@@ -269,7 +281,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
     return () => {
       mounted = false;
     };
-  }, [section, token]);
+  }, [ownerAccount, section, token]);
 
   async function saveReservation(payload: CreateReservationPayload, machineLabel: string) {
     await createReservation(payload);
@@ -306,6 +318,49 @@ export function OwnerSectionContent({ section }: { section: string }) {
     setUiNotice("Élément supprimé avec succès.");
   }
 
+  async function changeEquipmentState(item: Equipment, action: "archive" | "restore" | "submit") {
+    if (!item.backendId) return;
+    setEquipmentAction(item.backendId);
+    try {
+      const response = await changeWorkspaceEquipmentState(item.backendId, action, token);
+      setWorkspaceEquipment((current) => (current ?? []).map((row) => row.backendId === item.backendId ? response.equipment : row));
+      setUiNotice(response.message);
+    } catch (exception) {
+      setUiNotice(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
+    } finally {
+      setEquipmentAction(null);
+    }
+  }
+
+  async function removeEquipment(item: Equipment) {
+    if (!item.backendId) return;
+    setEquipmentAction(item.backendId);
+    try {
+      const response = await deleteWorkspaceEquipment(item.backendId, token);
+      setWorkspaceEquipment((current) => (current ?? []).filter((row) => row.backendId !== item.backendId));
+      setConfirmEquipmentDelete(null);
+      setUiNotice(response.message);
+    } catch (exception) {
+      setUiNotice(exception instanceof Error ? exception.message : "La suppression n’a pas pu être effectuée.");
+    } finally {
+      setEquipmentAction(null);
+    }
+  }
+
+  async function changeReservation(item: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") {
+    if (!item.backendId) return;
+    setReservationAction(item.backendId);
+    try {
+      const response = await updateReservationStatus(item.backendId, status, token);
+      setWorkspaceRentals((current) => (current ?? []).map((row) => row.backendId === item.backendId ? response.reservation : row));
+      setUiNotice(response.message);
+    } catch (exception) {
+      setUiNotice(exception instanceof Error ? exception.message : "Le statut n’a pas pu être modifié.");
+    } finally {
+      setReservationAction(null);
+    }
+  }
+
   function addReservationNotification(machine: string, client: string) {
     const notification: OwnerNotification = {
       id: `notif-${Date.now()}`,
@@ -331,10 +386,20 @@ export function OwnerSectionContent({ section }: { section: string }) {
       >
         {apiError ? <InlineApiError /> : null}
         <div className="mb-6">
-          <OwnerFormBlock title="Ajouter un matériel" description="Préparez l'annonce avec les informations nécessaires avant la connexion complète au backend.">
-            <DepositMachineForm onCreated={(item) => setWorkspaceEquipment((current) => [item, ...(current ?? [])])} />
+          <OwnerFormBlock title={editingEquipment ? "Modifier le matériel" : "Ajouter un matériel"} description="Toute création ou modification est envoyée à l’administration pour validation avant publication.">
+            <DepositMachineForm
+              key={editingEquipment?.backendId ?? "new-equipment"}
+              equipment={editingEquipment}
+              onCancel={() => setEditingEquipment(null)}
+              onCreated={(item) => setWorkspaceEquipment((current) => [item, ...(current ?? [])])}
+              onUpdated={(item) => {
+                setWorkspaceEquipment((current) => (current ?? []).map((row) => row.backendId === item.backendId ? item : row));
+                setEditingEquipment(null);
+              }}
+            />
           </OwnerFormBlock>
         </div>
+        {uiNotice ? <p className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{uiNotice}</p> : null}
         {!apiError && items.length ? (
           <div className="grid gap-4">
             {items.map((item) => (
@@ -350,11 +415,26 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">{statusLabels[item.status]}</span>
                   {item.operator ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Avec opérateur</span> : null}
                   {item.delivery ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Livraison</span> : null}
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                    {item.archivedAt ? "Archivée" : ({ draft: "Brouillon", pending_review: "En validation", approved: "Validée", rejected: "Refusée" }[item.moderationStatus ?? "approved"])}
+                  </span>
                 </div>
+                {item.moderationNotes ? <p className="mt-2 text-xs font-semibold text-red-700">{item.moderationNotes}</p> : null}
               </div>
               <div className="grid gap-2 sm:flex md:grid">
-                <button className="rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white">Modifier</button>
-                <button className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-bold">Disponibilité</button>
+                <button type="button" disabled={Boolean(item.archivedAt)} onClick={() => setEditingEquipment(item)} className="rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white disabled:opacity-40">Modifier</button>
+                <button type="button" disabled={equipmentAction === item.backendId} onClick={() => changeEquipmentState(item, item.archivedAt ? "restore" : "archive")} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-bold disabled:opacity-40">{item.archivedAt ? "Restaurer" : "Archiver"}</button>
+                {item.moderationStatus === "rejected" || item.moderationStatus === "draft" ? <button type="button" onClick={() => changeEquipmentState(item, "submit")} className="rounded-lg border border-orange-200 px-4 py-2 text-sm font-bold text-orange-700">Envoyer en validation</button> : null}
+                <button type="button" onClick={() => setConfirmEquipmentDelete(item.backendId ?? null)} className="rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700">Supprimer</button>
+                {confirmEquipmentDelete === item.backendId ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                    <p className="text-xs font-bold text-red-800">Supprimer définitivement cette machine ?</p>
+                    <div className="mt-2 flex gap-2">
+                      <button type="button" disabled={equipmentAction === item.backendId} onClick={() => removeEquipment(item)} className="rounded-md bg-red-600 px-3 py-2 text-xs font-black text-white">Confirmer</button>
+                      <button type="button" onClick={() => setConfirmEquipmentDelete(null)} className="rounded-md bg-white px-3 py-2 text-xs font-bold">Retour</button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
             ))}
@@ -373,7 +453,8 @@ export function OwnerSectionContent({ section }: { section: string }) {
       rental.period,
       rental.city,
       formatDh(rental.total),
-      rentalStatusLabels[rental.status],
+      apiStatusLabels[rental.statusKey ?? ""] ?? rentalStatusLabels[rental.status],
+      <ReservationActions key={`${rental.backendId}-actions`} rental={rental} loading={reservationAction === rental.backendId} onChange={changeReservation} />,
     ]);
 
     return (
@@ -390,7 +471,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
           </div>
         ) : null}
         {!apiError && rows.length ? (
-          <DashboardTable headers={["Référence", "Machine", "Période", "Ville", "Montant", "Statut"]} rows={rows} />
+          <DashboardTable headers={["Référence", "Machine", "Période", "Ville", "Montant", "Statut", "Actions"]} rows={rows} />
         ) : !apiError ? (
           <EmptyApiState loading={loading} label="Aucune réservation trouvée pour le moment." />
         ) : null}
@@ -550,6 +631,19 @@ export function OwnerSectionContent({ section }: { section: string }) {
                 <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">
                   {allNotifications.length} notification{allNotifications.length > 1 ? "s" : ""}
                 </span>
+                {!ownerAccount ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const response = await markClientNotificationsRead(token);
+                      setWorkspaceItems((current) => (current ?? []).map((item) => ({ ...item, read_at: new Date().toISOString() })));
+                      setUiNotice(response.message);
+                    }}
+                    className="rounded-md border border-neutral-200 px-3 py-2 text-xs font-black text-neutral-700 hover:border-orange-300"
+                  >
+                    Tout marquer comme lu
+                  </button>
+                ) : null}
               </div>
               <div className="divide-y divide-neutral-100">
                 {allNotifications.map((notification, index) => (
@@ -1548,7 +1642,31 @@ function numberValue(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function DashboardTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
+function ReservationActions({ rental, loading, onChange }: {
+  rental: RentalHistoryItem;
+  loading: boolean;
+  onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") => Promise<void>;
+}) {
+  const actions = rental.statusKey === "pending"
+    ? [["Confirmer", "confirmed"], ["Refuser", "cancelled"]] as const
+    : rental.statusKey === "confirmed"
+      ? [["Démarrer", "active"], ["Annuler", "cancelled"]] as const
+      : rental.statusKey === "active"
+        ? [["Terminer", "completed"], ["Annuler", "cancelled"]] as const
+        : [];
+
+  return actions.length ? (
+    <div className="flex flex-wrap gap-2">
+      {actions.map(([label, status]) => (
+        <button key={status} type="button" disabled={loading} onClick={() => onChange(rental, status)} className="rounded-md border border-orange-200 px-3 py-2 text-xs font-black text-orange-700 disabled:opacity-50">
+          {label}
+        </button>
+      ))}
+    </div>
+  ) : <span className="text-xs text-neutral-400">Terminée</span>;
+}
+
+function DashboardTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
       <div className="overflow-x-auto">
@@ -1563,10 +1681,10 @@ function DashboardTable({ headers, rows }: { headers: string[]; rows: string[][]
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
-            {rows.map((row) => (
-              <tr key={row.join("-")} className="text-neutral-700">
-                {row.map((cell) => (
-                  <td key={cell} className="px-4 py-4 font-semibold">
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex} className="text-neutral-700">
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex} className="px-4 py-4 font-semibold">
                     {cell}
                   </td>
                 ))}

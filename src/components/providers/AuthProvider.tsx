@@ -17,6 +17,7 @@ export type AuthUser = {
   phone?: string | null;
   company_name?: string | null;
   city?: string | null;
+  description?: string | null;
 };
 
 type AuthContextValue = {
@@ -29,6 +30,7 @@ type AuthContextValue = {
   resendVerification: (email: string) => Promise<string>;
   loginDemo: () => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: AuthUser) => void;
 };
 
 type AuthPayload = {
@@ -72,6 +74,14 @@ function getServerConnectedSnapshot() {
   return false;
 }
 
+function getUserSnapshot() {
+  return window.localStorage.getItem("matli-user") ?? "null";
+}
+
+function getServerUserSnapshot() {
+  return "null";
+}
+
 function subscribeReady() {
   return () => {};
 }
@@ -86,9 +96,16 @@ function getServerReadySnapshot() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const connected = useSyncExternalStore(subscribeAuth, getConnectedSnapshot, getServerConnectedSnapshot);
+  const userSnapshot = useSyncExternalStore(subscribeAuth, getUserSnapshot, getServerUserSnapshot);
   const ready = useSyncExternalStore(subscribeReady, getReadySnapshot, getServerReadySnapshot);
   const token = typeof window === "undefined" ? null : window.localStorage.getItem("matli-api-token");
-  const user = typeof window === "undefined" ? null : JSON.parse(window.localStorage.getItem("matli-user") ?? "null") as AuthUser | null;
+  const user = useMemo(() => {
+    try {
+      return JSON.parse(userSnapshot) as AuthUser | null;
+    } catch {
+      return null;
+    }
+  }, [userSnapshot]);
 
   function persistAuth(payload: AuthPayload) {
     window.localStorage.setItem("matli-api-token", payload.access_token);
@@ -140,6 +157,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.localStorage.removeItem("matli-demo-account");
         window.localStorage.removeItem("matli-api-token");
         window.localStorage.removeItem("matli-user");
+        window.dispatchEvent(new Event("matli-auth-change"));
+      },
+      updateUser(nextUser: AuthUser) {
+        window.localStorage.setItem("matli-user", JSON.stringify(nextUser));
         window.dispatchEvent(new Event("matli-auth-change"));
       },
     }),
