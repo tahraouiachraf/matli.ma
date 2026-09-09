@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { DashboardHome, OwnerWorkspace } from "@/components/dashboard/OwnerWorkspace";
 
 export const metadata: Metadata = {
-  title: "Espace propriétaire",
-  description: "Dashboard propriétaire pour gérer matériel, locations, maintenance, clients et finances.",
+  title: "Mon espace",
+  description: "Espace MATLI personnalisé pour suivre les locations ou gérer un parc de matériel BTP.",
 };
 
 export default function OwnerSpacePage() {
