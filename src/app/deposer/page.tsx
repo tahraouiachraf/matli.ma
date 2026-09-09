@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { OwnerOnlyGuard } from "@/components/auth/OwnerOnlyGuard";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
@@ -16,20 +17,22 @@ export default async function DepositPage() {
   return (
     <AuthGuard
       title="Connectez-vous pour déposer une machine"
-      message="La publication de matériel est réservée aux comptes connectés afin de protéger les propriétaires, les clients et les futures réservations."
+      message="La publication de matériel est réservée aux comptes propriétaires MATLI."
     >
-      <DepositSection />
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-        <div>
-          <p className="font-bold text-orange-600">Publication rapide</p>
-          <h1 className="mt-2 text-4xl font-black">Ajoutez votre machine à louer.</h1>
-          <p className="mt-4 text-neutral-600">
-            Ce formulaire prépare les informations nécessaires pour publier une machine: propriétaire, machine, ville, prix, options, photos et disponibilité.
-          </p>
-        </div>
-        <DepositMachineForm />
-      </section>
-      <RequestsPreviewSection requests={requests} />
+      <OwnerOnlyGuard>
+        <DepositSection />
+        <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+          <div>
+            <p className="font-bold text-orange-600">Publication rapide</p>
+            <h1 className="mt-2 text-4xl font-black">Ajoutez votre machine à louer.</h1>
+            <p className="mt-4 text-neutral-600">
+              Ce formulaire prépare les informations nécessaires pour publier une machine: propriétaire, machine, ville, prix, options, photos et disponibilité.
+            </p>
+          </div>
+          <DepositMachineForm />
+        </section>
+        <RequestsPreviewSection requests={requests} />
+      </OwnerOnlyGuard>
     </AuthGuard>
   );
 }

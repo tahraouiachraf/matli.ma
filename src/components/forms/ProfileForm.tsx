@@ -2,9 +2,11 @@
 
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cities } from "@/lib/data";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 export function ProfileForm() {
   const { user } = useAuth();
+  const canDeposit = isOwnerWorkspaceRole(getWorkspaceRole(user));
 
   return (
     <form className="grid gap-6 rounded-md border border-neutral-200 bg-white p-5 md:grid-cols-2">
@@ -47,12 +49,14 @@ export function ProfileForm() {
         <button type="button" className="h-12 rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600">
           Enregistrer le profil
         </button>
-        <a
-          href="/deposer"
-          className="inline-flex h-12 items-center justify-center rounded-md border border-neutral-200 px-5 text-sm font-bold hover:border-orange-400"
-        >
-          Déposer une machine
-        </a>
+        {canDeposit ? (
+          <a
+            href="/deposer"
+            className="inline-flex h-12 items-center justify-center rounded-md border border-neutral-200 px-5 text-sm font-bold hover:border-orange-400"
+          >
+            Déposer une machine
+          </a>
+        ) : null}
       </div>
     </form>
   );

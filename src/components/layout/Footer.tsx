@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 function InstagramIcon() {
   return (
@@ -19,6 +23,13 @@ function LinkedinIcon() {
 }
 
 export function Footer() {
+  const { connected, user } = useAuth();
+  const canDeposit = !connected || isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const ownerLinks = [
+    ...(canDeposit ? [["Déposer un matériel", "/deposer"]] : []),
+    ...(!connected ? [["Créer un compte", "/inscription"], ["Se connecter", "/connexion"]] : []),
+  ];
+
   return (
     <footer className="border-t border-neutral-200 bg-white text-neutral-950">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.05fr_2fr] lg:px-8">
@@ -47,10 +58,10 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["Marketplace", [["Location", "/location"], ["Entreprises", "/entreprise/atlas-location"]]],
-            ["Propriétaires", [["Déposer un matériel", "/deposer"], ["Créer un compte", "/inscription"], ["Se connecter", "/connexion"]]],
+            ["Propriétaires", ownerLinks],
             ["Compte", [["Profil", "/profil"], ["Mes locations", "/mes-locations"], ["Dashboard", "/espace"]]],
             ["MATLI", [["Fonctionnement", "/fonctionnement"], ["Conseils location", "/fonctionnement#conseils"], ["Contact", "mailto:contact@matli.ma"]]],
-          ].map(([title, links]) => (
+          ].filter(([, links]) => (links as string[][]).length > 0).map(([title, links]) => (
             <div key={title as string}>
               <h3 className="font-semibold text-neutral-950">{title}</h3>
               <div className="mt-4 grid gap-3 text-sm text-neutral-600">
