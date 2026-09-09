@@ -87,7 +87,7 @@ export function RegisterForm() {
       </label>
       <fieldset className="min-w-0 md:col-span-2">
         <legend className="mb-2 text-sm font-black text-neutral-800">Je souhaite</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2">
           <label className="cursor-pointer">
             <input type="radio" name="account_type" value="owner" defaultChecked className="peer sr-only" />
             <span className="flex min-h-14 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-4 text-sm font-bold text-neutral-700 transition hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-800 peer-checked:[&_.selection-mark]:opacity-100 peer-focus-visible:ring-4 peer-focus-visible:ring-orange-100">

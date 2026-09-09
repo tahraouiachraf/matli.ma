@@ -1,6 +1,5 @@
 import { BadgeCheck, CalendarCheck, Check, ShieldCheck, Truck } from "lucide-react";
 import Link from "next/link";
-import { GoogleConnectButton } from "@/components/ui/GoogleConnectButton";
 
 type AuthPageShellProps = {
   appearance?: "light" | "dark";
@@ -87,12 +86,7 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
               <h2 className="mt-2 break-words text-2xl font-black tracking-normal text-neutral-950 sm:text-4xl">{title}</h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-600">{description}</p>
 
-              <div className="mt-7"><GoogleConnectButton className="w-full" /></div>
-              <div className="my-5 flex items-center gap-3 text-[11px] font-black uppercase text-neutral-400">
-                <span className="h-px flex-1 bg-neutral-200" />ou avec email<span className="h-px flex-1 bg-neutral-200" />
-              </div>
-
-              {children}
+              <div className="mt-7">{children}</div>
 
               <p className="mt-6 text-center text-sm text-neutral-600 sm:text-left">
                 {alternativePrompt}{" "}
