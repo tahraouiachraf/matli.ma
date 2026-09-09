@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 const nav = [
   ["Accueil", "/"],
@@ -17,6 +19,9 @@ const nav = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { connected, user } = useAuth();
+  const canDeposit = !connected || isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const visibleNav = nav.filter(([, href]) => href !== "/deposer" || canDeposit);
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -30,7 +35,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Navigation principale">
-          {nav.map(([label, href]) => {
+          {visibleNav.map(([label, href]) => {
             const active = isActive(href);
 
             return (
@@ -91,7 +96,7 @@ export function Header() {
 
             <nav className="flex-1 overflow-y-auto px-4 py-5" aria-label="Navigation mobile">
               <div className="grid gap-2">
-                {nav.map(([label, href]) => {
+                {visibleNav.map(([label, href]) => {
                   const active = isActive(href);
 
                   return (
@@ -119,11 +124,13 @@ export function Header() {
               </div>
             </nav>
 
-            <div className="border-t border-neutral-200 p-4">
-              <ButtonLink href="/deposer" className="w-full" onClick={() => setOpen(false)}>
-                Déposer une machine
-              </ButtonLink>
-            </div>
+            {canDeposit ? (
+              <div className="border-t border-neutral-200 p-4">
+                <ButtonLink href="/deposer" className="w-full" onClick={() => setOpen(false)}>
+                  Déposer une machine
+                </ButtonLink>
+              </div>
+            ) : null}
           </aside>
         </div>
       ) : null}

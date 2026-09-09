@@ -1,17 +1,22 @@
 "use client";
 
-import { CircleUserRound, Home, PlusCircle, Search } from "lucide-react";
+import { CalendarDays, CircleUserRound, Home, PlusCircle, Search } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const items = [
+  const { connected, user } = useAuth();
+  const canDeposit = !connected || isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const items: Array<[LucideIcon, string, string]> = [
     [Home, "Accueil", "/"],
     [Search, "Louer", "/location"],
-    [PlusCircle, "Déposer", "/deposer"],
+    canDeposit ? [PlusCircle, "Déposer", "/deposer"] : [CalendarDays, "Locations", "/mes-locations"],
     [CircleUserRound, "Profil", "/profil"],
-  ] as const;
+  ];
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
