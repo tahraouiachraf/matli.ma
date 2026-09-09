@@ -16,6 +16,24 @@ type RequestOptions = RequestInit & {
   token?: string;
 };
 
+type ApiErrorPayload = {
+  data?: unknown;
+  success?: boolean;
+  message?: string;
+  errors?: Record<string, string | string[]>;
+};
+
+function firstValidationError(errors?: ApiErrorPayload["errors"]): string | undefined {
+  if (!errors) return undefined;
+
+  for (const value of Object.values(errors)) {
+    if (Array.isArray(value) && value[0]) return value[0];
+    if (typeof value === "string" && value) return value;
+  }
+
+  return undefined;
+}
+
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token, headers, ...init } = options;
   let response: Response;
@@ -34,10 +52,10 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     throw new ApiError("Service momentanément indisponible. Merci de réessayer dans quelques instants.", 0);
   }
 
-  const payload = await response.json().catch(() => null);
+  const payload = await response.json().catch(() => null) as ApiErrorPayload | null;
 
   if (!response.ok || payload?.success === false) {
-    throw new ApiError(payload?.message ?? "Une erreur est survenue.", response.status);
+    throw new ApiError(firstValidationError(payload?.errors) ?? payload?.message ?? "Une erreur est survenue.", response.status);
   }
 
   return (payload?.data ?? payload) as T;
