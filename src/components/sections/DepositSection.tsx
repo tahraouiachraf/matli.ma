@@ -1,6 +1,5 @@
 import { CheckCircle2, ClipboardList, MessageSquareText, Truck } from "lucide-react";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { GoogleConnectButton } from "@/components/ui/GoogleConnectButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function DepositSection() {
@@ -28,7 +27,6 @@ export function DepositSection() {
           </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/deposer">Déposer une machine</ButtonLink>
-            <GoogleConnectButton />
           </div>
         </div>
         <div className="animate-soft-float rounded-md border border-neutral-200 bg-white p-5 shadow-xl shadow-neutral-950/10">
