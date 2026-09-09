@@ -1,4 +1,5 @@
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { WorkspaceAccessGuard } from "@/components/auth/WorkspaceAccessGuard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,10 +12,10 @@ export const metadata: Metadata = {
 export default function OwnerSpaceLayout({ children }: LayoutProps<"/espace">) {
   return (
     <AuthGuard
-      title="Connectez-vous pour accéder au dashboard"
-      message="Le tableau de bord propriétaire, les machines, les demandes, les finances et les documents sont réservés aux comptes connectés."
+      title="Connectez-vous pour accéder à votre espace"
+      message="Retrouvez les fonctionnalités et les informations disponibles selon votre type de compte MATLI."
     >
-      {children}
+      <WorkspaceAccessGuard>{children}</WorkspaceAccessGuard>
     </AuthGuard>
   );
 }

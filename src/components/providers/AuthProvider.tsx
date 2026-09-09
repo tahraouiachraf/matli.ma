@@ -4,11 +4,16 @@ import { createContext, useContext, useMemo, useSyncExternalStore } from "react"
 import { demoAccount } from "@/lib/data";
 import { apiRequest } from "@/services/api/client";
 
-type AuthUser = {
+export type AuthUser = {
   id: string;
   name: string;
   email: string;
   role?: string;
+  roles?: Array<{
+    id?: string;
+    name: string;
+    description?: string | null;
+  }>;
   phone?: string | null;
   company_name?: string | null;
   city?: string | null;

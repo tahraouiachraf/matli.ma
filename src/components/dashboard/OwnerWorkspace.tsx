@@ -8,7 +8,9 @@ import {
   FolderKanban,
   HardHat,
   LayoutDashboard,
+  Search,
   Settings,
+  UserRound,
   UsersRound,
   WalletCards,
   Wrench,
@@ -21,6 +23,7 @@ import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusL
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import {
   createRentalRequest,
   createReservation,
@@ -44,7 +47,9 @@ type OwnerNotification = {
 
 const notificationStorageKey = "matli-owner-notifications";
 
-export const ownerMenu: Array<[string, string, LucideIcon]> = [
+type WorkspaceMenuItem = [string, string, LucideIcon];
+
+export const ownerMenu: WorkspaceMenuItem[] = [
   ["Tableau de bord", "/espace", LayoutDashboard],
   ["Mon matériel", "/espace/materiel", HardHat],
   ["Locations", "/espace/locations", FolderKanban],
@@ -57,6 +62,15 @@ export const ownerMenu: Array<[string, string, LucideIcon]> = [
   ["Documents", "/espace/documents", FileText],
   ["Statistiques", "/espace/statistiques", ChartNoAxesCombined],
   ["Notifications", "/espace/notifications", Bell],
+  ["Paramètres", "/espace/parametres", Settings],
+];
+
+const clientMenu: WorkspaceMenuItem[] = [
+  ["Mon espace", "/espace", LayoutDashboard],
+  ["Louer un matériel", "/location", Search],
+  ["Mes locations", "/mes-locations", CalendarDays],
+  ["Notifications", "/espace/notifications", Bell],
+  ["Mon profil", "/profil", UserRound],
 ];
 
 type OwnerWorkspaceProps = {
@@ -65,18 +79,23 @@ type OwnerWorkspaceProps = {
 };
 
 export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
+  const { user } = useAuth();
+  const role = getWorkspaceRole(user);
+  const isOwner = isOwnerWorkspaceRole(role);
+  const menu = isOwner ? ownerMenu : clientMenu;
+
   return (
     <section className="mx-auto grid max-w-7xl grid-cols-[72px_minmax(0,1fr)] gap-3 px-3 py-5 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">
       <aside className="sticky top-20 h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-sm sm:p-3 lg:top-24">
         <div className="mb-2 hidden px-3 py-2 sm:block">
-          <h1 className="text-lg font-black text-neutral-950">Espace propriétaire</h1>
-          <p className="mt-1 text-xs font-semibold text-neutral-500">Gestion du parc</p>
+          <h1 className="text-lg font-black text-neutral-950">{isOwner ? "Espace propriétaire" : "Espace client"}</h1>
+          <p className="mt-1 text-xs font-semibold text-neutral-500">{isOwner ? "Gestion du parc" : "Locations et réservations"}</p>
         </div>
         <div className="mb-2 grid place-items-center rounded-xl bg-orange-50 py-3 sm:hidden">
           <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 font-black text-white">M</span>
         </div>
-        <nav className="grid max-h-[calc(100dvh-10rem)] gap-1 overflow-y-auto pr-0.5" aria-label="Menu espace propriétaire">
-          {ownerMenu.map(([label, href, Icon]) => (
+        <nav className="grid max-h-[calc(100dvh-10rem)] gap-1 overflow-y-auto pr-0.5" aria-label={isOwner ? "Menu espace propriétaire" : "Menu espace client"}>
+          {menu.map(([label, href, Icon]) => (
             <Link
               key={href}
               title={label}
@@ -100,6 +119,13 @@ export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
 }
 
 export function DashboardHome() {
+  const { user } = useAuth();
+  const role = getWorkspaceRole(user);
+
+  if (!isOwnerWorkspaceRole(role)) {
+    return <ClientDashboard name={user?.name} />;
+  }
+
   return (
     <>
       <h2 className="text-2xl font-black text-neutral-950 sm:text-3xl">Tableau de bord</h2>
@@ -110,6 +136,42 @@ export function DashboardHome() {
         <OwnerPreview />
       </div>
     </>
+  );
+}
+
+function ClientDashboard({ name }: { name?: string }) {
+  const actions: Array<[string, string, string, LucideIcon]> = [
+    ["Trouver une machine", "Recherchez par ville, catégorie, prix et disponibilité.", "/location", Search],
+    ["Mes locations", "Consultez vos réservations et votre historique de location.", "/mes-locations", CalendarDays],
+    ["Notifications", "Suivez les confirmations et les informations importantes.", "/espace/notifications", Bell],
+    ["Mon profil", "Gardez vos coordonnées à jour pour faciliter les échanges.", "/profil", UserRound],
+  ];
+
+  return (
+    <div>
+      <p className="text-sm font-black uppercase text-orange-600">Espace client</p>
+      <h2 className="mt-2 text-2xl font-black text-neutral-950 sm:text-3xl">
+        Bonjour{name ? ` ${name}` : ""}
+      </h2>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 sm:text-base">
+        Retrouvez vos locations, suivez vos notifications et cherchez rapidement le matériel adapté à votre chantier.
+      </p>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {actions.map(([title, description, href, Icon]) => (
+          <Link
+            key={href}
+            href={href}
+            className="group rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-orange-300 hover:shadow-md"
+          >
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-orange-50 text-orange-600 transition group-hover:bg-orange-500 group-hover:text-white">
+              <Icon size={21} aria-hidden />
+            </span>
+            <h3 className="mt-4 font-black text-neutral-950">{title}</h3>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">{description}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
