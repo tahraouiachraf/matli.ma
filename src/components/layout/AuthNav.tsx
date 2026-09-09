@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, History, LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";

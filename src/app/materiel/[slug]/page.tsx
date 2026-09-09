@@ -110,7 +110,12 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
               Partager sur WhatsApp
             </ButtonLink>
           </div>
-          <EquipmentReservationForm equipmentId={item.backendId} equipmentTitle={item.title} />
+          <EquipmentReservationForm
+            equipmentId={item.backendId}
+            equipmentSlug={item.slug}
+            equipmentTitle={item.title}
+            priceDay={item.priceDay}
+          />
         </aside>
       </section>
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">

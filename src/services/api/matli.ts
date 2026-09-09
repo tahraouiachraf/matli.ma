@@ -77,6 +77,9 @@ type ApiEquipment = {
   category?: { name: string; slug: string };
   company?: { name: string; slug: string; city?: string; region?: string; is_verified?: boolean };
   availabilities?: Array<{ id: string; date_start: string; date_end: string; status: string; reason: string | null }>;
+  moderation_status?: "draft" | "pending_review" | "approved" | "rejected";
+  moderation_notes?: string | null;
+  archived_at?: string | null;
 };
 
 type ApiRentalRequest = {
@@ -101,7 +104,15 @@ type ApiReservation = {
   date_end: string;
   total_amount: number;
   status: "pending" | "confirmed" | "active" | "completed" | "cancelled";
-  equipment?: { title: string; city?: string; image_url?: string | null };
+  equipment?: { title: string; city?: string; image_url?: string | null; company?: { name: string } };
+  status_histories?: Array<{
+    id: string;
+    from_status?: string | null;
+    to_status: string;
+    note?: string | null;
+    created_at: string;
+    actor?: { name: string } | null;
+  }>;
 };
 
 type WorkspaceDashboard = {
@@ -190,6 +201,9 @@ export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
     companyVerified: Boolean(item.company?.is_verified),
     description: item.description ?? "Machine disponible à la location via MATLI.ma.",
     specs: item.specs?.length ? item.specs : ["Prix journalier", "Disponibilité", "Contact propriétaire"],
+    moderationStatus: item.moderation_status,
+    moderationNotes: item.moderation_notes,
+    archivedAt: item.archived_at,
   };
 }
 
@@ -282,7 +296,7 @@ function mapRental(reservation: ApiReservation): RentalHistoryItem {
     id: reservation.reference,
     backendId: reservation.id,
     equipmentTitle: reservation.equipment?.title ?? "Machine BTP",
-    companyName: reservation.client_name ?? "Client réservation",
+    companyName: reservation.equipment?.company?.name ?? reservation.client_name ?? "Compte MATLI",
     city: reservation.equipment?.city ?? "Maroc",
     dateStart: reservation.date_start ?? undefined,
     dateEnd: reservation.date_end ?? undefined,
@@ -297,7 +311,41 @@ function mapRental(reservation: ApiReservation): RentalHistoryItem {
             ? "CANCELLED"
             : "RESERVED",
     image: localImage(reservation.equipment?.image_url),
+    statusKey: reservation.status,
+    statusHistory: reservation.status_histories?.map((history) => ({
+      id: history.id,
+      fromStatus: history.from_status,
+      toStatus: history.to_status,
+      note: history.note,
+      actorName: history.actor?.name ?? "Système MATLI",
+      createdAt: history.created_at,
+    })) ?? [],
   };
+}
+
+export type EquipmentBlockedPeriod = {
+  dateStart: string;
+  dateEnd: string;
+  status: "reserved" | "confirmed" | "active" | "maintenance" | "unavailable";
+};
+
+type EquipmentAvailabilityResponse = {
+  availability: Array<{ date_start: string; date_end: string; status: EquipmentBlockedPeriod["status"] }>;
+  reservations: Array<{ date_start: string; date_end: string; status: "confirmed" | "active" }>;
+};
+
+export function getEquipmentBlockedPeriods(equipmentSlug: string) {
+  return apiRequest<EquipmentAvailabilityResponse>(`/equipment/${equipmentSlug}/availability`).then((payload) => {
+    const periods = [...payload.availability, ...payload.reservations].map((period) => ({
+      dateStart: period.date_start,
+      dateEnd: period.date_end,
+      status: period.status,
+    }));
+
+    return periods.filter((period, index) => periods.findIndex((candidate) =>
+      candidate.dateStart === period.dateStart && candidate.dateEnd === period.dateEnd,
+    ) === index);
+  });
 }
 
 export function getWorkspaceEquipment(token?: string | null) {
@@ -341,6 +389,22 @@ export function createWorkspaceEquipment(payload: CreateEquipmentPayload, token?
   }).then((item) => mapEquipment(item));
 }
 
+export function updateWorkspaceEquipment(id: string, payload: CreateEquipmentPayload, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<ApiEquipment>(`/workspace/equipment/${id}`, { method: "PUT", token, body: JSON.stringify(payload) }).then(mapEquipment);
+}
+
+export function deleteWorkspaceEquipment(id: string, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string }>(`/workspace/equipment/${id}`, { method: "DELETE", token });
+}
+
+export function changeWorkspaceEquipmentState(id: string, action: "archive" | "restore" | "submit", token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string; equipment: ApiEquipment }>(`/workspace/equipment/${id}/${action}`, { method: "PATCH", token })
+    .then((response) => ({ message: response.message, equipment: mapEquipment(response.equipment) }));
+}
+
 export type CreateReservationPayload = {
   equipment_id: string;
   date_start: string;
@@ -359,6 +423,7 @@ export function createReservation(payload: CreateReservationPayload, token?: str
     status: ApiReservation["status"];
     total_amount: number;
     message: string;
+    quote: { days: number; price_day: number; total_amount: number };
   }>("/reservations", {
     method: "POST",
     token,
@@ -427,6 +492,74 @@ export function getWorkspaceReservationsStrict(token?: string | null) {
   if (!token) return Promise.resolve<RentalHistoryItem[]>([]);
 
   return apiRequest<ApiListResponse<ApiReservation>>("/workspace/reservations?per_page=30", { token }).then((payload) => listData(payload).map(mapRental));
+}
+
+export function getClientReservationsStrict(token?: string | null) {
+  if (!token) return Promise.resolve<RentalHistoryItem[]>([]);
+  return apiRequest<ApiListResponse<ApiReservation>>("/client/reservations?per_page=30", { token }).then((payload) => listData(payload).map(mapRental));
+}
+
+export function cancelClientReservation(id: string, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string; reservation: ApiReservation }>(`/client/reservations/${id}/cancel`, { method: "PATCH", token })
+    .then((response) => ({ message: response.message, reservation: mapRental(response.reservation) }));
+}
+
+export function updateReservationStatus(id: string, status: "confirmed" | "active" | "completed" | "cancelled", token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string; reservation: ApiReservation }>(`/workspace/reservations/${id}/status`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ status }),
+  }).then((response) => ({ message: response.message, reservation: mapRental(response.reservation) }));
+}
+
+export type AccountProfile = {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  phone?: string | null;
+  city?: string | null;
+  company_name?: string | null;
+  description?: string | null;
+  roles?: Array<{ id?: string; name: string; description?: string | null }>;
+};
+
+export function updateAccountProfile(payload: Pick<AccountProfile, "name" | "email" | "phone" | "city" | "company_name" | "description">, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string; verification_required: boolean; user: AccountProfile }>("/account/profile", {
+    method: "PUT",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export type AccountNotification = {
+  id: string;
+  title: string;
+  body: string;
+  type: string;
+  read_at: string | null;
+  created_at: string;
+};
+
+export function getClientNotifications(token?: string | null) {
+  if (!token) return Promise.resolve<AccountNotification[]>([]);
+  return apiRequest<ApiListResponse<AccountNotification>>("/client/notifications?per_page=40", { token }).then(listData);
+}
+
+export function markClientNotificationsRead(token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string }>("/client/notifications/read-all", { method: "PATCH", token });
+}
+
+export function requestPasswordReset(email: string) {
+  return apiRequest<{ message: string }>("/auth/password/forgot", { method: "POST", body: JSON.stringify({ email }) });
+}
+
+export function resetPassword(payload: { email: string; token: string; password: string; password_confirmation: string }) {
+  return apiRequest<{ message: string }>("/auth/password/reset", { method: "POST", body: JSON.stringify(payload) });
 }
 
 export function getWorkspaceCollection<T = Record<string, unknown>>(endpoint: string, token?: string | null) {
