@@ -620,6 +620,11 @@ export function getCompanies() {
   }, []);
 }
 
+export function getCompaniesStrict() {
+  return apiRequest<ApiListResponse<ApiCompany>>("/companies?per_page=30")
+    .then((payload) => listData(payload).map(mapCompany));
+}
+
 export function getCompanyDetail(slug: string) {
   return safeApi(async () => {
     const payload = await apiRequest<ApiCompany>(`/companies/${slug}`);

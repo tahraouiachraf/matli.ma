@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     page("", 1, "daily"),
     page("/location", 0.95, "daily"),
+    page("/entreprises", 0.8, "weekly"),
     page("/deposer", 0.75, "weekly"),
     page("/fonctionnement", 0.7, "monthly"),
     page("/inscription", 0.35, "monthly"),

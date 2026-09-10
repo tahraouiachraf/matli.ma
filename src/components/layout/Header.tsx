@@ -12,6 +12,7 @@ import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 const nav = [
   ["Accueil", "/"],
   ["Louer", "/location"],
+  ["Entreprises", "/entreprises"],
   ["Déposer un matériel", "/deposer"],
   ["Comment ça marche ?", "/fonctionnement"],
 ];
