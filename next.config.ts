@@ -1,10 +1,19 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
+const backendApiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "https://portail.joblik.ma/api").replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  async rewrites() {
+    return [
+      {
+        source: "/api/matli/:path*",
+        destination: `${backendApiUrl}/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
