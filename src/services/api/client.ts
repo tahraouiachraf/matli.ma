@@ -1,6 +1,7 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://portail.joblik.ma/api";
+const DIRECT_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://portail.joblik.ma/api";
+export const API_URL = typeof window === "undefined" ? DIRECT_API_URL : "/api/matli";
 // export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
-export const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
+export const API_ORIGIN = DIRECT_API_URL.replace(/\/api\/?$/, "");
 
 export class ApiError extends Error {
   status: number;
