@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function CompaniesPage() {
-  const companies = await getCompaniesStrict();
+  const companies = await getCompaniesStrict().catch(() => []);
   const cities = new Set(companies.map((company) => company.city)).size;
   const equipmentCount = companies.reduce((total, company) => total + company.equipmentCount, 0);
 

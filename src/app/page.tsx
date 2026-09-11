@@ -24,8 +24,8 @@ export const revalidate = 60;
 
 export default async function Home() {
   const [equipment, requests] = await Promise.all([
-    getEquipmentListStrict({ perPage: 6 }),
-    getMarketplaceRequestsStrict(),
+    getEquipmentListStrict({ perPage: 6 }).catch(() => []),
+    getMarketplaceRequestsStrict().catch(() => []),
   ]);
 
   return (
