@@ -5,7 +5,9 @@ const configuredApiUrl = process.env.API_BACKEND_URL ?? process.env.NEXT_PUBLIC_
 const DIRECT_API_URL = /^https?:\/\//i.test(configuredApiUrl)
   ? configuredApiUrl.replace(/\/$/, "")
   : DEFAULT_API_URL;
-export const API_URL = typeof window === "undefined" ? DIRECT_API_URL : "/api/matli";
+// The hosting WAF blocks the Next.js API proxy. Laravel already exposes a strict
+// CORS policy for matli.ma, so browser and server requests use the same origin.
+export const API_URL = DIRECT_API_URL;
 // export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
 export const API_ORIGIN = DIRECT_API_URL.replace(/\/api\/?$/, "");
 
@@ -59,10 +61,17 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     throw new ApiError("Service momentanément indisponible. Merci de réessayer dans quelques instants.", 0);
   }
 
-  const payload = await response.json().catch(() => null) as ApiErrorPayload | null;
+  const contentType = response.headers.get("content-type") ?? "";
+  const payload = contentType.includes("application/json")
+    ? await response.json().catch(() => null) as ApiErrorPayload | null
+    : null;
 
   if (!response.ok || payload?.success === false) {
     throw new ApiError(firstValidationError(payload?.errors) ?? payload?.message ?? "Une erreur est survenue.", response.status);
+  }
+
+  if (payload === null) {
+    throw new ApiError("Réponse temporairement invalide. Merci de réessayer.", response.status);
   }
 
   return (payload?.data ?? payload) as T;

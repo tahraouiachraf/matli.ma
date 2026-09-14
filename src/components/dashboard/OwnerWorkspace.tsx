@@ -286,7 +286,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   }, [ownerAccount, section, token]);
 
   async function saveReservation(payload: CreateReservationPayload, machineLabel: string) {
-    await createReservation(payload);
+    await createReservation(payload, token);
     const rentalsPayload = await getWorkspaceReservationsStrict(token);
     const notificationPayload = await getWorkspaceCollectionStrict<Record<string, unknown>>("notifications", token).catch(() => []);
     setWorkspaceRentals(rentalsPayload);
@@ -888,8 +888,8 @@ function WorkspaceCrudForm({
       setSubmitting(true);
       await onSaved(payload, editing ? String(editing.id) : undefined);
       event.currentTarget.reset();
-    } catch {
-      setError("Merci de réessayer plus tard.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
     } finally {
       setSubmitting(false);
     }
@@ -1200,8 +1200,8 @@ function ReservationForm({
       await onSaved(payload, selected ? `${selected.title} - ${selected.city}` : "une machine");
       setMessage("Réservation enregistrée avec succès.");
       event.currentTarget.reset();
-    } catch {
-      setError("Merci de réessayer plus tard.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
     } finally {
       setSubmitting(false);
     }
@@ -1294,8 +1294,8 @@ function ClientRequestForm({ onSaved }: { onSaved: (payload: CreateRentalRequest
       await onSaved(payload);
       setMessage("Demande enregistrée avec succès.");
       event.currentTarget.reset();
-    } catch {
-      setError("Merci de réessayer plus tard.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
     } finally {
       setSubmitting(false);
     }

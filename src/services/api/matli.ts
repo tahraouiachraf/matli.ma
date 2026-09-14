@@ -1,5 +1,5 @@
 import type { Category, ClientRequest, Company, Equipment, RentalHistoryItem } from "@/types";
-import { categories, clientRequests, companies, equipment, rentalHistory } from "@/lib/data";
+import { categories, clientRequests, companies, equipment } from "@/lib/data";
 import { formatDateRange } from "@/lib/format";
 import { API_ORIGIN, apiRequest } from "@/services/api/client";
 
@@ -670,7 +670,7 @@ export async function getWorkspaceDashboardStrict(token?: string | null) {
 }
 
 export function mapWorkspaceRentals(payload: WorkspaceDashboard | null): RentalHistoryItem[] {
-  if (!payload?.recent_reservations?.length) return rentalHistory;
+  if (!payload?.recent_reservations?.length) return [];
 
   return payload.recent_reservations.map(mapRental);
 }
