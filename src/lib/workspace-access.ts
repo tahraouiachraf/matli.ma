@@ -40,6 +40,14 @@ export function isOwnerWorkspaceRole(role: WorkspaceRole) {
   return role === "owner" || role === "admin" || role === "sysadmin";
 }
 
+export function isAdminWorkspaceRole(role: WorkspaceRole) {
+  return role === "admin" || role === "sysadmin";
+}
+
 export function canAccessWorkspacePath(role: WorkspaceRole, pathname: string) {
+  if (pathname === "/espace/materiel" || pathname.startsWith("/espace/materiel/")) {
+    return isAdminWorkspaceRole(role);
+  }
+
   return isOwnerWorkspaceRole(role) || clientWorkspacePaths.has(pathname);
 }

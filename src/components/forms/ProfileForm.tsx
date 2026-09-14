@@ -4,17 +4,19 @@ import { useState } from "react";
 import { Building2, UserRound } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cities } from "@/lib/data";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isAdminWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import { updateAccountProfile } from "@/services/api/matli";
 
 export function ProfileForm() {
   const { token, user, updateUser } = useAuth();
-  const canDeposit = isOwnerWorkspaceRole(getWorkspaceRole(user));
-  const profileLabel = canDeposit ? "Profil propriétaire" : "Profil locataire";
-  const profileDescription = canDeposit
+  const role = getWorkspaceRole(user);
+  const isOwner = isOwnerWorkspaceRole(role);
+  const canDeposit = isAdminWorkspaceRole(role);
+  const profileLabel = isOwner ? "Profil propriétaire" : "Profil locataire";
+  const profileDescription = isOwner
     ? "Gérez vos annonces, disponibilités et demandes de réservation."
     : "Gérez vos informations personnelles et suivez vos locations."
-  const ProfileIcon = canDeposit ? Building2 : UserRound;
+  const ProfileIcon = isOwner ? Building2 : UserRound;
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

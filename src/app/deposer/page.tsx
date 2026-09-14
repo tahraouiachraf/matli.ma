@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { OwnerOnlyGuard } from "@/components/auth/OwnerOnlyGuard";
+import { AdminOnlyGuard } from "@/components/auth/AdminOnlyGuard";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
@@ -9,6 +9,7 @@ import { getMarketplaceRequestsStrict } from "@/services/api/matli";
 export const metadata: Metadata = {
   title: "Déposer un matériel",
   description: "Publiez votre tractopelle, pelle, chargeuse ou nacelle sur MATLI et recevez des demandes de location.",
+  robots: { index: false, follow: false },
 };
 
 export default async function DepositPage() {
@@ -16,10 +17,10 @@ export default async function DepositPage() {
 
   return (
     <AuthGuard
-      title="Connectez-vous pour déposer une machine"
-      message="La publication de matériel est réservée aux comptes propriétaires MATLI."
+      title="Connectez-vous avec un compte administrateur"
+      message="La publication de matériel est réservée à l’administration MATLI."
     >
-      <OwnerOnlyGuard>
+      <AdminOnlyGuard>
         <DepositSection />
         <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <div>
@@ -32,7 +33,7 @@ export default async function DepositPage() {
           <DepositMachineForm />
         </section>
         <RequestsPreviewSection requests={requests} />
-      </OwnerOnlyGuard>
+      </AdminOnlyGuard>
     </AuthGuard>
   );
 }

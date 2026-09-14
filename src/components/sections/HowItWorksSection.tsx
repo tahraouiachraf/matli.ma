@@ -25,9 +25,6 @@ export function HowItWorksSection() {
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/location">Voir les offres</ButtonLink>
-              <ButtonLink href="/deposer" variant="secondary">
-                Déposer une machine
-              </ButtonLink>
             </div>
           </div>
 

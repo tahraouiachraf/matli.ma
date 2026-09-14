@@ -23,7 +23,7 @@ import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusL
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isAdminWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import {
   createRentalRequest,
   createReservation,
@@ -88,7 +88,9 @@ export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
   const { user } = useAuth();
   const role = getWorkspaceRole(user);
   const isOwner = isOwnerWorkspaceRole(role);
-  const menu = isOwner ? ownerMenu : clientMenu;
+  const menu = isOwner
+    ? ownerMenu.filter(([, href]) => href !== "/espace/materiel" || isAdminWorkspaceRole(role))
+    : clientMenu;
 
   return (
     <section className="mx-auto grid max-w-7xl grid-cols-[72px_minmax(0,1fr)] gap-3 px-3 py-5 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">

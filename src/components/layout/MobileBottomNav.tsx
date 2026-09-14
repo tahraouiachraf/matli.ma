@@ -5,12 +5,12 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { connected, user } = useAuth();
-  const canDeposit = !connected || isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
   const items: Array<[LucideIcon, string, string]> = [
     [Home, "Accueil", "/"],
     [Search, "Louer", "/location"],

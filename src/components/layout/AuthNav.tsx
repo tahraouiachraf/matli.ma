@@ -3,7 +3,7 @@
 import { ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 
@@ -18,8 +18,29 @@ export function AuthNav({
 }) {
   const { connected, ready, user, logout: logoutFromProvider } = useAuth();
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeOnOutsideInteraction(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsideInteraction);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideInteraction);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
 
   async function logout() {
     await logoutFromProvider();
@@ -44,7 +65,7 @@ export function AuthNav({
   if (connected) {
     if (mobile) {
       return (
-        <div className="mt-2">
+        <div ref={menuRef} className="mt-2">
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -103,7 +124,7 @@ export function AuthNav({
     }
 
     return (
-      <div className="relative">
+      <div ref={menuRef} className="relative">
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
