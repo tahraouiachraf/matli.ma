@@ -1,20 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AlertTriangle, CalendarDays, ChartNoAxesCombined, CreditCard, Wrench } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { ownerDashboardMetrics, requestStatusLabels } from "@/lib/data";
+import { ChartNoAxesCombined } from "lucide-react";
+import { requestStatusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { getEquipmentListStrict, getMarketplaceRequestsStrict, getWorkspaceDashboardStrict, getWorkspaceEquipmentStrict, mapWorkspaceRentals } from "@/services/api/matli";
+import { ApiError } from "@/services/api/client";
 import type { ClientRequest, Equipment } from "@/types";
-
-const alerts: Array<[LucideIcon, string, string]> = [
-  [CalendarDays, "Planning parc", "3 retours prévus cette semaine"],
-  [Wrench, "Maintenance", "Vidange JCB 3CX dans 18 h moteur"],
-  [CreditCard, "Paiements", "5 règlements en attente"],
-  [AlertTriangle, "Alertes", "1 assurance expire dans 12 jours"],
-];
 
 export function OwnerPreview() {
   const { token } = useAuth();
@@ -22,24 +16,37 @@ export function OwnerPreview() {
   const [machines, setMachines] = useState<Equipment[]>([]);
   const [requests, setRequests] = useState<ClientRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [apiError, setApiError] = useState(false);
+  const [apiError, setApiError] = useState<number | null>(null);
+  const [partialError, setPartialError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+
+  function retry() {
+    setLoading(true);
+    setApiError(null);
+    setPartialError(false);
+    setRetryKey((value) => value + 1);
+  }
 
   useEffect(() => {
     let mounted = true;
 
-    Promise.all([
+    Promise.allSettled([
       getWorkspaceDashboardStrict(token),
       token ? getWorkspaceEquipmentStrict(token) : getEquipmentListStrict({ perPage: 3 }),
       getMarketplaceRequestsStrict(),
     ])
-      .then(([dashboardPayload, machinePayload, requestPayload]) => {
+      .then(([dashboardResult, machineResult, requestResult]) => {
         if (!mounted) return;
-        setDashboard(dashboardPayload);
-        setMachines(machinePayload);
-        setRequests(requestPayload);
-      })
-      .catch(() => {
-        if (mounted) setApiError(true);
+
+        if (dashboardResult.status === "rejected") {
+          setApiError(dashboardResult.reason instanceof ApiError ? dashboardResult.reason.status : 0);
+          return;
+        }
+
+        setDashboard(dashboardResult.value);
+        setMachines(machineResult.status === "fulfilled" ? machineResult.value : []);
+        setRequests(requestResult.status === "fulfilled" ? requestResult.value : []);
+        setPartialError(machineResult.status === "rejected" || requestResult.status === "rejected");
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -48,7 +55,7 @@ export function OwnerPreview() {
     return () => {
       mounted = false;
     };
-  }, [token]);
+  }, [retryKey, token]);
 
   const metrics = dashboard
     ? [
@@ -57,7 +64,7 @@ export function OwnerPreview() {
         { label: "Notifications", value: String(dashboard.stats.unread_notifications), helper: "non lues" },
         { label: "CA estimé", value: "Module finances", helper: "à connecter au suivi financier" },
       ]
-    : ownerDashboardMetrics;
+    : [];
 
   const rentals = mapWorkspaceRentals(dashboard);
 
@@ -65,19 +72,31 @@ export function OwnerPreview() {
     return <OwnerPreviewSkeleton />;
   }
 
-  if (apiError) {
+  if (apiError !== null) {
+    const reconnect = apiError === 401 || apiError === 403;
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-        <p className="font-black text-red-700">Merci de réessayer plus tard</p>
+        <p className="font-black text-red-700">{reconnect ? "Votre session doit être renouvelée" : "Merci de réessayer plus tard"}</p>
         <p className="mt-2 text-sm leading-6 text-red-700/80">
-          Nous n&apos;arrivons pas à afficher ces données pour le moment.
+          {reconnect ? "Reconnectez-vous pour accéder à votre espace." : "Nous n'arrivons pas à afficher ces données pour le moment."}
         </p>
+        {reconnect ? (
+          <Link href="/connexion" className="mt-4 inline-flex h-11 items-center rounded-md bg-neutral-950 px-5 text-sm font-black text-white">Se reconnecter</Link>
+        ) : (
+          <button type="button" onClick={retry} className="mt-4 h-11 rounded-md bg-neutral-950 px-5 text-sm font-black text-white">Réessayer</button>
+        )}
       </div>
     );
   }
 
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-3 shadow-xl shadow-neutral-950/5 sm:p-4">
+      {partialError ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+          <span>Certaines informations n&apos;ont pas pu être actualisées.</span>
+          <button type="button" onClick={retry} className="font-black underline underline-offset-4">Actualiser</button>
+        </div>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <div key={metric.label} className="rounded-xl bg-neutral-50 p-3 sm:p-4">
@@ -128,18 +147,6 @@ export function OwnerPreview() {
             ) : null}
           </div>
         </div>
-      </div>
-
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">
-        {alerts.map(([Icon, title, text]) => (
-          <div key={title} className="flex gap-3 rounded-xl border border-neutral-200 p-3 sm:p-4">
-            <Icon className="mt-1 text-orange-600" size={20} aria-hidden />
-            <div>
-              <h3 className="font-bold text-neutral-950">{title}</h3>
-              <p className="mt-1 text-sm text-neutral-600">{text}</p>
-            </div>
-          </div>
-        ))}
       </div>
 
       <div className="mt-4 rounded-xl bg-neutral-950 p-4 text-white sm:p-5">
