@@ -39,9 +39,6 @@ export default function HowItWorksPage() {
           <Link href="/location" className="inline-flex min-h-11 items-center justify-center rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600">
             Voir les machines
           </Link>
-          <Link href="/deposer" className="inline-flex min-h-11 items-center justify-center rounded-md border border-neutral-200 px-5 text-sm font-bold text-neutral-800 hover:border-orange-400">
-            Déposer un matériel
-          </Link>
         </div>
       </section>
     </>

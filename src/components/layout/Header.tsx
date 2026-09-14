@@ -7,7 +7,7 @@ import { useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
 
 const nav = [
   ["Accueil", "/"],
@@ -21,7 +21,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { connected, user } = useAuth();
-  const canDeposit = !connected || isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
   const visibleNav = nav.filter(([, href]) => href !== "/deposer" || canDeposit);
 
   function isActive(href: string) {

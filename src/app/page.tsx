@@ -2,7 +2,6 @@ import { BadgeCheck, Building2, CalendarCheck, Search, ShieldCheck } from "lucid
 import type { LucideIcon } from "lucide-react";
 import { HeroMachineAnimation } from "@/components/hero/HeroMachineAnimation";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
-import { DepositSection } from "@/components/sections/DepositSection";
 import { ClientDemandSection } from "@/components/sections/ClientDemandSection";
 import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
 import { MachinesSection } from "@/components/sections/MachinesSection";
@@ -145,7 +144,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <DepositSection />
       <RequestsPreviewSection requests={requests} />
 
       <section id="proprietaires" className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
@@ -156,8 +154,7 @@ export default async function Home() {
             description="Ajoutez vos équipements, gérez vos locations et votre maintenance, suivez la rentabilité et augmentez votre visibilité auprès des professionnels au Maroc."
           />
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/deposer">Déposer mon matériel</ButtonLink>
-            <ButtonLink href="/espace" variant="secondary">
+            <ButtonLink href="/espace">
               Voir le dashboard
             </ButtonLink>
           </div>
