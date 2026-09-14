@@ -66,8 +66,8 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       else onCreated?.(item);
       form.reset();
       setMessage(equipment ? "Machine modifiée et envoyée en validation." : "Machine ajoutée et envoyée en validation.");
-    } catch {
-      setError("Merci de vérifier les informations puis de réessayer.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Merci de vérifier les informations puis de réessayer.");
     } finally {
       setSubmitting(false);
     }
