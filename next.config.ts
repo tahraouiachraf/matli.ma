@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
 const defaultApiUrl = "https://portail.joblik.ma/api";
+//const defaultApiUrl = "http://127.0.0.1:8000/api";
 const configuredApiUrl = process.env.API_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? defaultApiUrl;
 const backendApiUrl = /^https?:\/\//i.test(configuredApiUrl)
   ? configuredApiUrl.replace(/\/$/, "")
