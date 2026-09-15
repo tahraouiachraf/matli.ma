@@ -89,18 +89,18 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
   return (
     <div>
       <JsonLd data={marketplaceJsonLd()} />
-      <section className="border-b border-orange-100 bg-orange-50 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <section className="border-b border-orange-100 bg-orange-50 px-4 py-8 sm:px-6 sm:py-14 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-4xl">
             <p className="inline-flex items-center gap-2 rounded-md border border-orange-200 bg-white px-3 py-1.5 text-xs font-black uppercase text-orange-700">
               <HardHat size={15} aria-hidden /> Marketplace BTP au Maroc
             </p>
-            <h1 className="mt-5 text-4xl font-black leading-tight text-neutral-950 sm:text-5xl lg:text-6xl">Trouvez la bonne machine, au bon endroit, au bon prix.</h1>
+            <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-950 sm:mt-5 sm:text-5xl lg:text-6xl">Trouvez la bonne machine, au bon endroit, au bon prix.</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600 sm:text-lg">
               Comparez les matériels disponibles près de votre chantier et envoyez une demande directement au propriétaire.
             </p>
           </div>
-          <div className="mt-7">
+          <div className="mt-6 sm:mt-7">
             <MarketplaceSearch active={active} />
           </div>
           <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold text-neutral-700">
@@ -110,8 +110,8 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
           </div>
         </div>
       </section>
-      <section id="offres" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 lg:hidden">
+      <section id="offres" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
+        <div className="sticky top-16 z-30 -mx-4 mb-6 flex items-center justify-between gap-3 border-b border-neutral-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
           <ResponsiveFilters count={activeCount}>
             <FilterSidebar items={categories} active={active} brands={meta.brands} models={meta.models} />
           </ResponsiveFilters>

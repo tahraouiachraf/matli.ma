@@ -20,7 +20,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  padding-bottom: 74px;
+  min-width: 320px;
+  overflow-x: clip;
+  padding-bottom: calc(74px + env(safe-area-inset-bottom));
 }
 
 html {
@@ -33,6 +35,12 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -133,6 +141,41 @@ textarea {
   }
 }
 
+@keyframes matli-workflow-step {
+  0%,
+  15% {
+    border-color: #e5e5e5;
+    transform: translateY(0);
+  }
+  25%,
+  42% {
+    border-color: #f58220;
+    transform: translateY(-3px);
+  }
+  52%,
+  100% {
+    border-color: #e5e5e5;
+    transform: translateY(0);
+  }
+}
+
+@keyframes matli-workflow-progress {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(360%);
+  }
+}
+
+.workflow-visual-step {
+  animation: matli-workflow-step 5.5s ease-in-out infinite;
+}
+
+.process-flow-progress {
+  animation: matli-workflow-progress 3.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -140,6 +183,14 @@ textarea {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
   }
 }
 

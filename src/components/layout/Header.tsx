@@ -3,7 +3,7 @@
 import { ChevronRight, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -23,6 +23,20 @@ export function Header() {
   const { connected, user } = useAuth();
   const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
   const visibleNav = nav.filter(([, href]) => href !== "/deposer" || canDeposit);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -73,14 +87,14 @@ export function Header() {
       </div>
 
       {open ? (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu mobile">
+        <div className="fixed inset-0 z-[80] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu mobile">
           <button
             type="button"
             className="absolute inset-0 bg-neutral-950/45 backdrop-blur-[2px]"
             onClick={() => setOpen(false)}
             aria-label="Fermer le menu"
           />
-          <aside className="relative flex h-dvh w-screen flex-col bg-white shadow-2xl shadow-neutral-950/25">
+          <aside className="relative flex h-dvh w-screen flex-col bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl shadow-neutral-950/25">
             <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="MATLI accueil">
                 <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>

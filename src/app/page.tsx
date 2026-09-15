@@ -30,11 +30,11 @@ export default async function Home() {
   return (
     <>
       <JsonLd data={marketplaceJsonLd()} />
-      <section className="bg-neutral-100 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 px-5 py-8 text-white shadow-2xl shadow-orange-950/20 sm:px-8 md:px-12 lg:py-14">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="animate-fade-up">
-              <h1 className="max-w-4xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
+      <section className="bg-neutral-100 px-3 py-5 sm:px-6 sm:py-10 lg:px-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 px-4 py-7 text-white shadow-2xl shadow-orange-950/20 sm:rounded-xl sm:px-8 md:px-12 lg:py-14">
+          <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="min-w-0 animate-fade-up">
+              <h1 className="max-w-4xl text-3xl font-black leading-tight sm:text-5xl lg:text-6xl">
                 La marketplace pour louer et déposer vos machines{" "}
                 <span className="text-white underline decoration-white decoration-8 underline-offset-[-4px]">
                   BTP
@@ -45,11 +45,11 @@ export default async function Home() {
                 Trouvez une machine disponible, comparez les prix entre propriétaires et envoyez une demande claire. Les propriétaires déposent leur matériel et reçoivent des clients qualifiés.
               </p>
 
-              <div className="mt-7 flex flex-wrap gap-3">
+              <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
                 {["Je veux louer", "Je veux déposer"].map((label) => (
                   <button
                     key={label}
-                    className="inline-flex h-12 items-center gap-3 rounded-md border border-white/40 bg-white/10 px-4 text-sm font-black text-white backdrop-blur hover:bg-white/20"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/40 bg-white/10 px-3 text-center text-sm font-black text-white backdrop-blur hover:bg-white/20 sm:justify-start sm:gap-3 sm:px-4"
                   >
                     <span className="size-5 rounded border-2 border-white/70 bg-white/10" />
                     {label}
@@ -57,17 +57,17 @@ export default async function Home() {
                 ))}
               </div>
 
-              <form className="mt-6 grid gap-3 rounded-md bg-white p-3 shadow-xl shadow-orange-950/20 md:grid-cols-[1fr_0.8fr_auto]">
-                <label className="relative">
+              <form action="/location" className="mt-6 grid min-w-0 gap-3 rounded-md bg-white p-3 shadow-xl shadow-orange-950/20 md:grid-cols-[1fr_0.8fr_auto]">
+                <label className="relative min-w-0">
                   <span className="sr-only">Machine recherchée</span>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={19} aria-hidden />
                   <input
-                    name="machine"
-                    className="h-12 w-full rounded-md border border-neutral-200 pl-10 pr-3 text-sm font-medium text-neutral-900 outline-none focus:border-orange-500"
+                    name="q"
+                    className="h-12 min-w-0 w-full rounded-md border border-neutral-200 pl-10 pr-3 text-sm font-medium text-neutral-900 outline-none focus:border-orange-500"
                     placeholder="JCB 3CX, mini-pelle, chargeuse..."
                   />
                 </label>
-                <label>
+                <label className="min-w-0">
                   <span className="sr-only">Ville</span>
                   <select
                     name="city"
@@ -83,15 +83,15 @@ export default async function Home() {
                     <option>Tanger</option>
                   </select>
                 </label>
-                <ButtonLink href="/location" className="h-12 px-8">
+                <button type="submit" className="inline-flex h-12 items-center justify-center rounded-md bg-orange-600 px-8 text-sm font-black text-white transition hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200">
                   Rechercher
-                </ButtonLink>
+                </button>
               </form>
 
-              <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+              <div className="mt-5 flex gap-2 overflow-x-auto pb-1 text-sm sm:flex-wrap sm:items-center sm:overflow-visible">
                 <span className="font-black text-white">Populaires :</span>
                 {["JCB 3CX", "Mini-pelle", "Telescopic", "Chargeuse", "Pelle sur chenilles"].map((tag) => (
-                  <span key={tag} className="rounded-full bg-white/15 px-4 py-2 font-semibold text-white">
+                  <span key={tag} className="shrink-0 rounded-full bg-white/15 px-3 py-2 font-semibold text-white sm:px-4">
                     {tag}
                   </span>
                 ))}

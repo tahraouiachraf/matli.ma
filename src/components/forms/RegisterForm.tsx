@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Building2, Check, ChevronDown, Eye, EyeOff, HardHat, Loader2, LockKeyhole, Mail, MapPin, Phone, UserRound } from "lucide-react";
+import { AlertCircle, Building2, Check, ChevronDown, Eye, EyeOff, HardHat, Loader2, LockKeyhole, Mail, MapPin, Phone, Search, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -89,18 +89,18 @@ export function RegisterForm() {
         <legend className="mb-2 text-sm font-black text-neutral-800">Je souhaite</legend>
         <div className="grid gap-2">
           <label className="cursor-pointer">
-            <input type="radio" name="account_type" value="owner" defaultChecked className="peer sr-only" />
+            <input type="radio" name="account_type" value="client" defaultChecked className="peer sr-only" />
             <span className="flex min-h-14 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-4 text-sm font-bold text-neutral-700 transition hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-800 peer-checked:[&_.selection-mark]:opacity-100 peer-focus-visible:ring-4 peer-focus-visible:ring-orange-100">
-              <HardHat className="size-5 shrink-0" aria-hidden />
-              <span className="flex-1">Déposer mes machines</span>
+              <Search className="size-5 shrink-0" aria-hidden />
+              <span className="flex-1">Louer une machine</span>
               <Check className="selection-mark size-4 opacity-0 transition" aria-hidden />
             </span>
           </label>
           <label className="cursor-pointer">
-            <input type="radio" name="account_type" value="client" className="peer sr-only" />
+            <input type="radio" name="account_type" value="owner" className="peer sr-only" />
             <span className="flex min-h-14 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-4 text-sm font-bold text-neutral-700 transition hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-800 peer-checked:[&_.selection-mark]:opacity-100 peer-focus-visible:ring-4 peer-focus-visible:ring-orange-100">
               <HardHat className="size-5 shrink-0" aria-hidden />
-              <span className="flex-1">Louer une machine</span>
+              <span className="flex-1">Déposer mes machines</span>
               <Check className="selection-mark size-4 opacity-0 transition" aria-hidden />
             </span>
           </label>

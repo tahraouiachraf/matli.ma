@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, MessageCircle, Share2, Truck, UserRoundCheck } from "lucide-react";
 import { EquipmentReservationForm } from "@/components/forms/EquipmentReservationForm";
+import { EquipmentGallery } from "@/components/marketplace/EquipmentGallery";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { statusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
@@ -55,36 +55,20 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
   return (
     <div className="bg-white">
       <JsonLd data={equipmentJsonLd(item)} />
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>
-          <div className="relative h-[420px] overflow-hidden rounded-md bg-neutral-100">
-            <Image
-              src={item.image}
-              alt={`${item.title} à louer à ${item.city}`}
-              className="object-cover"
-              fill
-              priority
-              sizes="(min-width: 1024px) 58vw, 100vw"
-            />
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {[item.image, item.image, item.image].map((image, index) => (
-              <div key={index} className="relative h-28 overflow-hidden rounded-md bg-neutral-100">
-                <Image src={image} alt="" className="object-cover" fill sizes="(min-width: 1024px) 20vw, 33vw" />
-              </div>
-            ))}
-          </div>
+          <EquipmentGallery images={item.images?.length ? item.images : [item.image]} title={item.title} city={item.city} />
         </div>
-        <aside className="h-fit rounded-md border border-neutral-200 bg-neutral-50 p-6">
+        <aside className="h-fit rounded-md border border-neutral-200 bg-neutral-50 p-4 sm:p-6">
           {item.sponsored ? (
             <span className="rounded-md bg-amber-400 px-3 py-1 text-xs font-black text-neutral-950">Sponsorisé</span>
           ) : null}
-          <h1 className="mt-4 text-4xl font-black text-neutral-950">{item.title}</h1>
+          <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-950 sm:text-4xl">{item.title}</h1>
           <p className="mt-3 flex items-center gap-2 text-neutral-600">
             <MapPin size={18} aria-hidden />
             {item.city}, {item.region}
           </p>
-          <p className="mt-6 text-3xl font-black">{formatDh(item.priceDay)} / jour</p>
+          <p className="mt-6 text-2xl font-black sm:text-3xl">{formatDh(item.priceDay)} / jour</p>
           <p className="mt-1 text-sm text-neutral-600">{formatDh(item.priceWeek)} / semaine · {statusLabels[item.status]}</p>
           <div className="mt-6 grid gap-3 text-sm font-semibold text-neutral-700">
             {item.operator ? (
@@ -118,7 +102,7 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
           />
         </aside>
       </section>
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 sm:px-6 sm:pb-16 lg:grid-cols-[1fr_360px] lg:px-8">
         <div>
           <h2 className="text-2xl font-black">Description</h2>
           <p className="mt-4 leading-8 text-neutral-700">{item.description}</p>
