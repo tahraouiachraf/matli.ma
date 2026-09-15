@@ -6,13 +6,14 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-export function LoginForm({ notice }: { notice?: string }) {
+export function LoginForm({ notice, initialVerificationEmail }: { notice?: string; initialVerificationEmail?: string }) {
   const router = useRouter();
   const { login, resendVerification } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(initialVerificationEmail ?? null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -50,8 +51,23 @@ export function LoginForm({ notice }: { notice?: string }) {
         </div>
       ) : null}
       {verificationEmail ? (
-        <button type="button" onClick={async () => setResendMessage(await resendVerification(verificationEmail))} className="justify-self-start text-sm font-black text-orange-700 hover:text-orange-800">
-          Renvoyer l’email de confirmation
+        <button
+          type="button"
+          disabled={resending}
+          onClick={async () => {
+            setResending(true);
+            setError(null);
+            try {
+              setResendMessage(await resendVerification(verificationEmail));
+            } catch (exception) {
+              setError(exception instanceof Error ? exception.message : "L’email n’a pas pu être renvoyé.");
+            } finally {
+              setResending(false);
+            }
+          }}
+          className="justify-self-start text-sm font-black text-orange-700 hover:text-orange-800 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {resending ? "Envoi en cours..." : "Renvoyer l’email de confirmation"}
         </button>
       ) : null}
       {resendMessage ? <p className="text-sm font-semibold text-emerald-700">{resendMessage}</p> : null}
