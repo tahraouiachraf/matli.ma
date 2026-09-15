@@ -26,7 +26,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      {message ? <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{message}</p> : null}
+      {message ? <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-800">{message} Vérifiez également vos courriers indésirables.</p> : null}
       {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</p> : null}
       <label className="grid gap-2 text-sm font-black text-neutral-800">
         Adresse email
