@@ -196,6 +196,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   const [workspaceItems, setWorkspaceItems] = useState<Record<string, unknown>[] | null>(null);
   const [notifications, setNotifications] = useState<OwnerNotification[]>([]);
   const [uiNotice, setUiNotice] = useState<string | null>(null);
+  const [reservationError, setReservationError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
@@ -356,12 +357,14 @@ export function OwnerSectionContent({ section }: { section: string }) {
   async function changeReservation(item: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") {
     if (!item.backendId) return;
     setReservationAction({ id: item.backendId, status });
+    setReservationError(null);
+    setUiNotice(null);
     try {
       const response = await updateReservationStatus(item.backendId, status, token);
       setWorkspaceRentals((current) => (current ?? []).map((row) => row.backendId === item.backendId ? response.reservation : row));
       setUiNotice(response.message);
     } catch (exception) {
-      setUiNotice(exception instanceof Error ? exception.message : "Le statut n’a pas pu être modifié.");
+      setReservationError(exception instanceof Error ? exception.message : "Le statut n’a pas pu être modifié.");
     } finally {
       setReservationAction(null);
     }
@@ -474,8 +477,14 @@ export function OwnerSectionContent({ section }: { section: string }) {
           </OwnerFormBlock>
         </div>
         {uiNotice ? (
-          <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800" role="status" aria-live="polite">
+            <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden />
             {uiNotice}
+          </div>
+        ) : null}
+        {reservationError ? (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">
+            {reservationError}
           </div>
         ) : null}
         {!apiError && rentals.length ? (
@@ -1446,7 +1455,13 @@ function RentalManagementList({
   onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") => Promise<void>;
 }) {
   const [filter, setFilter] = useState<RentalFilter>("all");
-  const filteredRentals = filter === "all" ? rentals : rentals.filter((rental) => rental.statusKey === filter);
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLocaleLowerCase("fr");
+  const filteredRentals = rentals.filter((rental) => {
+    const matchesStatus = filter === "all" || rental.statusKey === filter;
+    const searchableText = `${rental.id} ${rental.equipmentTitle} ${rental.companyName} ${rental.city}`.toLocaleLowerCase("fr");
+    return matchesStatus && (!normalizedQuery || searchableText.includes(normalizedQuery));
+  });
   const pending = rentals.filter((rental) => rental.statusKey === "pending").length;
   const reserved = rentals.filter((rental) => rental.statusKey === "confirmed").length;
   const active = rentals.filter((rental) => rental.statusKey === "active").length;
@@ -1459,8 +1474,20 @@ function RentalManagementList({
         <ClientMetric label="Locations en cours" value={String(active)} />
       </div>
 
-      <div className="overflow-x-auto pb-1" aria-label="Filtrer les locations par statut">
-        <div className="flex min-w-max gap-2">
+      <div className="grid gap-3 lg:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.2fr)] lg:items-center">
+        <label className="flex h-11 items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 shadow-sm focus-within:border-orange-400 focus-within:ring-4 focus-within:ring-orange-100">
+          <Search className="size-4 shrink-0 text-neutral-400" aria-hidden />
+          <span className="sr-only">Rechercher une location</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Référence, machine, client ou ville"
+            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-neutral-950 outline-none placeholder:text-neutral-400"
+          />
+        </label>
+        <div className="overflow-x-auto pb-1" aria-label="Filtrer les locations par statut">
+          <div className="flex min-w-max gap-2 lg:justify-end">
           {rentalFilters.map((item) => {
             const count = item.key === "all" ? rentals.length : rentals.filter((rental) => rental.statusKey === item.key).length;
             return (
@@ -1479,6 +1506,7 @@ function RentalManagementList({
               </button>
             );
           })}
+          </div>
         </div>
       </div>
 
@@ -1518,7 +1546,12 @@ function RentalManagementList({
         ))}
         {!filteredRentals.length ? (
           <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-6 text-center text-sm font-semibold text-neutral-600">
-            Aucune location avec ce statut.
+            <p>Aucune location ne correspond à votre recherche.</p>
+            {(query || filter !== "all") ? (
+              <button type="button" onClick={() => { setQuery(""); setFilter("all"); }} className="mt-3 font-black text-orange-700 hover:text-orange-800">
+                Réinitialiser les filtres
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -1557,14 +1590,17 @@ function OwnerCalendar({
   const calendarRentals = [...confirmedRentals, ...activeRentals];
   const availableEquipment = calendarEquipment.filter((item) => item.status === "AVAILABLE").length;
   const [monthDate, setMonthDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const monthDays = buildMonthDays(monthDate);
   const reservationRanges = calendarRentals
     .map((rental) => ({ rental, range: parseRentalPeriod(rental) }))
     .filter((item): item is { rental: RentalHistoryItem; range: { start: Date; end: Date } } => Boolean(item.range));
 
-  function reservationForDay(day: Date) {
-    return reservationRanges.find(({ range }) => day >= range.start && day <= range.end)?.rental ?? null;
+  function reservationsForDay(day: Date) {
+    return reservationRanges.filter(({ range }) => day >= range.start && day <= range.end).map(({ rental }) => rental);
   }
+
+  const selectedRentals = selectedDate ? reservationsForDay(selectedDate) : [];
 
   return (
     <div className="grid gap-6">
@@ -1586,7 +1622,7 @@ function OwnerCalendar({
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
+                  onClick={() => { setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1)); setSelectedDate(null); }}
                   className="grid size-10 place-items-center rounded-full border border-neutral-200 text-lg font-black text-neutral-700 hover:border-orange-400 hover:text-orange-600"
                   aria-label="Mois précédent"
                 >
@@ -1594,14 +1630,14 @@ function OwnerCalendar({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMonthDate(new Date())}
+                  onClick={() => { setMonthDate(new Date()); setSelectedDate(new Date()); }}
                   className="h-10 rounded-full border border-neutral-200 px-4 text-sm font-black text-neutral-700 hover:border-orange-400 hover:text-orange-600"
                 >
                   Aujourd&apos;hui
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))}
+                  onClick={() => { setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1)); setSelectedDate(null); }}
                   className="grid size-10 place-items-center rounded-full border border-neutral-200 text-lg font-black text-neutral-700 hover:border-orange-400 hover:text-orange-600"
                   aria-label="Mois suivant"
                 >
@@ -1632,8 +1668,10 @@ function OwnerCalendar({
                   {monthDays.map((day, index) => {
                     if (!day) return <div key={`empty-${index}`} className="aspect-square" />;
 
-                    const rental = reservationForDay(day);
+                    const dayRentals = reservationsForDay(day);
+                    const rental = dayRentals[0] ?? null;
                     const isToday = isSameDay(day, new Date());
+                    const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
                     const range = reservationRanges.find((item) => item.rental.id === rental?.id)?.range;
                     const isStart = range ? isSameDay(day, range.start) : false;
                     const isEnd = range ? isSameDay(day, range.end) : false;
@@ -1647,8 +1685,10 @@ function OwnerCalendar({
                       >
                         <button
                           type="button"
-                          title={rental ? `${rental.equipmentTitle} · ${rental.period}` : "Disponible"}
-                          className={`grid size-10 place-items-center rounded-full text-sm font-black transition sm:size-12 ${
+                          onClick={() => setSelectedDate(day)}
+                          title={rental ? `${dayRentals.length} réservation${dayRentals.length > 1 ? "s" : ""}` : "Disponible"}
+                          aria-label={`${new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(day)} : ${rental ? `${dayRentals.length} réservation${dayRentals.length > 1 ? "s" : ""}` : "disponible"}`}
+                          className={`relative grid size-10 place-items-center rounded-full text-sm font-black transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 sm:size-12 ${
                             rental
                               ? rental.statusKey === "active"
                                 ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/15"
@@ -1656,14 +1696,47 @@ function OwnerCalendar({
                               : isToday
                                 ? "border-2 border-neutral-950 bg-white text-neutral-950"
                                 : "bg-white text-neutral-800 hover:bg-neutral-100"
-                          }`}
+                          } ${isSelected ? "ring-4 ring-orange-200" : ""}`}
                         >
                           {day.getDate()}
+                          {dayRentals.length > 1 ? (
+                            <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full border-2 border-white bg-neutral-950 text-[10px] text-white">
+                              {dayRentals.length}
+                            </span>
+                          ) : null}
                         </button>
                       </div>
                     );
                   })}
                 </div>
+                {selectedDate ? (
+                  <div className="mt-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4" aria-live="polite">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-black uppercase text-orange-600">Journée sélectionnée</p>
+                        <h4 className="mt-1 font-black text-neutral-950">
+                          {new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(selectedDate)}
+                        </h4>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-black ${selectedRentals.length ? "bg-orange-100 text-orange-800" : "bg-emerald-100 text-emerald-800"}`}>
+                        {selectedRentals.length ? `${selectedRentals.length} réservation${selectedRentals.length > 1 ? "s" : ""}` : "Disponible"}
+                      </span>
+                    </div>
+                    {selectedRentals.length ? (
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {selectedRentals.map((rental) => (
+                          <div key={rental.id} className="rounded-xl border border-neutral-200 bg-white p-3">
+                            <p className="font-black text-neutral-950">{rental.equipmentTitle}</p>
+                            <p className="mt-1 text-sm text-neutral-600">{rental.companyName}</p>
+                            <p className="mt-2 text-xs font-bold text-orange-700">{rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status]}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm leading-6 text-neutral-600">Aucune réservation confirmée ni location active pour cette date.</p>
+                    )}
+                  </div>
+                ) : null}
               </>
             )}
           </div>
