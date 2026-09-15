@@ -4,10 +4,14 @@ import {
   Bell,
   CalendarDays,
   ChartNoAxesCombined,
+  CheckCircle2,
+  Clock3,
   FileText,
   FolderKanban,
   HardHat,
   LayoutDashboard,
+  Loader2,
+  MapPin,
   Search,
   Settings,
   UserRound,
@@ -197,7 +201,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   const [confirmEquipmentDelete, setConfirmEquipmentDelete] = useState<string | null>(null);
   const [equipmentAction, setEquipmentAction] = useState<string | null>(null);
-  const [reservationAction, setReservationAction] = useState<string | null>(null);
+  const [reservationAction, setReservationAction] = useState<{ id: string; status: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -351,7 +355,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
 
   async function changeReservation(item: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") {
     if (!item.backendId) return;
-    setReservationAction(item.backendId);
+    setReservationAction({ id: item.backendId, status });
     try {
       const response = await updateReservationStatus(item.backendId, status, token);
       setWorkspaceRentals((current) => (current ?? []).map((row) => row.backendId === item.backendId ? response.reservation : row));
@@ -449,21 +453,23 @@ export function OwnerSectionContent({ section }: { section: string }) {
   }
 
   if (section === "locations") {
-    const rows = (workspaceRentals ?? []).map((rental) => [
-      rental.id,
-      rental.equipmentTitle,
-      rental.period,
-      rental.city,
-      formatDh(rental.total),
-      apiStatusLabels[rental.statusKey ?? ""] ?? rentalStatusLabels[rental.status],
-      <ReservationActions key={`${rental.backendId}-actions`} rental={rental} loading={reservationAction === rental.backendId} onChange={changeReservation} />,
-    ]);
+    const rentals = workspaceRentals ?? [];
 
     return (
-      <DashboardPanel title="Locations" description="Créez une réservation et suivez les locations en cours, terminées ou annulées." loading={loading} actionLabel="Nouvelle réservation">
+      <DashboardPanel
+        title="Locations"
+        description="Pilotez les demandes, confirmez les réservations et suivez chaque location sans quitter cette page."
+        loading={loading}
+        actionLabel="Nouvelle réservation"
+        onAction={() => {
+          const form = document.getElementById("new-reservation");
+          if (form instanceof HTMLDetailsElement) form.open = true;
+          form?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }}
+      >
         {apiError ? <InlineApiError /> : null}
         <div className="mb-6">
-          <OwnerFormBlock title="Ajouter une réservation" description="Enregistrez une location pour bloquer les dates dans le calendrier.">
+          <OwnerFormBlock id="new-reservation" title="Ajouter une réservation" description="Enregistrez une location pour bloquer les dates dans le calendrier.">
             <ReservationForm equipment={workspaceEquipment ?? []} onSaved={saveReservation} />
           </OwnerFormBlock>
         </div>
@@ -472,8 +478,12 @@ export function OwnerSectionContent({ section }: { section: string }) {
             {uiNotice}
           </div>
         ) : null}
-        {!apiError && rows.length ? (
-          <DashboardTable headers={["Référence", "Machine", "Période", "Ville", "Montant", "Statut", "Actions"]} rows={rows} />
+        {!apiError && rentals.length ? (
+          <RentalManagementList
+            rentals={rentals}
+            action={reservationAction}
+            onChange={changeReservation}
+          />
         ) : !apiError ? (
           <EmptyApiState loading={loading} label="Aucune réservation trouvée pour le moment." />
         ) : null}
@@ -517,7 +527,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
         title="Calendrier"
         description="Visualisez les machines disponibles, réservées et les périodes bloquées."
         loading={loading}
-        actionLabel="Bloquer une date"
+        actionLabel={null}
       >
         {apiError ? <InlineApiError /> : null}
         {!apiError ? <OwnerCalendar equipment={items} rentals={rentals} loading={loading} /> : null}
@@ -1115,12 +1125,14 @@ function DashboardPanel({
   description,
   actionLabel = "Nouvelle action",
   loading = false,
+  onAction,
   title,
 }: {
   children: React.ReactNode;
   description: string;
   actionLabel?: string | null;
   loading?: boolean;
+  onAction?: () => void;
   title: string;
 }) {
   return (
@@ -1131,7 +1143,7 @@ function DashboardPanel({
           <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">{description}</p>
         </div>
         {actionLabel ? (
-          <button disabled={loading} className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-wait disabled:bg-orange-200">
+          <button type="button" disabled={loading} onClick={onAction} className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-wait disabled:bg-orange-200">
             {loading ? <span className="block h-4 w-28 animate-pulse rounded-full bg-white/70" aria-label="Chargement" /> : actionLabel}
           </button>
         ) : null}
@@ -1144,14 +1156,16 @@ function DashboardPanel({
 function OwnerFormBlock({
   children,
   description,
+  id,
   title,
 }: {
   children: React.ReactNode;
   description: string;
+  id?: string;
   title: string;
 }) {
   return (
-    <details className="group rounded-2xl border border-orange-200 bg-orange-50/60 p-3 open:bg-white sm:p-4">
+    <details id={id} className="group scroll-mt-24 rounded-2xl border border-orange-200 bg-orange-50/60 p-3 open:bg-white sm:p-4">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
         <span>
           <span className="block text-lg font-black text-neutral-950">{title}</span>
@@ -1394,6 +1408,124 @@ function parseRentalPeriod(rental: RentalHistoryItem) {
   };
 }
 
+type RentalFilter = "all" | "pending" | "confirmed" | "active" | "completed" | "cancelled";
+
+const rentalFilters: Array<{ key: RentalFilter; label: string }> = [
+  { key: "all", label: "Toutes" },
+  { key: "pending", label: "En attente" },
+  { key: "confirmed", label: "Confirmées" },
+  { key: "active", label: "En cours" },
+  { key: "completed", label: "Terminées" },
+  { key: "cancelled", label: "Annulées" },
+];
+
+const reservationStatusLabels: Record<RentalFilter, string> = {
+  all: "Toutes",
+  pending: "En attente",
+  confirmed: "Confirmée",
+  active: "En cours",
+  completed: "Terminée",
+  cancelled: "Annulée",
+};
+
+function rentalBadgeClass(status?: RentalHistoryItem["statusKey"]) {
+  if (status === "confirmed") return "border-orange-200 bg-orange-50 text-orange-800";
+  if (status === "active") return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  if (status === "completed") return "border-neutral-200 bg-neutral-100 text-neutral-700";
+  if (status === "cancelled") return "border-red-200 bg-red-50 text-red-700";
+  return "border-amber-200 bg-amber-50 text-amber-800";
+}
+
+function RentalManagementList({
+  rentals,
+  action,
+  onChange,
+}: {
+  rentals: RentalHistoryItem[];
+  action: { id: string; status: string } | null;
+  onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") => Promise<void>;
+}) {
+  const [filter, setFilter] = useState<RentalFilter>("all");
+  const filteredRentals = filter === "all" ? rentals : rentals.filter((rental) => rental.statusKey === filter);
+  const pending = rentals.filter((rental) => rental.statusKey === "pending").length;
+  const reserved = rentals.filter((rental) => rental.statusKey === "confirmed").length;
+  const active = rentals.filter((rental) => rental.statusKey === "active").length;
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <ClientMetric label="Demandes à traiter" value={String(pending)} />
+        <ClientMetric label="Réservations confirmées" value={String(reserved)} />
+        <ClientMetric label="Locations en cours" value={String(active)} />
+      </div>
+
+      <div className="overflow-x-auto pb-1" aria-label="Filtrer les locations par statut">
+        <div className="flex min-w-max gap-2">
+          {rentalFilters.map((item) => {
+            const count = item.key === "all" ? rentals.length : rentals.filter((rental) => rental.statusKey === item.key).length;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setFilter(item.key)}
+                aria-pressed={filter === item.key}
+                className={`h-10 rounded-full border px-4 text-sm font-black transition ${
+                  filter === item.key
+                    ? "border-orange-500 bg-orange-500 text-white"
+                    : "border-neutral-200 bg-white text-neutral-600 hover:border-orange-300 hover:text-orange-700"
+                }`}
+              >
+                {item.label} <span className="ml-1 opacity-75">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        {filteredRentals.map((rental) => (
+          <article key={rental.backendId ?? rental.id} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full border px-3 py-1 text-xs font-black ${rentalBadgeClass(rental.statusKey)}`}>
+                    {rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status]}
+                  </span>
+                  <span className="text-xs font-bold text-neutral-400">{rental.id}</span>
+                </div>
+                <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_auto] md:items-end">
+                  <div>
+                    <h3 className="text-lg font-black text-neutral-950">{rental.equipmentTitle}</h3>
+                    <p className="mt-1 text-sm font-semibold text-neutral-600">Client : {rental.companyName}</p>
+                  </div>
+                  <div className="grid gap-1 text-sm text-neutral-600">
+                    <span className="flex items-center gap-2"><CalendarDays className="size-4 text-orange-500" aria-hidden />{rental.period}</span>
+                    <span className="flex items-center gap-2"><MapPin className="size-4 text-orange-500" aria-hidden />{rental.city}</span>
+                  </div>
+                  <div className="md:text-right">
+                    <p className="text-xs font-bold uppercase text-neutral-400">Montant</p>
+                    <p className="mt-1 text-lg font-black text-neutral-950">{formatDh(rental.total)}</p>
+                  </div>
+                </div>
+              </div>
+              <ReservationActions
+                rental={rental}
+                loadingStatus={action && action.id === rental.backendId ? action.status : null}
+                onChange={onChange}
+              />
+            </div>
+          </article>
+        ))}
+        {!filteredRentals.length ? (
+          <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-6 text-center text-sm font-semibold text-neutral-600">
+            Aucune location avec ce statut.
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function parseDate(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   if (!year || !month || !day) return null;
@@ -1419,7 +1551,10 @@ function OwnerCalendar({
   rentals: RentalHistoryItem[];
 }) {
   const calendarEquipment = equipment.length ? equipment : [];
-  const calendarRentals = rentals.filter((rental) => ["confirmed", "active"].includes(rental.statusKey ?? ""));
+  const pendingRentals = rentals.filter((rental) => rental.statusKey === "pending");
+  const confirmedRentals = rentals.filter((rental) => rental.statusKey === "confirmed");
+  const activeRentals = rentals.filter((rental) => rental.statusKey === "active");
+  const calendarRentals = [...confirmedRentals, ...activeRentals];
   const availableEquipment = calendarEquipment.filter((item) => item.status === "AVAILABLE").length;
   const [monthDate, setMonthDate] = useState(() => new Date());
   const monthDays = buildMonthDays(monthDate);
@@ -1433,13 +1568,14 @@ function OwnerCalendar({
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ClientMetric label="Machines suivies" value={String(calendarEquipment.length)} />
         <ClientMetric label="Disponibles" value={String(availableEquipment)} />
-        <ClientMetric label="Dates réservées" value={String(calendarRentals.length)} />
+        <ClientMetric label="Demandes en attente" value={String(pendingRentals.length)} />
+        <ClientMetric label="Périodes réservées" value={String(calendarRentals.length)} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-100 p-4 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1473,6 +1609,7 @@ function OwnerCalendar({
                 </button>
                 <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Libre</span>
                 <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">Réservé</span>
+                <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">En location</span>
               </div>
             </div>
           </div>
@@ -1513,7 +1650,9 @@ function OwnerCalendar({
                           title={rental ? `${rental.equipmentTitle} · ${rental.period}` : "Disponible"}
                           className={`grid size-10 place-items-center rounded-full text-sm font-black transition sm:size-12 ${
                             rental
-                              ? "bg-orange-500 text-white shadow-lg shadow-orange-950/15"
+                              ? rental.statusKey === "active"
+                                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/15"
+                                : "bg-orange-500 text-white shadow-lg shadow-orange-950/15"
                               : isToday
                                 ? "border-2 border-neutral-950 bg-white text-neutral-950"
                                 : "bg-white text-neutral-800 hover:bg-neutral-100"
@@ -1549,18 +1688,46 @@ function OwnerCalendar({
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <h3 className="font-black text-neutral-950">Réservations</h3>
+          <div className="flex items-center gap-2">
+            <Clock3 className="size-5 text-amber-600" aria-hidden />
+            <h3 className="font-black text-neutral-950">À confirmer</h3>
+          </div>
           <div className="mt-4 grid gap-3">
-            {loading ? <SkeletonRows count={4} tone="orange" /> : null}
-            {!loading && !calendarRentals.length ? <p className="text-sm text-neutral-500">Aucune date réservée.</p> : null}
-            {calendarRentals.slice(0, 4).map((rental) => (
-              <div key={rental.id} className="rounded-xl border border-orange-100 bg-orange-50 p-3">
+            {loading ? <SkeletonRows count={2} tone="orange" /> : null}
+            {!loading && !pendingRentals.length ? <p className="text-sm text-neutral-500">Aucune demande en attente.</p> : null}
+            {pendingRentals.slice(0, 3).map((rental) => (
+              <div key={rental.id} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-black text-neutral-950">{rental.equipmentTitle}</p>
                     <p className="mt-1 text-sm text-neutral-600">{rental.period}</p>
                   </div>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-orange-700">{rentalStatusLabels[rental.status]}</span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-amber-800">En attente</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="size-5 text-orange-600" aria-hidden />
+            <h3 className="font-black text-neutral-950">Périodes réservées</h3>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {loading ? <SkeletonRows count={3} tone="orange" /> : null}
+            {!loading && !calendarRentals.length ? <p className="text-sm text-neutral-500">Aucune période réservée.</p> : null}
+            {calendarRentals.slice(0, 5).map((rental) => (
+              <div key={rental.id} className={`rounded-xl border p-3 ${rental.statusKey === "active" ? "border-emerald-200 bg-emerald-50" : "border-orange-100 bg-orange-50"}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-black text-neutral-950">{rental.equipmentTitle}</p>
+                    <p className="mt-1 text-sm text-neutral-600">{rental.period}</p>
+                    <p className="mt-1 truncate text-xs font-semibold text-neutral-500">{rental.companyName}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full bg-white px-3 py-1 text-xs font-black ${rental.statusKey === "active" ? "text-emerald-800" : "text-orange-700"}`}>
+                    {rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status]}
+                  </span>
                 </div>
               </div>
             ))}
@@ -1644,9 +1811,9 @@ function numberValue(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function ReservationActions({ rental, loading, onChange }: {
+function ReservationActions({ rental, loadingStatus, onChange }: {
   rental: RentalHistoryItem;
-  loading: boolean;
+  loadingStatus: string | null;
   onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") => Promise<void>;
 }) {
   const actions = rental.statusKey === "pending"
@@ -1662,8 +1829,19 @@ function ReservationActions({ rental, loading, onChange }: {
       {actions.length ? (
         <div className="flex flex-wrap gap-2">
           {actions.map(([label, status]) => (
-            <button key={status} type="button" disabled={loading} onClick={() => onChange(rental, status)} className="rounded-md border border-orange-200 px-3 py-2 text-xs font-black text-orange-700 disabled:opacity-50">
-              {label}
+            <button
+              key={status}
+              type="button"
+              disabled={Boolean(loadingStatus)}
+              onClick={() => onChange(rental, status)}
+              className={`inline-flex min-h-9 items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs font-black transition disabled:cursor-wait disabled:opacity-60 ${
+                status === "cancelled"
+                  ? "border-neutral-200 text-neutral-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                  : "border-orange-200 bg-orange-50 text-orange-800 hover:border-orange-500 hover:bg-orange-500 hover:text-white"
+              }`}
+            >
+              {loadingStatus === status ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : null}
+              {loadingStatus === status ? "Mise à jour..." : label}
             </button>
           ))}
         </div>
@@ -1674,7 +1852,7 @@ function ReservationActions({ rental, loading, onChange }: {
           <ol className="mt-2 grid gap-2 border-l-2 border-orange-100 pl-3">
             {[...rental.statusHistory].reverse().map((history) => (
               <li key={history.id} className="text-xs">
-                <p className="font-black text-neutral-800">{apiStatusLabels[history.toStatus] ?? history.toStatus}</p>
+                <p className="font-black text-neutral-800">{reservationStatusLabels[history.toStatus as RentalFilter] ?? apiStatusLabels[history.toStatus] ?? history.toStatus}</p>
                 <p className="text-neutral-500">{formatDateTime(history.createdAt)} · {history.actorName}</p>
               </li>
             ))}
