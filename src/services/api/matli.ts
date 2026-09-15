@@ -296,7 +296,7 @@ function mapRental(reservation: ApiReservation): RentalHistoryItem {
     id: reservation.reference,
     backendId: reservation.id,
     equipmentTitle: reservation.equipment?.title ?? "Machine BTP",
-    companyName: reservation.equipment?.company?.name ?? reservation.client_name ?? "Compte MATLI",
+    companyName: reservation.client_name ?? reservation.equipment?.company?.name ?? "Compte MATLI",
     city: reservation.equipment?.city ?? "Maroc",
     dateStart: reservation.date_start ?? undefined,
     dateEnd: reservation.date_end ?? undefined,
