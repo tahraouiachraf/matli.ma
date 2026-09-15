@@ -32,10 +32,10 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
 
   return (
     <section className={`border-t border-orange-100 ${isDark ? "bg-orange-50/50" : "bg-neutral-50"}`}>
-      <div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-7xl items-center px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <div className="mx-auto grid max-w-7xl items-center px-0 py-0 sm:min-h-[calc(100vh-88px)] sm:px-6 sm:py-10 lg:px-8">
         <div className={`mx-auto grid min-w-0 max-w-full overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-[0_24px_70px_rgba(23,23,23,0.10)] lg:w-full ${isDark ? "lg:grid-cols-[1.12fr_0.88fr]" : "lg:grid-cols-[0.88fr_1.12fr]"}`}>
           <div
-            className={`relative flex min-w-0 flex-col overflow-hidden p-5 sm:p-9 lg:min-h-[720px] lg:p-10 xl:p-12 ${isDark ? "bg-neutral-950 text-white" : "bg-orange-500 text-neutral-950"}`}
+            className={`relative flex min-w-0 flex-col overflow-hidden px-5 py-6 sm:p-9 lg:min-h-[720px] lg:p-10 xl:p-12 ${isDark ? "bg-neutral-950 text-white" : "bg-orange-500 text-neutral-950"}`}
             style={isDark ? { backgroundImage: "linear-gradient(125deg, #b84a12 0%, #4a281f 46%, #111827 100%)" } : undefined}
           >
             {isDark ? <span aria-hidden className="absolute inset-y-0 left-0 w-2 bg-orange-500" /> : null}
@@ -48,12 +48,12 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
               </div>
             </div>
 
-            <div className="relative z-10 mt-7 max-w-xl sm:mt-3">
+            <div className="relative z-10 mt-5 max-w-xl sm:mt-3">
               <p className={`inline-flex items-center gap-2 text-xs font-black uppercase ${isDark ? "tracking-[0.18em] text-orange-300" : "text-neutral-900"}`}>
                 {isDark ? null : <Check className="size-4" strokeWidth={3} aria-hidden />}
                 {isDark ? "Espace sécurisé" : "Simple, rapide et professionnel"}
               </p>
-              <h1 className={`mt-5 max-w-[520px] text-2xl font-black leading-[1.12] sm:text-4xl ${isDark ? "lg:text-[3.1rem] xl:text-[3.5rem]" : "lg:text-[2.65rem]"}`}>
+              <h1 className={`mt-3 max-w-[520px] text-2xl font-black leading-[1.12] sm:mt-5 sm:text-4xl ${isDark ? "lg:text-[3.1rem] xl:text-[3.5rem]" : "lg:text-[2.65rem]"}`}>
                 {isDark ? (
                   <><span className="sm:hidden">Louez et gérez vos machines.</span><span className="hidden sm:inline">Louer, déposer et gérer vos machines depuis un seul compte.</span></>
                 ) : "Vos machines BTP, vos réservations, un seul espace."}
@@ -80,7 +80,7 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
             </div>
           </div>
 
-          <div className="flex min-w-0 items-start p-6 sm:p-9 lg:min-h-[720px] lg:p-12 lg:pt-16 xl:px-12">
+          <div className="flex min-w-0 items-start px-5 py-7 sm:p-9 lg:min-h-[720px] lg:p-12 lg:pt-16 xl:px-12">
             <div className="mx-auto w-full min-w-0 max-w-2xl">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-orange-700">{eyebrow}</p>
               <h2 className="mt-2 break-words text-2xl font-black tracking-normal text-neutral-950 sm:text-4xl">{title}</h2>

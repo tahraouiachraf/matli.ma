@@ -6,17 +6,14 @@ import {
   ChartNoAxesCombined,
   CheckCircle2,
   Clock3,
-  FileText,
   FolderKanban,
   HardHat,
   LayoutDashboard,
   Loader2,
   MapPin,
   Search,
-  Settings,
   UserRound,
   UsersRound,
-  WalletCards,
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -67,12 +64,9 @@ export const ownerMenu: WorkspaceMenuItem[] = [
   ["Maintenance", "/espace/maintenance", Wrench],
   ["Clients", "/espace/clients", UsersRound],
   ["Opérateurs", "/espace/operateurs", HardHat],
-  ["Finances", "/espace/finances", WalletCards],
-  ["Documents", "/espace/documents", FileText],
   ["Statistiques", "/espace/statistiques", ChartNoAxesCombined],
   ["Notifications", "/espace/notifications", Bell],
   ["Profil", "/profil", UserRound],
-  ["Paramètres", "/espace/parametres", Settings],
 ];
 
 const clientMenu: WorkspaceMenuItem[] = [
@@ -97,14 +91,14 @@ export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
     : clientMenu;
 
   return (
-    <section className="mx-auto grid max-w-7xl grid-cols-[72px_minmax(0,1fr)] gap-3 px-3 py-5 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">
-      <aside className="sticky top-20 h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-sm sm:p-3 lg:top-24">
+    <section className="mx-auto grid max-w-7xl grid-cols-[60px_minmax(0,1fr)] gap-2 px-2 py-4 min-[380px]:grid-cols-[68px_minmax(0,1fr)] min-[380px]:gap-3 min-[380px]:px-3 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">
+      <aside className="sticky top-[4.5rem] h-[calc(100dvh-5.5rem)] overflow-hidden rounded-xl border border-neutral-200 bg-white p-1.5 shadow-sm min-[380px]:p-2 sm:top-20 sm:rounded-2xl sm:p-3 lg:top-24">
         <div className="mb-2 hidden px-3 py-2 sm:block">
           <h1 className="text-lg font-black text-neutral-950">{isOwner ? "Espace propriétaire" : "Espace client"}</h1>
           <p className="mt-1 text-xs font-semibold text-neutral-500">{isOwner ? "Gestion du parc" : "Locations et réservations"}</p>
         </div>
-        <div className="mb-2 grid place-items-center rounded-xl bg-orange-50 py-3 sm:hidden">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 font-black text-white">M</span>
+        <div className="mb-2 grid place-items-center rounded-lg bg-orange-50 py-2 sm:hidden">
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-orange-500 text-sm font-black text-white">M</span>
         </div>
         <nav className="grid max-h-[calc(100dvh-10rem)] gap-1 overflow-y-auto pr-0.5" aria-label={isOwner ? "Menu espace propriétaire" : "Menu espace client"}>
           {menu.map(([label, href, Icon]) => (
@@ -1587,7 +1581,28 @@ function OwnerCalendar({
   const pendingRentals = rentals.filter((rental) => rental.statusKey === "pending");
   const confirmedRentals = rentals.filter((rental) => rental.statusKey === "confirmed");
   const activeRentals = rentals.filter((rental) => rental.statusKey === "active");
-  const calendarRentals = [...confirmedRentals, ...activeRentals];
+  const reservationPeriodKeys = new Set(
+    [...confirmedRentals, ...activeRentals].map((rental) => `${rental.equipmentTitle}|${rental.dateStart}|${rental.dateEnd}`),
+  );
+  const reservedAvailabilityPeriods: RentalHistoryItem[] = calendarEquipment.flatMap((item) =>
+    (item.availabilityPeriods ?? [])
+      .filter((period) => period.status === "reserved" && !period.reservationId)
+      .filter((period) => !reservationPeriodKeys.has(`${item.title}|${period.dateStart}|${period.dateEnd}`))
+      .map((period) => ({
+        id: `availability-${period.id}`,
+        equipmentTitle: item.title,
+        companyName: period.reason || "Période bloquée",
+        city: item.city,
+        dateStart: period.dateStart,
+        dateEnd: period.dateEnd,
+        period: `${formatDate(period.dateStart)} au ${formatDate(period.dateEnd)}`,
+        total: 0,
+        status: "RESERVED" as const,
+        statusKey: "confirmed" as const,
+        image: item.image,
+      })),
+  );
+  const calendarRentals = [...confirmedRentals, ...activeRentals, ...reservedAvailabilityPeriods];
   const availableEquipment = calendarEquipment.filter((item) => item.status === "AVAILABLE").length;
   const [monthDate, setMonthDate] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -1601,6 +1616,11 @@ function OwnerCalendar({
   }
 
   const selectedRentals = selectedDate ? reservationsForDay(selectedDate) : [];
+
+  function calendarStatusLabel(rental: RentalHistoryItem) {
+    if (rental.id.startsWith("availability-")) return "Réservée";
+    return rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status];
+  }
 
   return (
     <div className="grid gap-6">
@@ -1728,7 +1748,7 @@ function OwnerCalendar({
                           <div key={rental.id} className="rounded-xl border border-neutral-200 bg-white p-3">
                             <p className="font-black text-neutral-950">{rental.equipmentTitle}</p>
                             <p className="mt-1 text-sm text-neutral-600">{rental.companyName}</p>
-                            <p className="mt-2 text-xs font-bold text-orange-700">{rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status]}</p>
+                            <p className="mt-2 text-xs font-bold text-orange-700">{calendarStatusLabel(rental)}</p>
                           </div>
                         ))}
                       </div>
@@ -1799,7 +1819,7 @@ function OwnerCalendar({
                     <p className="mt-1 truncate text-xs font-semibold text-neutral-500">{rental.companyName}</p>
                   </div>
                   <span className={`shrink-0 rounded-full bg-white px-3 py-1 text-xs font-black ${rental.statusKey === "active" ? "text-emerald-800" : "text-orange-700"}`}>
-                    {rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status]}
+                    {calendarStatusLabel(rental)}
                   </span>
                 </div>
               </div>

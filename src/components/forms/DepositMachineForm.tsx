@@ -32,15 +32,17 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       .split("\n")
       .map((item) => item.trim())
       .filter(Boolean);
-    const imageFile = formData.get("image");
+    const imageFiles = formData.getAll("images").filter((file): file is File => file instanceof File && file.size > 0);
 
     try {
-      if (imageFile instanceof File && imageFile.size > 8 * 1024 * 1024) {
-        throw new Error("Image trop lourde");
+      if (imageFiles.length > 8) {
+        throw new Error("Vous pouvez ajouter jusqu’à 8 photos par matériel.");
       }
-      const uploadedImage = imageFile instanceof File && imageFile.size > 0
-        ? await uploadEquipmentImage(imageFile, token)
-        : null;
+      if (imageFiles.some((file) => file.size > 8 * 1024 * 1024)) {
+        throw new Error("Chaque image doit peser au maximum 8 Mo.");
+      }
+      const uploadedImages = await Promise.all(imageFiles.map((file) => uploadEquipmentImage(file, token)));
+      const imageUrls = uploadedImages.map((image) => image.url);
       const payload: CreateEquipmentPayload = {
           category_slug: String(formData.get("category_slug") ?? ""),
           title: String(formData.get("title") ?? ""),
@@ -52,7 +54,8 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           price_day: Number(formData.get("price_day")),
           price_week: Number(formData.get("price_week")) || undefined,
           status: String(formData.get("status") ?? "available") as CreateEquipmentPayload["status"],
-          image_url: uploadedImage?.url,
+          image_url: imageUrls[0],
+          image_urls: imageUrls.length ? imageUrls : undefined,
           description: String(formData.get("description") ?? ""),
           operator_available: formData.get("operator_available") === "1",
           delivery_available: formData.get("delivery_available") === "1",
@@ -147,9 +150,10 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
         </label>
       </div>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
-        Photo principale
-        <input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="min-h-12 rounded-md border border-neutral-200 bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700" />
-        <span className="text-xs font-normal text-neutral-500">JPEG, PNG, WebP ou AVIF, 8 Mo maximum. La photo sera automatiquement compressée.</span>
+        Photos du matériel
+        <input name="images" type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" className="min-h-12 rounded-md border border-neutral-200 bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700" />
+        <span className="text-xs font-normal text-neutral-500">Jusqu’à 8 photos. La première devient la photo principale. JPEG, PNG, WebP ou AVIF, 8 Mo maximum par image.</span>
+        {equipment?.images?.length ? <span className="text-xs font-semibold text-orange-700">{equipment.images.length} photo(s) actuellement enregistrée(s). Choisir de nouvelles photos remplacera la galerie.</span> : null}
       </label>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description

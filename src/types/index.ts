@@ -35,6 +35,7 @@ export type Equipment = {
   delivery: boolean;
   sponsored?: boolean;
   image: string;
+  images?: string[];
   companySlug: string;
   companyName: string;
   companyVerified?: boolean;
@@ -43,6 +44,14 @@ export type Equipment = {
   moderationStatus?: "draft" | "pending_review" | "approved" | "rejected";
   moderationNotes?: string | null;
   archivedAt?: string | null;
+  availabilityPeriods?: Array<{
+    id: string;
+    reservationId?: string | null;
+    dateStart: string;
+    dateEnd: string;
+    status: "reserved" | "maintenance" | "unavailable";
+    reason?: string | null;
+  }>;
 };
 
 export type ClientRequest = {

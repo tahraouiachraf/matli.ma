@@ -72,11 +72,19 @@ type ApiEquipment = {
   delivery_available: boolean;
   is_sponsored?: boolean;
   image_url: string | null;
+  images?: Array<{ id: string; url: string; position: number; is_primary: boolean }>;
   description: string | null;
   specs: string[] | null;
   category?: { name: string; slug: string };
   company?: { name: string; slug: string; city?: string; region?: string; is_verified?: boolean };
-  availabilities?: Array<{ id: string; date_start: string; date_end: string; status: string; reason: string | null }>;
+  availabilities?: Array<{
+    id: string;
+    reservation_id?: string | null;
+    date_start: string;
+    date_end: string;
+    status: "reserved" | "maintenance" | "unavailable";
+    reason: string | null;
+  }>;
   moderation_status?: "draft" | "pending_review" | "approved" | "rejected";
   moderation_notes?: string | null;
   archived_at?: string | null;
@@ -177,6 +185,13 @@ function stableNumericId(value: string, fallback: number) {
 }
 
 export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
+  const images = Array.from(new Set(
+    [item.image_url, ...(item.images ?? []).sort((first, second) => first.position - second.position).map((image) => image.url)]
+      .filter((url): url is string => Boolean(url))
+      .map((url, imageIndex) => localImage(url, imageIndex)),
+  ));
+  const primaryImage = images[0] ?? localImage(null, index);
+
   return {
     id: stableNumericId(item.id, index + 1),
     backendId: item.id,
@@ -195,7 +210,8 @@ export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
     operator: Boolean(item.operator_available),
     delivery: Boolean(item.delivery_available),
     sponsored: Boolean(item.is_sponsored),
-    image: localImage(item.image_url, index),
+    image: primaryImage,
+    images: images.length ? images : [primaryImage],
     companySlug: item.company?.slug ?? "proprietaire",
     companyName: item.company?.name ?? "Propriétaire MATLI",
     companyVerified: Boolean(item.company?.is_verified),
@@ -204,6 +220,14 @@ export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
     moderationStatus: item.moderation_status,
     moderationNotes: item.moderation_notes,
     archivedAt: item.archived_at,
+    availabilityPeriods: item.availabilities?.map((period) => ({
+      id: period.id,
+      reservationId: period.reservation_id,
+      dateStart: period.date_start,
+      dateEnd: period.date_end,
+      status: period.status,
+      reason: period.reason,
+    })) ?? [],
   };
 }
 
@@ -372,6 +396,7 @@ export type CreateEquipmentPayload = {
   price_week?: number;
   status: ApiEquipment["status"];
   image_url?: string;
+  image_urls?: string[];
   description?: string;
   operator_available?: boolean;
   delivery_available?: boolean;

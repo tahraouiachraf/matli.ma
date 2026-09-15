@@ -8,7 +8,7 @@ import type { Equipment } from "@/types";
 export function EquipmentCard({ item }: { item: Equipment }) {
   return (
     <article className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition duration-300 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-xl hover:shadow-orange-950/8">
-      <div className="relative aspect-[4/3] overflow-hidden bg-orange-50">
+      <div className="relative aspect-[16/11] overflow-hidden bg-orange-50 sm:aspect-[4/3]">
         <Image
           src={item.image}
           alt={`${item.title} à louer à ${item.city}`}
@@ -25,11 +25,11 @@ export function EquipmentCard({ item }: { item: Equipment }) {
           {statusLabels[item.status]}
         </span>
       </div>
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase text-orange-700">{item.category}</p>
-            <h3 className="mt-1 line-clamp-2 text-xl font-bold text-neutral-950">{item.title}</h3>
+            <h3 className="mt-1 line-clamp-2 text-lg font-bold text-neutral-950 sm:text-xl">{item.title}</h3>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-sm text-neutral-600">
@@ -54,14 +54,14 @@ export function EquipmentCard({ item }: { item: Equipment }) {
             {item.delivery ? "Livraison possible" : "Retrait sur place"}
           </span>
         </div>
-        <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-5 flex items-end justify-between gap-3 max-[379px]:flex-col max-[379px]:items-stretch">
           <div>
             <p className="text-xs uppercase text-neutral-500">À partir de</p>
             <p className="text-xl font-black text-neutral-950">{formatDh(item.priceDay)} / jour</p>
           </div>
           <Link
             href={`/materiel/${item.slug}`}
-            className="inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-600 px-4 text-sm font-bold text-white hover:bg-orange-700 sm:w-auto"
+            className="inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-orange-600 px-4 text-sm font-bold text-white hover:bg-orange-700 max-[379px]:w-full"
           >
             Voir le matériel
           </Link>
