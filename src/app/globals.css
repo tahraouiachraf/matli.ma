@@ -141,24 +141,6 @@ select {
   }
 }
 
-@keyframes matli-workflow-step {
-  0%,
-  15% {
-    border-color: #e5e5e5;
-    transform: translateY(0);
-  }
-  25%,
-  42% {
-    border-color: #f58220;
-    transform: translateY(-3px);
-  }
-  52%,
-  100% {
-    border-color: #e5e5e5;
-    transform: translateY(0);
-  }
-}
-
 @keyframes matli-workflow-progress {
   from {
     transform: translateY(-100%);
@@ -168,12 +150,50 @@ select {
   }
 }
 
-.workflow-visual-step {
-  animation: matli-workflow-step 5.5s ease-in-out infinite;
+@keyframes matli-workflow-progress-horizontal {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(850%);
+  }
+}
+
+@keyframes matli-hero-drift {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes matli-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .process-flow-progress {
   animation: matli-workflow-progress 3.5s ease-in-out infinite;
+}
+
+.process-flow-progress-horizontal {
+  animation: matli-workflow-progress-horizontal 5s ease-in-out infinite;
+}
+
+.function-hero-image {
+  animation: matli-hero-drift 14s ease-in-out infinite;
+}
+
+.animate-panel-in {
+  animation: matli-panel-in 280ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
