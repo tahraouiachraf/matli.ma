@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const isProduction = process.env.NODE_ENV === "production";
 const defaultApiUrl = "https://portail.joblik.ma/api";
@@ -68,7 +69,7 @@ const nextConfig: NextConfig = {
           "font-src 'self' data:",
           "style-src 'self' 'unsafe-inline'",
           `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://www.googletagmanager.com https://www.google-analytics.com`,
-          `connect-src 'self'${isProduction ? "" : " http://127.0.0.1:8000"} https://portail.joblik.ma https://www.google-analytics.com https://region1.google-analytics.com`,
+          `connect-src 'self'${isProduction ? "" : " http://127.0.0.1:8000"} https://portail.joblik.ma https://www.google-analytics.com https://region1.google-analytics.com https://*.ingest.sentry.io`,
           ...(isProduction ? ["upgrade-insecure-requests"] : []),
         ].join("; "),
       },
@@ -83,4 +84,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+});

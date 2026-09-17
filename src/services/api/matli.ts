@@ -3,7 +3,7 @@ import { categories, clientRequests, companies, equipment } from "@/lib/data";
 import { formatDateRange } from "@/lib/format";
 import { API_ORIGIN, apiRequest } from "@/services/api/client";
 
-type LaravelPaginator<T> = {
+export type LaravelPaginator<T> = {
   data: T[];
   current_page: number;
   last_page: number;
@@ -33,7 +33,9 @@ export type EquipmentSearchParams = {
   brand?: string;
   model?: string;
   availableNow?: boolean;
-  sort?: "recent" | "price_asc" | "price_desc";
+  sort?: "recent" | "price_asc" | "price_desc" | "availability" | "proximity";
+  nearCity?: string;
+  page?: number;
 };
 
 type ApiCategory = {
@@ -63,6 +65,9 @@ type ApiEquipment = {
   brand: string | null;
   model: string | null;
   year: number | null;
+  technical_condition?: "excellent" | "very_good" | "good" | "fair" | null;
+  power_hp?: number | null;
+  tonnage?: number | string | null;
   city: string;
   region: string | null;
   price_day: number;
@@ -70,6 +75,7 @@ type ApiEquipment = {
   status: "available" | "reserved" | "rented" | "maintenance" | "unavailable";
   operator_available: boolean;
   delivery_available: boolean;
+  delivery_terms?: string | null;
   is_sponsored?: boolean;
   image_url: string | null;
   images?: Array<{ id: string; url: string; position: number; is_primary: boolean }>;
@@ -88,6 +94,9 @@ type ApiEquipment = {
   moderation_status?: "draft" | "pending_review" | "approved" | "rejected";
   moderation_notes?: string | null;
   archived_at?: string | null;
+  reviews_avg_rating?: number | string | null;
+  reviews_count?: number;
+  reviews?: Array<{ id: string; rating: number; comment: string | null; created_at: string; user?: { name: string } | null }>;
 };
 
 type ApiRentalRequest = {
@@ -111,7 +120,7 @@ type ApiReservation = {
   date_start: string;
   date_end: string;
   total_amount: number;
-  status: "pending" | "confirmed" | "active" | "completed" | "cancelled";
+  status: "pending" | "confirmed" | "active" | "completed" | "rejected" | "cancelled";
   equipment?: { title: string; city?: string; image_url?: string | null; company?: { name: string } };
   status_histories?: Array<{
     id: string;
@@ -123,13 +132,29 @@ type ApiReservation = {
   }>;
 };
 
-type WorkspaceDashboard = {
+export type WorkspaceDashboard = {
   stats: {
     equipment: number;
     available_equipment: number;
     reservations: number;
     pending_reservations: number;
     unread_notifications: number;
+    active_reservations: number;
+    overdue_reservations: number;
+    maintenance_due: number;
+    estimated_revenue: number;
+  };
+  alerts: Array<{ key: string; count: number; label: string; href: string }>;
+  conversion: {
+    period_days: number;
+    searches: number;
+    zero_result_searches: number;
+    equipment_views: number;
+    reservation_requests: number;
+    confirmed_reservations: number;
+    view_to_request_rate: number;
+    request_to_confirmation_rate: number;
+    top_zero_result_searches: Array<{ query: string; count: number }>;
   };
   recent_reservations: ApiReservation[];
 };
@@ -201,14 +226,18 @@ export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
     brand: item.brand ?? "Marque",
     model: item.model ?? "Modèle",
     year: item.year ?? new Date().getFullYear(),
+    technicalCondition: item.technical_condition ?? undefined,
+    powerHp: item.power_hp ?? undefined,
+    tonnage: item.tonnage == null ? undefined : Number(item.tonnage),
     city: item.city,
     region: item.region ?? item.company?.region ?? "Maroc",
     priceDay: item.price_day,
     priceWeek: item.price_week ?? item.price_day * 6,
     status: statusMap[item.status] ?? "AVAILABLE",
-    rating: item.company?.is_verified ? 4.8 : 4.4,
+    rating: item.reviews_avg_rating ? Number(item.reviews_avg_rating) : 0,
     operator: Boolean(item.operator_available),
     delivery: Boolean(item.delivery_available),
+    deliveryTerms: item.delivery_terms ?? undefined,
     sponsored: Boolean(item.is_sponsored),
     image: primaryImage,
     images: images.length ? images : [primaryImage],
@@ -217,6 +246,8 @@ export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
     companyVerified: Boolean(item.company?.is_verified),
     description: item.description ?? "Machine disponible à la location via MATLI.ma.",
     specs: item.specs?.length ? item.specs : ["Prix journalier", "Disponibilité", "Contact propriétaire"],
+    reviews: item.reviews?.map((review) => ({ id: review.id, rating: review.rating, comment: review.comment, author: review.user?.name ?? "Client MATLI", createdAt: review.created_at })) ?? [],
+    reviewsCount: item.reviews_count ?? item.reviews?.length ?? 0,
     moderationStatus: item.moderation_status,
     moderationNotes: item.moderation_notes,
     archivedAt: item.archived_at,
@@ -289,6 +320,10 @@ export function getEquipmentList(params?: EquipmentSearchParams) {
 }
 
 export function getEquipmentListStrict(params?: EquipmentSearchParams) {
+  return getEquipmentPageStrict(params).then((payload) => payload.items);
+}
+
+export function getEquipmentPageStrict(params?: EquipmentSearchParams) {
   const search = new URLSearchParams();
   if (params?.perPage) search.set("per_page", String(params.perPage));
   if (params?.q) search.set("q", params.q);
@@ -304,11 +339,33 @@ export function getEquipmentListStrict(params?: EquipmentSearchParams) {
   if (params?.model) search.set("model", params.model);
   if (params?.availableNow) search.set("available_now", "1");
   if (params?.sort) search.set("sort", params.sort);
+  if (params?.nearCity) search.set("near_city", params.nearCity);
+  if (params?.page) search.set("page", String(params.page));
 
   return (async () => {
     const payload = await apiRequest<ApiListResponse<ApiEquipment>>(`/equipment?${search.toString()}`);
-    return listData(payload).map(mapEquipment);
+    if (Array.isArray(payload)) {
+      return { items: payload.map(mapEquipment), currentPage: 1, lastPage: 1, total: payload.length, perPage: payload.length };
+    }
+    return {
+      items: payload.data.map(mapEquipment),
+      currentPage: payload.current_page,
+      lastPage: payload.last_page,
+      total: payload.total,
+      perPage: payload.per_page,
+    };
   })();
+}
+
+export type SearchSuggestions = {
+  machines: Array<{ title: string; brand?: string | null; model?: string | null; slug: string; city: string }>;
+  brands: string[];
+  cities: string[];
+  categories: Array<{ name: string; slug: string }>;
+};
+
+export function getSearchSuggestions(query: string) {
+  return apiRequest<SearchSuggestions>(`/search/suggestions?q=${encodeURIComponent(query)}`);
 }
 
 export function getCatalogMetaStrict() {
@@ -331,6 +388,8 @@ function mapRental(reservation: ApiReservation): RentalHistoryItem {
         ? "COMPLETED"
         : reservation.status === "active"
           ? "ONGOING"
+          : reservation.status === "rejected"
+            ? "REJECTED"
           : reservation.status === "cancelled"
             ? "CANCELLED"
             : "RESERVED",
@@ -390,6 +449,9 @@ export type CreateEquipmentPayload = {
   brand?: string;
   model?: string;
   year?: number;
+  technical_condition?: "excellent" | "very_good" | "good" | "fair";
+  power_hp?: number;
+  tonnage?: number;
   city: string;
   region?: string;
   price_day: number;
@@ -400,6 +462,7 @@ export type CreateEquipmentPayload = {
   description?: string;
   operator_available?: boolean;
   delivery_available?: boolean;
+  delivery_terms?: string;
   is_sponsored?: boolean;
   specs?: string[];
 };
@@ -530,13 +593,26 @@ export function cancelClientReservation(id: string, token?: string | null) {
     .then((response) => ({ message: response.message, reservation: mapRental(response.reservation) }));
 }
 
-export function updateReservationStatus(id: string, status: "confirmed" | "active" | "completed" | "cancelled", token?: string | null) {
+export function updateReservationStatus(id: string, status: "confirmed" | "active" | "completed" | "rejected" | "cancelled", token?: string | null) {
   if (!token) throw new Error("Authentification requise.");
   return apiRequest<{ message: string; reservation: ApiReservation }>(`/workspace/reservations/${id}/status`, {
     method: "PATCH",
     token,
     body: JSON.stringify({ status }),
   }).then((response) => ({ message: response.message, reservation: mapRental(response.reservation) }));
+}
+
+export function reportEquipment(
+  equipmentId: string,
+  payload: { reason: "duplicate" | "fraud" | "unavailable" | "inappropriate" | "other"; details?: string },
+  token?: string | null,
+) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string }>(`/equipment/${equipmentId}/reports`, {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  });
 }
 
 export type AccountProfile = {
@@ -568,6 +644,42 @@ export type AccountNotification = {
   read_at: string | null;
   created_at: string;
 };
+
+export type NotificationPreferences = {
+  email_enabled: boolean;
+  app_enabled: boolean;
+  reservation_updates: boolean;
+  important_alerts: boolean;
+  marketing: boolean;
+};
+
+export function getNotificationCenter(token?: string | null) {
+  if (!token) return Promise.resolve({ unreadCount: 0, notifications: [] as AccountNotification[] });
+  return apiRequest<{ unread_count: number; notifications: LaravelPaginator<AccountNotification> }>("/notifications?per_page=40", { token })
+    .then((payload) => ({ unreadCount: payload.unread_count, notifications: payload.notifications.data }));
+}
+
+export function markNotificationRead(id: string, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string; notification: AccountNotification }>(`/notifications/${id}/read`, { method: "PATCH", token });
+}
+
+export function markNotificationsRead(token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string }>("/notifications/read-all", { method: "PATCH", token });
+}
+
+export function getNotificationPreferences(token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<NotificationPreferences>("/notification-preferences", { token });
+}
+
+export function updateNotificationPreferences(preferences: NotificationPreferences, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+  return apiRequest<{ message: string; preferences: NotificationPreferences }>("/notification-preferences", {
+    method: "PUT", token, body: JSON.stringify(preferences),
+  });
+}
 
 export function getClientNotifications(token?: string | null) {
   if (!token) return Promise.resolve<AccountNotification[]>([]);
@@ -636,6 +748,10 @@ export function getEquipmentDetail(slug: string) {
 
 export function getEquipmentDetailStrict(slug: string) {
   return apiRequest<ApiEquipment>(`/equipment/${slug}`).then((payload) => mapEquipment(payload));
+}
+
+export function getSimilarEquipment(slug: string) {
+  return apiRequest<ApiEquipment[]>(`/equipment/${slug}/similar`).then((payload) => payload.map(mapEquipment));
 }
 
 export function getCompanies() {

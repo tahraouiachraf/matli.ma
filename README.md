@@ -5,14 +5,19 @@ MATLI.ma est une marketplace marocaine pour louer et déposer des machines BTP. 
 ## Fonctionnalités
 
 - Accueil marketplace avec offres machines chargées depuis l’API Laravel.
-- Catalogue `/location` avec machines, catégories, villes et demandes clients.
-- Recherche avancée: prix, marque, modèle, opérateur, livraison et disponibilité.
+- Catalogue `/location` paginé avec machines, catégories, villes et demandes clients.
+- Recherche avancée avec suggestions, filtres persistants, tris et URL partageable.
 - Pages SEO locales `/location/[categorie-ville]` intégrées au sitemap.
-- Détail matériel `/materiel/[slug]`.
+- Détail matériel `/materiel/[slug]` avec galerie, caractéristiques, calendrier, avis et machines similaires.
 - Page entreprise `/entreprise/[slug]`.
 - Authentification frontend via token Bearer Laravel.
 - Inscription propriétaire/client.
 - Espace connecté propriétaire/client protégé.
+- Dashboard alimenté par Laravel avec actions rapides, alertes et états vides utiles.
+- Centre de notifications avec compteur non lu, lecture et préférences email/application.
+- Suivi commercial avec consentement: recherches, fiches vues, demandes et réservations.
+- Sentry côté navigateur, serveur et edge, avec remontée des erreurs API 500.
+- Contrôle Lighthouse CI sur les pages publiques principales.
 - Pages d’erreurs professionnelles: 400, 403, 404, 500 et backend indisponible.
 
 ## Stack technique
@@ -86,6 +91,16 @@ php artisan serve --host=127.0.0.1 --port=8000
 - `GET /api/categories`
 - `GET /api/equipment`
 - `GET /api/equipment/{slug}`
+- `GET /api/equipment/{slug}/similar`
+- `GET /api/equipment/{slug}/availability`
+- `POST /api/equipment/{equipment}/reports`
+- `GET /api/search/suggestions`
+- `GET /api/notifications`
+- `PATCH /api/notifications/read-all`
+- `PATCH /api/notifications/{notification}/read`
+- `GET /api/notification-preferences`
+- `PUT /api/notification-preferences`
+- `POST /api/analytics/events`
 - `GET /api/companies/{slug}`
 - `GET /api/marketplace/requests`
 - `GET /api/workspace/dashboard`
@@ -94,4 +109,9 @@ php artisan serve --host=127.0.0.1 --port=8000
 
 ```bash
 npm run build
+npm run lighthouse
 ```
+
+## Confidentialité
+
+Google Analytics est chargé uniquement après consentement explicite. Les conditions générales, la politique de confidentialité, la politique d’annulation et les mentions légales sont intégrées au sitemap.

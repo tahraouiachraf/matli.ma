@@ -25,6 +25,9 @@ export type Equipment = {
   brand: string;
   model: string;
   year: number;
+  technicalCondition?: "excellent" | "very_good" | "good" | "fair";
+  powerHp?: number;
+  tonnage?: number;
   city: string;
   region: string;
   priceDay: number;
@@ -33,6 +36,7 @@ export type Equipment = {
   rating: number;
   operator: boolean;
   delivery: boolean;
+  deliveryTerms?: string;
   sponsored?: boolean;
   image: string;
   images?: string[];
@@ -41,6 +45,8 @@ export type Equipment = {
   companyVerified?: boolean;
   description: string;
   specs: string[];
+  reviews?: Array<{ id: string; rating: number; comment?: string | null; author: string; createdAt: string }>;
+  reviewsCount?: number;
   moderationStatus?: "draft" | "pending_review" | "approved" | "rejected";
   moderationNotes?: string | null;
   archivedAt?: string | null;
@@ -80,9 +86,9 @@ export type RentalHistoryItem = {
   dateEnd?: string;
   period: string;
   total: number;
-  status: "COMPLETED" | "ONGOING" | "RESERVED" | "CANCELLED";
+  status: "COMPLETED" | "ONGOING" | "RESERVED" | "REJECTED" | "CANCELLED";
   image: string;
-  statusKey?: "pending" | "confirmed" | "active" | "completed" | "cancelled";
+  statusKey?: "pending" | "confirmed" | "active" | "completed" | "rejected" | "cancelled";
   statusHistory?: Array<{
     id: string;
     fromStatus?: string | null;

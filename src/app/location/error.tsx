@@ -7,6 +7,7 @@ export default function LocationError({ error, reset }: { error: Error & { diges
     <ErrorState
       code="500"
       digest={error.digest}
+      reportedError={error}
       eyebrow="Chargement indisponible"
       icon="dns"
       onRetry={reset}

@@ -7,6 +7,7 @@ export default function OwnerSpaceError({ error, reset }: { error: Error & { dig
     <ErrorState
       code="500"
       digest={error.digest}
+      reportedError={error}
       eyebrow="Dashboard indisponible"
       icon="server"
       onRetry={reset}

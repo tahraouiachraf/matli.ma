@@ -145,6 +145,8 @@ export function FilterSidebar({ active = {}, brands = [], items = fallbackCatego
             { label: "Plus récentes", href: filterHref(active, { sort: null }) },
             { label: "Prix croissant", href: filterHref(active, { sort: "price_asc" }), active: active.sort === "price_asc" },
             { label: "Prix décroissant", href: filterHref(active, { sort: "price_desc" }), active: active.sort === "price_desc" },
+            { label: "Disponibilité", href: filterHref(active, { sort: "availability" }), active: active.sort === "availability" },
+            { label: "Proximité", href: filterHref(active, { sort: "proximity" }), active: active.sort === "proximity" },
           ]}
           activeFirst={!active.sort || active.sort === "recent"}
         />

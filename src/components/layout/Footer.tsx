@@ -75,6 +75,14 @@ export function Footer() {
           ))}
         </div>
       </div>
+      <div className="border-t border-neutral-100">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-x-5 gap-y-2 px-4 py-5 text-xs font-semibold text-neutral-500 sm:px-6 lg:px-8">
+          <Link href="/conditions-generales" className="hover:text-orange-600">Conditions générales</Link>
+          <Link href="/confidentialite" className="hover:text-orange-600">Confidentialité et cookies</Link>
+          <Link href="/politique-annulation" className="hover:text-orange-600">Politique d’annulation</Link>
+          <Link href="/mentions-legales" className="hover:text-orange-600">Mentions légales</Link>
+        </div>
+      </div>
     </footer>
   );
 }

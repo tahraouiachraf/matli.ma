@@ -20,8 +20,10 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDate, formatDateTime, formatDh } from "@/lib/format";
+import { trackCommercialEvent } from "@/lib/commercial-analytics";
 import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusLabels, statusLabels } from "@/lib/data";
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { getWorkspaceRole, isAdminWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
@@ -36,12 +38,13 @@ import {
   getClientNotifications,
   markClientNotificationsRead,
   getWorkspaceCollectionStrict,
+  getWorkspaceDashboardStrict,
   getWorkspaceEquipmentStrict,
   getWorkspaceReservationsStrict,
   updateWorkspaceItem,
   updateReservationStatus,
 } from "@/services/api/matli";
-import type { CreateRentalRequestPayload, CreateReservationPayload, WorkspaceCrudPayload } from "@/services/api/matli";
+import type { CreateRentalRequestPayload, CreateReservationPayload, WorkspaceCrudPayload, WorkspaceDashboard } from "@/services/api/matli";
 import type { ClientRequest, Equipment, RentalHistoryItem } from "@/types";
 
 type OwnerNotification = {
@@ -188,6 +191,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   const [workspaceRentals, setWorkspaceRentals] = useState<RentalHistoryItem[] | null>(null);
   const [marketplaceRequests, setMarketplaceRequests] = useState<ClientRequest[] | null>(null);
   const [workspaceItems, setWorkspaceItems] = useState<Record<string, unknown>[] | null>(null);
+  const [workspaceDashboard, setWorkspaceDashboard] = useState<WorkspaceDashboard | null>(null);
   const [notifications, setNotifications] = useState<OwnerNotification[]>([]);
   const [uiNotice, setUiNotice] = useState<string | null>(null);
   const [reservationError, setReservationError] = useState<string | null>(null);
@@ -239,15 +243,17 @@ export function OwnerSectionContent({ section }: { section: string }) {
             setNotifications(readStoredNotifications());
           }
         } else if (section === "statistiques") {
-          const [equipmentPayload, rentalsPayload, requestsPayload] = await Promise.all([
+          const [equipmentPayload, rentalsPayload, requestsPayload, dashboardPayload] = await Promise.all([
             getWorkspaceEquipmentStrict(token),
             getWorkspaceReservationsStrict(token),
             getMarketplaceRequestsStrict(),
+            getWorkspaceDashboardStrict(token),
           ]);
           if (mounted) {
             setWorkspaceEquipment(equipmentPayload);
             setWorkspaceRentals(rentalsPayload);
             setMarketplaceRequests(requestsPayload);
+            setWorkspaceDashboard(dashboardPayload);
           }
         } else {
           const endpointBySection: Record<string, string> = {
@@ -286,6 +292,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
 
   async function saveReservation(payload: CreateReservationPayload, machineLabel: string) {
     await createReservation(payload, token);
+    trackCommercialEvent("reservation_requested", { equipmentId: payload.equipment_id }, { persist: false });
     const rentalsPayload = await getWorkspaceReservationsStrict(token);
     const notificationPayload = await getWorkspaceCollectionStrict<Record<string, unknown>>("notifications", token).catch(() => []);
     setWorkspaceRentals(rentalsPayload);
@@ -296,6 +303,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
 
   async function saveRentalRequest(payload: CreateRentalRequestPayload) {
     const request = await createRentalRequest(payload);
+    trackCommercialEvent("rental_request_sent", { searchQuery: payload.machine, city: payload.city }, { persist: false });
     setMarketplaceRequests((current) => [request, ...(current ?? [])]);
     setUiNotice("Demande client enregistrée avec succès.");
   }
@@ -348,7 +356,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
     }
   }
 
-  async function changeReservation(item: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") {
+  async function changeReservation(item: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "rejected" | "cancelled") {
     if (!item.backendId) return;
     setReservationAction({ id: item.backendId, status });
     setReservationError(null);
@@ -617,6 +625,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   }
 
   if (section === "notifications") {
+    return <NotificationCenter />;
     const apiNotifications = (workspaceItems ?? []).map((item, index) => ({
       id: String(item.id ?? `api-${index}`),
       title: stringValue(item.title) ?? stringValue(item.message) ?? "Notification",
@@ -709,7 +718,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   if (section === "statistiques") {
     return (
       <DashboardPanel title={title} description={description} actionLabel={null}>
-        <StatsCharts equipment={workspaceEquipment ?? []} rentals={workspaceRentals ?? []} requests={marketplaceRequests ?? []} />
+        <StatsCharts equipment={workspaceEquipment ?? []} rentals={workspaceRentals ?? []} requests={marketplaceRequests ?? []} conversion={workspaceDashboard?.conversion} />
       </DashboardPanel>
     );
   }
@@ -1026,10 +1035,12 @@ function StatsCharts({
   equipment,
   rentals,
   requests,
+  conversion,
 }: {
   equipment: Equipment[];
   rentals: RentalHistoryItem[];
   requests: ClientRequest[];
+  conversion?: WorkspaceDashboard["conversion"];
 }) {
   const totalRevenue = rentals.reduce((sum, rental) => sum + rental.total, 0);
   const cityGroups = groupCount(equipment.map((item) => item.city));
@@ -1055,6 +1066,44 @@ function StatsCharts({
           <MiniDonut label="Disponibilité" value={equipment.length ? Math.round((equipment.filter((item) => item.status === "AVAILABLE").length / equipment.length) * 100) : 0} />
           <MiniDonut label="Conversion" value={requests.length ? Math.min(100, Math.round((rentals.length / requests.length) * 100)) : 0} />
           <MiniDonut label="Parc actif" value={equipment.length ? Math.round((equipment.filter((item) => item.status !== "UNAVAILABLE").length / equipment.length) * 100) : 0} />
+        </div>
+      </div>
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h3 className="font-black text-neutral-950">Tunnel de conversion</h3>
+            <p className="mt-1 text-sm text-neutral-500">Activité des {conversion?.period_days ?? 30} derniers jours.</p>
+          </div>
+          <p className="text-sm font-black text-orange-700">{conversion?.request_to_confirmation_rate ?? 0}% demandes confirmées</p>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Recherches", conversion?.searches ?? 0],
+            ["Fiches consultées", conversion?.equipment_views ?? 0],
+            ["Demandes envoyées", conversion?.reservation_requests ?? 0],
+            ["Réservations confirmées", conversion?.confirmed_reservations ?? 0],
+          ].map(([label, value], index) => (
+            <div key={String(label)} className="relative rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <span className="text-xs font-black text-orange-600">0{index + 1}</span>
+              <p className="mt-2 text-2xl font-black text-neutral-950">{value}</p>
+              <p className="mt-1 text-sm font-bold text-neutral-600">{label}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-[0.7fr_1.3fr]">
+          <div className="rounded-xl bg-orange-50 p-4">
+            <p className="text-xs font-black uppercase text-orange-700">Recherche</p>
+            <p className="mt-2 text-3xl font-black text-neutral-950">{conversion?.zero_result_searches ?? 0}</p>
+            <p className="mt-1 text-sm font-semibold text-neutral-600">recherches sans résultat</p>
+          </div>
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <p className="font-black text-neutral-950">Besoins non couverts</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {conversion?.top_zero_result_searches.length ? conversion.top_zero_result_searches.map((item) => (
+                <span key={item.query} className="rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-bold text-neutral-700">{item.query} · {item.count}</span>
+              )) : <span className="text-sm text-neutral-500">Aucune recherche sans résultat enregistrée.</span>}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1411,7 +1460,7 @@ function parseRentalPeriod(rental: RentalHistoryItem) {
   };
 }
 
-type RentalFilter = "all" | "pending" | "confirmed" | "active" | "completed" | "cancelled";
+type RentalFilter = "all" | "pending" | "confirmed" | "active" | "completed" | "rejected" | "cancelled";
 
 const rentalFilters: Array<{ key: RentalFilter; label: string }> = [
   { key: "all", label: "Toutes" },
@@ -1419,6 +1468,7 @@ const rentalFilters: Array<{ key: RentalFilter; label: string }> = [
   { key: "confirmed", label: "Confirmées" },
   { key: "active", label: "En cours" },
   { key: "completed", label: "Terminées" },
+  { key: "rejected", label: "Refusées" },
   { key: "cancelled", label: "Annulées" },
 ];
 
@@ -1428,6 +1478,7 @@ const reservationStatusLabels: Record<RentalFilter, string> = {
   confirmed: "Confirmée",
   active: "En cours",
   completed: "Terminée",
+  rejected: "Refusée",
   cancelled: "Annulée",
 };
 
@@ -1435,6 +1486,7 @@ function rentalBadgeClass(status?: RentalHistoryItem["statusKey"]) {
   if (status === "confirmed") return "border-orange-200 bg-orange-50 text-orange-800";
   if (status === "active") return "border-emerald-200 bg-emerald-50 text-emerald-800";
   if (status === "completed") return "border-neutral-200 bg-neutral-100 text-neutral-700";
+  if (status === "rejected") return "border-red-200 bg-red-50 text-red-700";
   if (status === "cancelled") return "border-red-200 bg-red-50 text-red-700";
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
@@ -1446,7 +1498,7 @@ function RentalManagementList({
 }: {
   rentals: RentalHistoryItem[];
   action: { id: string; status: string } | null;
-  onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") => Promise<void>;
+  onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "rejected" | "cancelled") => Promise<void>;
 }) {
   const [filter, setFilter] = useState<RentalFilter>("all");
   const [query, setQuery] = useState("");
@@ -1907,10 +1959,10 @@ function numberValue(value: unknown) {
 function ReservationActions({ rental, loadingStatus, onChange }: {
   rental: RentalHistoryItem;
   loadingStatus: string | null;
-  onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "cancelled") => Promise<void>;
+  onChange: (rental: RentalHistoryItem, status: "confirmed" | "active" | "completed" | "rejected" | "cancelled") => Promise<void>;
 }) {
   const actions = rental.statusKey === "pending"
-    ? [["Confirmer", "confirmed"], ["Refuser", "cancelled"]] as const
+    ? [["Confirmer", "confirmed"], ["Refuser", "rejected"]] as const
     : rental.statusKey === "confirmed"
       ? [["Démarrer", "active"], ["Annuler", "cancelled"]] as const
       : rental.statusKey === "active"
@@ -1928,7 +1980,7 @@ function ReservationActions({ rental, loadingStatus, onChange }: {
               disabled={Boolean(loadingStatus)}
               onClick={() => onChange(rental, status)}
               className={`inline-flex min-h-9 items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs font-black transition disabled:cursor-wait disabled:opacity-60 ${
-                status === "cancelled"
+                status === "cancelled" || status === "rejected"
                   ? "border-neutral-200 text-neutral-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
                   : "border-orange-200 bg-orange-50 text-orange-800 hover:border-orange-500 hover:bg-orange-500 hover:text-white"
               }`}

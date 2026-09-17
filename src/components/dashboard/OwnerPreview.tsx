@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ChartNoAxesCombined } from "lucide-react";
+import { BellRing, CalendarCheck, ChartNoAxesCombined, CirclePlus, Wrench } from "lucide-react";
 import { requestStatusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -62,7 +62,7 @@ export function OwnerPreview() {
         { label: "Machines publiées", value: String(dashboard.stats.equipment), helper: `${dashboard.stats.available_equipment} disponibles` },
         { label: "Réservations", value: String(dashboard.stats.reservations), helper: `${dashboard.stats.pending_reservations} en attente` },
         { label: "Notifications", value: String(dashboard.stats.unread_notifications), helper: "non lues" },
-        { label: "CA estimé", value: "Module finances", helper: "à connecter au suivi financier" },
+        { label: "CA estimé", value: formatDh(dashboard.stats.estimated_revenue), helper: "réservations confirmées" },
       ]
     : [];
 
@@ -86,6 +86,7 @@ export function OwnerPreview() {
           <button type="button" onClick={retry} className="mt-4 h-11 rounded-md bg-neutral-950 px-5 text-sm font-black text-white">Réessayer</button>
         )}
       </div>
+
     );
   }
 
@@ -107,6 +108,23 @@ export function OwnerPreview() {
         ))}
       </div>
 
+      {dashboard?.alerts.some((alert) => alert.count > 0) ? (
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {dashboard.alerts.filter((alert) => alert.count > 0).map((alert) => (
+            <Link key={alert.key} href={alert.href} className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 hover:border-amber-400">
+              <span><span className="block text-xs font-black uppercase text-amber-700">À traiter</span><span className="mt-1 block font-black text-neutral-950">{alert.label}</span></span>
+              <span className="grid size-10 place-items-center rounded-full bg-white text-lg font-black text-amber-800">{alert.count}</span>
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <Link href="/espace/locations" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><CalendarCheck size={20} className="text-orange-600" />Gérer les locations</Link>
+        <Link href="/espace/maintenance" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><Wrench size={20} className="text-orange-600" />Planifier une maintenance</Link>
+        <Link href="/espace/notifications" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><BellRing size={20} className="text-orange-600" />Voir les alertes</Link>
+      </div>
+
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-xl border border-neutral-200 p-3 sm:p-4">
           <h3 className="font-black text-neutral-950">Machines publiées</h3>
@@ -123,7 +141,7 @@ export function OwnerPreview() {
               </div>
             ))}
             {!machines.length ? (
-              <p className="rounded-xl bg-neutral-50 p-3 text-sm font-semibold text-neutral-500">Aucune machine disponible pour le moment.</p>
+              <Link href="/profil" className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 text-sm font-black text-orange-800"><CirclePlus size={18} />Compléter le profil propriétaire</Link>
             ) : null}
           </div>
         </div>

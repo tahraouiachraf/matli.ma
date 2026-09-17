@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BadgeCheck, HardHat, Truck } from "lucide-react";
 import Link from "next/link";
+import { CommercialEventTracker } from "@/components/analytics/CommercialEventTracker";
 import { ActiveFilters } from "@/components/marketplace/ActiveFilters";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
@@ -8,7 +9,8 @@ import { MarketplaceSearch } from "@/components/marketplace/MarketplaceSearch";
 import { ResponsiveFilters } from "@/components/marketplace/ResponsiveFilters";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { JsonLd, marketplaceJsonLd } from "@/lib/seo";
-import { getCatalogMetaStrict, getCategoriesStrict, getEquipmentListStrict } from "@/services/api/matli";
+import { getCatalogMetaStrict, getCategoriesStrict, getEquipmentPageStrict } from "@/services/api/matli";
+import { filterHref } from "@/lib/marketplace-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -62,13 +64,19 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
     brand: singleParam(params?.brand),
     model: singleParam(params?.model),
     sort: singleParam(params?.sort),
+    page: singleParam(params?.page),
   };
   const price = priceBounds(active.price);
   const activeCount = Object.entries(active).filter(([key, value]) => value && key !== "sort").length;
+  const hasSearchIntent = Object.entries(active).some(([key, value]) => value && !["sort", "page"].includes(key));
+  const analyticsQuery = new URLSearchParams(
+    Object.entries(active).filter((entry): entry is [string, string] => Boolean(entry[1])),
+  ).toString();
 
-  const [equipment, categories, meta] = await Promise.all([
-    getEquipmentListStrict({
-      perPage: 30,
+  const [catalog, categories, meta] = await Promise.all([
+    getEquipmentPageStrict({
+      perPage: 12,
+      page: Math.max(1, Number(active.page) || 1),
       q: active.q,
       category: active.category,
       city: active.city,
@@ -80,7 +88,8 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
       verified: active.verified === "1",
       brand: active.brand,
       model: active.model,
-      sort: active.sort === "price_asc" || active.sort === "price_desc" ? active.sort : "recent",
+      sort: ["price_asc", "price_desc", "availability", "proximity"].includes(active.sort ?? "") ? active.sort as "price_asc" | "price_desc" | "availability" | "proximity" : "recent",
+      nearCity: active.city,
     }),
     getCategoriesStrict(),
     getCatalogMetaStrict(),
@@ -89,6 +98,26 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
   return (
     <div>
       <JsonLd data={marketplaceJsonLd()} />
+      {hasSearchIntent ? (
+        <CommercialEventTracker
+          eventName="search_performed"
+          searchQuery={active.q}
+          city={active.city}
+          category={active.category}
+          resultCount={catalog.total}
+          pagePath={`/location${analyticsQuery ? `?${analyticsQuery}` : ""}`}
+        />
+      ) : null}
+      {hasSearchIntent && catalog.total === 0 ? (
+        <CommercialEventTracker
+          eventName="search_no_results"
+          searchQuery={active.q ?? [active.category, active.city].filter(Boolean).join(" ")}
+          city={active.city}
+          category={active.category}
+          resultCount={0}
+          pagePath={`/location${analyticsQuery ? `?${analyticsQuery}` : ""}`}
+        />
+      ) : null}
       <section className="border-b border-orange-100 bg-orange-50 px-4 py-8 sm:px-6 sm:py-14 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-4xl">
@@ -115,7 +144,7 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
           <ResponsiveFilters count={activeCount}>
             <FilterSidebar items={categories} active={active} brands={meta.brands} models={meta.models} />
           </ResponsiveFilters>
-          <span className="text-sm font-bold text-neutral-600">{equipment.length} résultat{equipment.length > 1 ? "s" : ""}</span>
+          <span className="text-sm font-bold text-neutral-600">{catalog.total} résultat{catalog.total > 1 ? "s" : ""}</span>
         </div>
         <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
           <div className="hidden lg:block">
@@ -124,12 +153,12 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
           <div className="min-w-0">
             <SectionHeading
               title="Machines disponibles"
-              description={`${equipment.length} offre${equipment.length > 1 ? "s" : ""} trouvée${equipment.length > 1 ? "s" : ""} selon vos critères.`}
+              description={`${catalog.total} offre${catalog.total > 1 ? "s" : ""} trouvée${catalog.total > 1 ? "s" : ""} selon vos critères.`}
             />
             <div className="mt-5"><ActiveFilters active={active} categories={categories} /></div>
-          {equipment.length ? (
+          {catalog.items.length ? (
             <div className="mt-7 grid gap-5 md:grid-cols-2">
-              {equipment.map((item) => (
+              {catalog.items.map((item) => (
                 <EquipmentCard key={item.id} item={item} />
               ))}
             </div>
@@ -141,6 +170,15 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
               </p>
             </div>
           )}
+          {catalog.lastPage > 1 ? (
+            <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination des résultats">
+              {Array.from({ length: catalog.lastPage }, (_, index) => index + 1).map((page) => (
+                <Link key={page} href={filterHref(active, { page: String(page) })} aria-current={page === catalog.currentPage ? "page" : undefined} className={`grid size-11 place-items-center rounded-md border text-sm font-black ${page === catalog.currentPage ? "border-orange-500 bg-orange-500 text-white" : "border-neutral-200 bg-white text-neutral-700 hover:border-orange-300"}`}>
+                  {page}
+                </Link>
+              ))}
+            </nav>
+          ) : null}
           </div>
         </div>
       </section>
