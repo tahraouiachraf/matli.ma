@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
@@ -73,6 +74,7 @@ export function Header() {
             <Search size={18} aria-hidden />
             <span className="sr-only">Rechercher une machine</span>
           </ButtonLink>
+          <NotificationBell />
           <AuthNav />
         </div>
 
@@ -135,6 +137,7 @@ export function Header() {
 
               <div className="mt-5 rounded-md bg-neutral-50 p-3">
                 <p className="text-xs font-black uppercase text-neutral-500">Compte</p>
+                <NotificationBell mobile onNavigate={() => setOpen(false)} />
                 <AuthNav mobile onNavigate={() => setOpen(false)} />
               </div>
             </nav>

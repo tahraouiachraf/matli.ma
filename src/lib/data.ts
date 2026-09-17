@@ -339,6 +339,7 @@ export const rentalStatusLabels: Record<RentalHistoryItem["status"], string> = {
   ONGOING: "En cours",
   RESERVED: "Réservée",
   CANCELLED: "Annulée",
+  REJECTED: "Refusée",
 };
 
 export const apiStatusLabels: Record<string, string> = {
@@ -364,6 +365,7 @@ export const apiStatusLabels: Record<string, string> = {
   planned: "Planifié",
   preventive: "Préventive",
   quoted: "Devis envoyé",
+  rejected: "Refusé",
   rented: "En location",
   reserved: "Réservé",
   suspended: "Suspendu",

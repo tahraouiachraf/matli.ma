@@ -7,6 +7,7 @@ export default function CompaniesError({ error, reset }: { error: Error & { dige
     <ErrorState
       code="500"
       digest={error.digest}
+      reportedError={error}
       eyebrow="Chargement indisponible"
       icon="dns"
       onRetry={reset}

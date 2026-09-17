@@ -49,6 +49,9 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           brand: String(formData.get("brand") ?? ""),
           model: String(formData.get("model") ?? ""),
           year: Number(formData.get("year")) || undefined,
+          technical_condition: String(formData.get("technical_condition") ?? "") as CreateEquipmentPayload["technical_condition"],
+          power_hp: Number(formData.get("power_hp")) || undefined,
+          tonnage: Number(formData.get("tonnage")) || undefined,
           city: String(formData.get("city") ?? ""),
           region: String(formData.get("region") ?? ""),
           price_day: Number(formData.get("price_day")),
@@ -59,6 +62,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           description: String(formData.get("description") ?? ""),
           operator_available: formData.get("operator_available") === "1",
           delivery_available: formData.get("delivery_available") === "1",
+          delivery_terms: String(formData.get("delivery_terms") ?? ""),
           is_sponsored: formData.get("is_sponsored") === "1",
           specs,
         };
@@ -104,6 +108,23 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       <label className="grid gap-2 text-sm font-semibold">
         Année
         <input name="year" defaultValue={equipment?.year} type="number" min="1990" max="2027" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 2021" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        État technique
+        <select name="technical_condition" defaultValue={equipment?.technicalCondition ?? "good"} className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+          <option value="excellent">Excellent</option>
+          <option value="very_good">Très bon</option>
+          <option value="good">Bon</option>
+          <option value="fair">Correct</option>
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Puissance (ch)
+        <input name="power_hp" defaultValue={equipment?.powerHp} type="number" min="1" max="5000" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 110" />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold">
+        Tonnage
+        <input name="tonnage" defaultValue={equipment?.tonnage} type="number" min="0.1" max="1000" step="0.1" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 8.5" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
         Ville
@@ -158,6 +179,10 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description
         <textarea name="description" defaultValue={equipment?.description} className="min-h-28 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="État de la machine, accessoires, conditions de location..." />
+      </label>
+      <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+        Conditions de livraison
+        <textarea name="delivery_terms" defaultValue={equipment?.deliveryTerms} className="min-h-24 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="Zone desservie, délai, frais et conditions de déchargement..." />
       </label>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Spécifications

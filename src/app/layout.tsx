@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { AnalyticsConsent } from "@/components/providers/AnalyticsConsent";
 import { JsonLd, organizationJsonLd, siteDescription, siteName, siteUrl, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
@@ -17,8 +17,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID ?? "G-1CYERG8JGX";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -98,21 +96,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full bg-neutral-50 text-neutral-950">
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`} strategy="lazyOnload" />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${googleAnalyticsId}', { anonymize_ip: true });
-          `}
-        </Script>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <AuthProvider>
           <Header />
           <main>{children}</main>
           <Footer />
           <MobileBottomNav />
+          <AnalyticsConsent />
         </AuthProvider>
       </body>
     </html>

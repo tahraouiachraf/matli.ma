@@ -13,6 +13,7 @@ const statusStyles: Record<RentalHistoryItem["status"], string> = {
   COMPLETED: "bg-green-50 text-green-700",
   ONGOING: "bg-orange-50 text-orange-700",
   RESERVED: "bg-blue-50 text-blue-700",
+  REJECTED: "bg-red-50 text-red-700",
   CANCELLED: "bg-red-50 text-red-700",
 };
 

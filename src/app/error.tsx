@@ -16,6 +16,7 @@ export default function ErrorPage({
       title="Merci de réessayer plus tard"
       description="MATLI n’a pas pu charger cette page correctement. Réessayez dans quelques instants."
       digest={error.digest}
+      reportedError={error}
       icon="server"
       tone="red"
       onRetry={reset}

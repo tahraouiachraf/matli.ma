@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { formatDateRange, formatDh } from "@/lib/format";
+import { trackCommercialEvent } from "@/lib/commercial-analytics";
 import {
   createReservation,
   getEquipmentBlockedPeriods,
@@ -114,6 +115,10 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
 
     try {
       const response = await createReservation(quote.payload, token);
+      trackCommercialEvent("reservation_requested", {
+        equipmentId,
+        properties: { days: quote.days, total_amount: quote.total },
+      }, { persist: false });
       setMessage(`${response.message} Référence : ${response.reference}.`);
       setQuote(null);
       setBlockedPeriods(await getEquipmentBlockedPeriods(equipmentSlug));

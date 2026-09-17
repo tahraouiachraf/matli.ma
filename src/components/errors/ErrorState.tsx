@@ -1,6 +1,10 @@
+"use client";
+
+import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, Home, LockKeyhole, RotateCcw, SearchX, ServerCrash, WifiOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 const icons: Record<string, LucideIcon> = {
   badRequest: AlertTriangle,
@@ -18,6 +22,7 @@ type ErrorStateProps = {
   tone?: "orange" | "red" | "neutral";
   icon?: keyof typeof icons;
   digest?: string;
+  reportedError?: Error;
   onRetry?: () => void;
 };
 
@@ -28,9 +33,14 @@ export function ErrorState({
   eyebrow,
   icon = "server",
   onRetry,
+  reportedError,
   title,
   tone = "orange",
 }: ErrorStateProps) {
+  useEffect(() => {
+    if (reportedError) Sentry.captureException(reportedError);
+  }, [reportedError]);
+
   const Icon = icons[icon];
   const toneClass =
     tone === "red"
