@@ -1,6 +1,7 @@
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { WorkspaceAccessGuard } from "@/components/auth/WorkspaceAccessGuard";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   robots: {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function OwnerSpaceLayout({ children }: LayoutProps<"/espace">) {
+export default function OwnerSpaceLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard
       title="Connectez-vous pour accéder à votre espace"
