@@ -2,7 +2,7 @@
 
 import { CalendarDays, CheckCircle2, FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { formatDateRange, formatDh } from "@/lib/format";
 import { trackCommercialEvent } from "@/lib/commercial-analytics";
@@ -12,6 +12,7 @@ import {
   type CreateReservationPayload,
   type EquipmentBlockedPeriod,
 } from "@/services/api/matli";
+import { ReservationDatePicker } from "@/components/forms/ReservationDatePicker";
 
 type EquipmentReservationFormProps = {
   equipmentId?: string;
@@ -49,12 +50,8 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
   const [quote, setQuote] = useState<Quote | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const today = useMemo(() => {
-    const date = new Date();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${date.getFullYear()}-${month}-${day}`;
-  }, []);
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -95,7 +92,12 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
     };
     const days = inclusiveDays(payload.date_start, payload.date_end);
 
-    if (days < 1) {
+    if (!payload.date_start || !payload.date_end) {
+      setError("Choisissez une date de début et une date de fin.");
+      return;
+    }
+
+    if (!Number.isFinite(days) || days < 1) {
       setError("La date de fin doit être postérieure ou égale à la date de début.");
       return;
     }
@@ -121,6 +123,8 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
       }, { persist: false });
       setMessage(`${response.message} Référence : ${response.reference}.`);
       setQuote(null);
+      setDateStart("");
+      setDateEnd("");
       setBlockedPeriods(await getEquipmentBlockedPeriods(equipmentSlug));
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
@@ -158,16 +162,19 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
           Téléphone
           <input name="client_phone" defaultValue={user?.phone ?? ""} required inputMode="tel" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
         </label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-2 text-sm font-semibold">
-            Date début
-            <input name="date_start" min={today} required type="date" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
-          </label>
-          <label className="grid gap-2 text-sm font-semibold">
-            Date fin
-            <input name="date_end" min={today} required type="date" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
-          </label>
-        </div>
+        <input name="date_start" type="hidden" value={dateStart} />
+        <input name="date_end" type="hidden" value={dateEnd} />
+        <ReservationDatePicker
+          blockedPeriods={blockedPeriods}
+          start={dateStart}
+          end={dateEnd}
+          onChange={(start, end) => {
+            setDateStart(start);
+            setDateEnd(end);
+            setQuote(null);
+            setError(null);
+          }}
+        />
         <label className="grid gap-2 text-sm font-semibold">
           Message
           <textarea name="notes" className="min-h-24 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="Ville du chantier, besoin opérateur, livraison..." />

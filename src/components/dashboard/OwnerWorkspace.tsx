@@ -1654,7 +1654,8 @@ function OwnerCalendar({
         image: item.image,
       })),
   );
-  const calendarRentals = [...confirmedRentals, ...activeRentals, ...reservedAvailabilityPeriods];
+  const calendarRentals = [...activeRentals, ...confirmedRentals, ...pendingRentals, ...reservedAvailabilityPeriods];
+  const reservedPeriodsCount = confirmedRentals.length + activeRentals.length + reservedAvailabilityPeriods.length;
   const availableEquipment = calendarEquipment.filter((item) => item.status === "AVAILABLE").length;
   const [monthDate, setMonthDate] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -1680,7 +1681,7 @@ function OwnerCalendar({
         <ClientMetric label="Machines suivies" value={String(calendarEquipment.length)} />
         <ClientMetric label="Disponibles" value={String(availableEquipment)} />
         <ClientMetric label="Demandes en attente" value={String(pendingRentals.length)} />
-        <ClientMetric label="Périodes réservées" value={String(calendarRentals.length)} />
+        <ClientMetric label="Périodes réservées" value={String(reservedPeriodsCount)} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
@@ -1716,6 +1717,7 @@ function OwnerCalendar({
                   ›
                 </button>
                 <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Libre</span>
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">En attente</span>
                 <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">Réservé</span>
                 <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">En location</span>
               </div>
@@ -1764,6 +1766,8 @@ function OwnerCalendar({
                             rental
                               ? rental.statusKey === "active"
                                 ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/15"
+                                : rental.statusKey === "pending"
+                                  ? "bg-amber-100 text-amber-900 ring-1 ring-amber-300"
                                 : "bg-orange-500 text-white shadow-lg shadow-orange-950/15"
                               : isToday
                                 ? "border-2 border-neutral-950 bg-white text-neutral-950"
@@ -1805,7 +1809,7 @@ function OwnerCalendar({
                         ))}
                       </div>
                     ) : (
-                      <p className="mt-3 text-sm leading-6 text-neutral-600">Aucune réservation confirmée ni location active pour cette date.</p>
+                      <p className="mt-3 text-sm leading-6 text-neutral-600">Aucune demande ni réservation pour cette date.</p>
                     )}
                   </div>
                 ) : null}
