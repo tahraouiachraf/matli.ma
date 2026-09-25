@@ -54,7 +54,7 @@ export function AnalyticsConsent() {
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-0 sm:shrink-0">
         <button type="button" onClick={() => decide("refused")} className="h-10 rounded-md border border-neutral-300 px-4 text-sm font-bold text-neutral-700">Refuser</button>
-        <button type="button" onClick={() => decide("accepted")} className="h-10 rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">Accepter</button>
+        <button type="button" onClick={() => decide("accepted")} className="h-10 rounded-md bg-orange-700 px-4 text-sm font-black text-white hover:bg-orange-600">Accepter</button>
       </div>
     </section>
   );

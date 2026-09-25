@@ -1,6 +1,6 @@
 import type { Equipment } from "@/types";
 
-export const siteUrl = "https://matli.ma";
+export const siteUrl = "https://www.matli.ma";
 export const siteName = "MATLI.ma";
 export const siteDescription =
   "Marketplace marocaine pour louer, comparer et déposer des machines BTP: tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses.";

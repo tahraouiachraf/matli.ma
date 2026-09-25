@@ -49,5 +49,5 @@ export function formatDateRange(start?: string | null, end?: string | null) {
 }
 
 export function absoluteUrl(path = "") {
-  return `https://matli.ma${path}`;
+  return `https://www.matli.ma${path}`;
 }
