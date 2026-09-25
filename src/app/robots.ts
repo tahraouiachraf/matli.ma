@@ -18,6 +18,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://matli.ma/sitemap.xml",
+    sitemap: "https://www.matli.ma/sitemap.xml",
   };
 }
