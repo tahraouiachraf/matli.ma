@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const storageKey = "matli-cookie-consent";
-const analyticsId = process.env.NEXT_PUBLIC_GA_ID ?? "G-1CYERG8JGX";
+const analyticsId = process.env.NEXT_PUBLIC_GA_ID ?? "G-NNGT9DFP6K";
 
 function enableAnalytics() {
   if (document.querySelector(`script[data-matli-ga="${analyticsId}"]`)) return;
