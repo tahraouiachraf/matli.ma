@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { clearPublicApiCache, publicApiCachePolicy, withPublicApiCache } from "@/services/api/cache";
 
-const DEFAULT_API_URL = "https://portail.joblik.ma/api";
+const DEFAULT_API_URL = "https://admin.matli.ma/api";
 // const DEFAULT_API_URL = "http://127.0.0.1:8000/api";
 
 const configuredApiUrl = process.env.API_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;

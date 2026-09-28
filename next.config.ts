@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs/config";
 
 const isProduction = process.env.NODE_ENV === "production";
-const defaultApiUrl = "https://portail.joblik.ma/api";
+const defaultApiUrl = "https://admin.matli.ma/api";
 //const defaultApiUrl = "http://127.0.0.1:8000/api";
 const configuredApiUrl = process.env.API_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? defaultApiUrl;
 const backendApiUrl = /^https?:\/\//i.test(configuredApiUrl)
@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "portail.joblik.ma",
+        hostname: "admin.matli.ma",
       },
       {
         protocol: "http",
@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
           "font-src 'self' data:",
           "style-src 'self' 'unsafe-inline'",
           `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://www.googletagmanager.com https://www.google-analytics.com`,
-          `connect-src 'self'${isProduction ? "" : " http://127.0.0.1:8000"} https://portail.joblik.ma https://www.google-analytics.com https://region1.google-analytics.com https://*.ingest.sentry.io`,
+          `connect-src 'self'${isProduction ? "" : " http://127.0.0.1:8000"} https://admin.matli.ma https://www.google-analytics.com https://region1.google-analytics.com https://*.ingest.sentry.io`,
           ...(isProduction ? ["upgrade-insecure-requests"] : []),
         ].join("; "),
       },

@@ -20,5 +20,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://portail.joblik.ma/api
+          NEXT_PUBLIC_API_URL: https://admin.matli.ma/api
       - run: npm run lighthouse
