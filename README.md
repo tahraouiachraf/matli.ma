@@ -51,7 +51,7 @@ NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
 
 # Production:
 NEXT_PUBLIC_API_URL=https://portail.joblik.ma/api
-NEXT_PUBLIC_GA_ID=G-1CYERG8JGX
+NEXT_PUBLIC_GA_ID=G-NNGT9DFP6K
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=code-fourni-par-search-console
 ```
 
