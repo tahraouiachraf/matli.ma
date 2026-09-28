@@ -2,18 +2,20 @@ import type { MetadataRoute } from "next";
 import { categories } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
 import { localSeoPages } from "@/lib/local-seo";
-import { getCompanies, getEquipmentList } from "@/services/api/matli";
+import { getCompanies, getEquipmentList, getNewsArticlesStrict } from "@/services/api/matli";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [equipment, companies] = await Promise.all([
+  const [equipment, companies, news] = await Promise.all([
     getEquipmentList({ perPage: 30 }),
     getCompanies(),
+    getNewsArticlesStrict(30).catch(() => []),
   ]);
 
   const staticPages: MetadataRoute.Sitemap = [
     page("", 1, "daily"),
     page("/location", 0.95, "daily"),
     page("/entreprises", 0.8, "weekly"),
+    page("/actualites", 0.72, "weekly"),
     page("/fonctionnement", 0.7, "monthly"),
     page("/inscription", 0.35, "monthly"),
     page("/conditions-generales", 0.3, "yearly"),
@@ -38,7 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page(`/entreprise/${company.slug}`, 0.72, "weekly"),
   );
 
-  return [...staticPages, ...categoryPages, ...localPages, ...equipmentPages, ...companyPages];
+  const newsPages = news.map((article) => ({
+    ...page(`/actualites/${article.slug}`, 0.68, "monthly"),
+    lastModified: new Date(article.updatedAt),
+  }));
+
+  return [...staticPages, ...categoryPages, ...localPages, ...equipmentPages, ...companyPages, ...newsPages];
 }
 
 function page(

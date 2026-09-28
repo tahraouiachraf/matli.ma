@@ -69,7 +69,7 @@ export function ReservationDatePicker({ blockedPeriods, start, end, onChange }: 
   const previousMonthDisabled = month <= firstAllowedMonth;
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 sm:p-4" aria-label="Choisir les dates de location">
+    <section className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm sm:p-4" aria-label="Choisir les dates de location">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="inline-flex items-center gap-2 text-sm font-black text-neutral-950">
@@ -101,7 +101,7 @@ export function ReservationDatePicker({ blockedPeriods, start, end, onChange }: 
       <p className="mt-4 text-center text-sm font-black capitalize text-neutral-900">
         {new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(month)}
       </p>
-      <div className="mt-3 grid grid-cols-7 text-center text-[10px] font-black uppercase text-neutral-400">
+      <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] font-black uppercase text-neutral-500">
         {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((label) => <span key={label}>{label}</span>)}
       </div>
       <div className="mt-2 grid grid-cols-7 gap-1">
@@ -136,8 +136,10 @@ export function ReservationDatePicker({ blockedPeriods, start, end, onChange }: 
                   : inRange
                     ? "bg-orange-100 text-orange-900"
                     : disabled
-                      ? "cursor-not-allowed bg-neutral-100 text-neutral-300 line-through"
-                      : "bg-white text-neutral-800 hover:bg-orange-50 hover:text-orange-800"
+                      ? blocked || unavailableAsEnd
+                        ? "cursor-not-allowed bg-rose-50 text-rose-400 line-through ring-1 ring-inset ring-rose-100"
+                        : "cursor-not-allowed bg-neutral-100 text-neutral-300"
+                      : "bg-emerald-50 text-emerald-900 ring-1 ring-inset ring-emerald-100 hover:bg-emerald-100"
               }`}
             >
               {day.getDate()}
@@ -157,9 +159,9 @@ export function ReservationDatePicker({ blockedPeriods, start, end, onChange }: 
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] font-semibold text-neutral-500">
-        <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-white ring-1 ring-neutral-200" /> Disponible</span>
+        <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-emerald-100 ring-1 ring-emerald-200" /> Disponible</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-orange-600" /> Sélectionnée</span>
-        <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-neutral-200" /> Indisponible</span>
+        <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-rose-100 ring-1 ring-rose-200" /> Indisponible</span>
       </div>
     </section>
   );

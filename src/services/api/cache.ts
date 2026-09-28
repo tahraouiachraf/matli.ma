@@ -141,6 +141,10 @@ export function publicApiCachePolicy(endpoint: string): CachePolicy | null {
     return { freshForMs: 5 * 60_000, staleForMs: 24 * 60 * 60_000 };
   }
 
+  if (endpoint.startsWith("/news")) {
+    return { freshForMs: 5 * 60_000, staleForMs: 24 * 60 * 60_000 };
+  }
+
   if (/^\/equipment\/[^/]+\/availability(?:\?|$)/.test(endpoint)) {
     return { freshForMs: 10_000, staleForMs: 2 * 60_000 };
   }

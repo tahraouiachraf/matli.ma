@@ -5,7 +5,6 @@ import { CommercialEventTracker } from "@/components/analytics/CommercialEventTr
 import { EquipmentReservationForm } from "@/components/forms/EquipmentReservationForm";
 import { EquipmentReportForm } from "@/components/forms/EquipmentReportForm";
 import { EquipmentGallery } from "@/components/marketplace/EquipmentGallery";
-import { EquipmentAvailabilityCalendar } from "@/components/marketplace/EquipmentAvailabilityCalendar";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { statusLabels } from "@/lib/data";
@@ -124,7 +123,6 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
-          <div className="mt-10"><EquipmentAvailabilityCalendar periods={item.availabilityPeriods} /></div>
           <div className="mt-10 rounded-lg border border-neutral-200 bg-neutral-50 p-5">
             <h2 className="text-xl font-black">Conditions de livraison</h2>
             <p className="mt-3 leading-7 text-neutral-700">{item.delivery ? item.deliveryTerms || "Livraison possible. Le délai, la zone et le tarif sont confirmés par le propriétaire avant validation." : "Cette machine est à retirer auprès du propriétaire."}</p>

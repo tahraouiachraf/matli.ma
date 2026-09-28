@@ -5,7 +5,7 @@ import { RentalHistorySection } from "@/components/sections/RentalHistorySection
 
 export const metadata: Metadata = {
   title: "Mes locations",
-  description: "Historique des machines louées, réservations, factures et actions rapides MATLI.",
+  description: "Suivi des locations, réservations et historiques de statut sur MATLI.",
 };
 
 export default function MyRentalsPage() {

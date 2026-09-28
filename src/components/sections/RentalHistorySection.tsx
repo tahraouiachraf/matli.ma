@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, FileText, RotateCcw } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDateTime, formatDh } from "@/lib/format";
@@ -72,7 +72,7 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
           <p className="font-bold text-orange-600">Historique</p>
           <h2 className="mt-2 text-3xl font-black text-neutral-950">Mes locations et réservations</h2>
           <p className="mt-3 max-w-2xl text-neutral-600">
-            Retrouvez les machines déjà louées, les réservations à venir, les factures et les actions rapides.
+            Retrouvez vos locations, leurs statuts et l’historique de chaque réservation.
           </p>
         </div>
         <Link href="/location" className="inline-flex h-11 items-center justify-center rounded-md border border-neutral-200 px-4 text-sm font-bold hover:border-orange-400">
@@ -116,14 +116,6 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
             <div className="grid gap-3 md:justify-items-end">
               <p className="text-2xl font-black text-neutral-950">{formatDh(rental.total)}</p>
               <div className="flex flex-wrap gap-2">
-                <button className="inline-flex h-10 items-center gap-2 rounded-md border border-neutral-200 px-3 text-sm font-bold hover:border-orange-400">
-                  <FileText size={16} aria-hidden />
-                  Facture
-                </button>
-                <button className="inline-flex h-10 items-center gap-2 rounded-md bg-orange-500 px-3 text-sm font-black text-white hover:bg-orange-600">
-                  <RotateCcw size={16} aria-hidden />
-                  Relouer
-                </button>
                 {rental.backendId && ["pending", "confirmed"].includes(rental.statusKey ?? "") ? (
                   <button type="button" onClick={() => setConfirmCancelId(rental.backendId ?? null)} className="inline-flex h-10 items-center rounded-md border border-red-200 px-3 text-sm font-black text-red-700 hover:bg-red-50">
                     Annuler
