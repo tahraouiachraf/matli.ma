@@ -69,7 +69,18 @@ export function ProfileForm() {
       ].map(([label, name, defaultValue]) => (
         <label key={label} className="grid gap-2 text-sm font-semibold">
           {label}
-          <input name={name} type={name === "email" ? "email" : "text"} required={name === "name" || name === "email"} className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" defaultValue={defaultValue} />
+          <input
+            name={name}
+            type={name === "email" ? "email" : name === "phone" ? "tel" : "text"}
+            required={name === "name" || name === "email"}
+            inputMode={name === "phone" ? "tel" : undefined}
+            autoComplete={name === "email" ? "email" : name === "phone" ? "tel" : name === "name" ? "name" : "organization"}
+            pattern={name === "phone" ? "(?:\\+212[ .-]?|0)[5-7](?:[ .-]?[0-9]){8}" : undefined}
+            title={name === "phone" ? "Exemple : 0612345678 ou +212 6 12 34 56 78" : undefined}
+            placeholder={name === "phone" ? "0612345678" : undefined}
+            className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500"
+            defaultValue={defaultValue}
+          />
         </label>
       ))}
 

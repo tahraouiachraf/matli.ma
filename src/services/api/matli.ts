@@ -19,6 +19,34 @@ export type CatalogMeta = {
   models: string[];
 };
 
+export type NewsArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content?: string;
+  imageUrl?: string;
+  publishedAt: string;
+  updatedAt: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  authorName?: string;
+};
+
+type ApiNewsArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content?: string;
+  image_url?: string | null;
+  published_at: string;
+  updated_at: string;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  author?: { name: string } | null;
+};
+
 export type EquipmentSearchParams = {
   perPage?: number;
   q?: string;
@@ -198,6 +226,22 @@ function listData<T>(payload: ApiListResponse<T>) {
   return Array.isArray(payload) ? payload : payload.data;
 }
 
+function mapNewsArticle(article: ApiNewsArticle): NewsArticle {
+  return {
+    id: article.id,
+    title: article.title,
+    slug: article.slug,
+    excerpt: article.excerpt,
+    content: article.content,
+    imageUrl: article.image_url ? localImage(article.image_url) : undefined,
+    publishedAt: article.published_at,
+    updatedAt: article.updated_at,
+    seoTitle: article.seo_title ?? undefined,
+    seoDescription: article.seo_description ?? undefined,
+    authorName: article.author?.name ?? undefined,
+  };
+}
+
 function stableNumericId(value: string, fallback: number) {
   let hash = 2166136261;
 
@@ -370,6 +414,15 @@ export function getSearchSuggestions(query: string) {
 
 export function getCatalogMetaStrict() {
   return apiRequest<CatalogMeta & Record<string, unknown>>("/meta");
+}
+
+export function getNewsArticlesStrict(perPage = 12) {
+  return apiRequest<ApiListResponse<ApiNewsArticle>>(`/news?per_page=${perPage}`)
+    .then((payload) => listData(payload).map(mapNewsArticle));
+}
+
+export function getNewsArticleStrict(slug: string) {
+  return apiRequest<ApiNewsArticle>(`/news/${encodeURIComponent(slug)}`).then(mapNewsArticle);
 }
 
 function mapRental(reservation: ApiReservation): RentalHistoryItem {

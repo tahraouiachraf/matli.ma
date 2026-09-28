@@ -39,8 +39,11 @@ function firstValidationError(errors?: ApiErrorPayload["errors"]): string | unde
   if (!errors) return undefined;
 
   for (const value of Object.values(errors)) {
-    if (Array.isArray(value) && value[0]) return value[0];
-    if (typeof value === "string" && value) return value;
+    const message = Array.isArray(value) ? value[0] : value;
+    if (!message) continue;
+    return message.startsWith("validation.")
+      ? "Merci de vérifier les informations saisies."
+      : message;
   }
 
   return undefined;

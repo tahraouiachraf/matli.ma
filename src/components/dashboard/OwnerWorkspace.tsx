@@ -1606,10 +1606,23 @@ function RentalManagementList({
 }
 
 function parseDate(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
-  if (!year || !month || !day) return null;
+  const match = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
 
-  return new Date(year, month - 1, day);
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
 }
 
 function isSameDay(first: Date, second: Date) {
@@ -1633,17 +1646,20 @@ function OwnerCalendar({
   const pendingRentals = rentals.filter((rental) => rental.statusKey === "pending");
   const confirmedRentals = rentals.filter((rental) => rental.statusKey === "confirmed");
   const activeRentals = rentals.filter((rental) => rental.statusKey === "active");
+  const completedRentals = rentals.filter((rental) => rental.statusKey === "completed");
   const reservationPeriodKeys = new Set(
-    [...confirmedRentals, ...activeRentals].map((rental) => `${rental.equipmentTitle}|${rental.dateStart}|${rental.dateEnd}`),
+    [...confirmedRentals, ...activeRentals, ...completedRentals].map(
+      (rental) => `${rental.equipmentTitle}|${rental.dateStart?.slice(0, 10)}|${rental.dateEnd?.slice(0, 10)}`,
+    ),
   );
-  const reservedAvailabilityPeriods: RentalHistoryItem[] = calendarEquipment.flatMap((item) =>
+  const blockedAvailabilityPeriods: RentalHistoryItem[] = calendarEquipment.flatMap((item) =>
     (item.availabilityPeriods ?? [])
-      .filter((period) => period.status === "reserved" && !period.reservationId)
+      .filter((period) => !period.reservationId)
       .filter((period) => !reservationPeriodKeys.has(`${item.title}|${period.dateStart}|${period.dateEnd}`))
       .map((period) => ({
-        id: `availability-${period.id}`,
+        id: `availability-${period.status}-${period.id}`,
         equipmentTitle: item.title,
-        companyName: period.reason || "Période bloquée",
+        companyName: period.reason || (period.status === "maintenance" ? "Maintenance planifiée" : period.status === "unavailable" ? "Indisponible" : "Période réservée"),
         city: item.city,
         dateStart: period.dateStart,
         dateEnd: period.dateEnd,
@@ -1654,15 +1670,29 @@ function OwnerCalendar({
         image: item.image,
       })),
   );
-  const calendarRentals = [...activeRentals, ...confirmedRentals, ...pendingRentals, ...reservedAvailabilityPeriods];
-  const reservedPeriodsCount = confirmedRentals.length + activeRentals.length + reservedAvailabilityPeriods.length;
+  const calendarRentals = [...activeRentals, ...confirmedRentals, ...pendingRentals, ...completedRentals, ...blockedAvailabilityPeriods];
+  const reservedPeriodsCount = confirmedRentals.length + activeRentals.length + blockedAvailabilityPeriods.filter((item) => item.id.startsWith("availability-reserved-")).length;
   const availableEquipment = calendarEquipment.filter((item) => item.status === "AVAILABLE").length;
-  const [monthDate, setMonthDate] = useState(() => new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const monthDays = buildMonthDays(monthDate);
   const reservationRanges = calendarRentals
     .map((rental) => ({ rental, range: parseRentalPeriod(rental) }))
     .filter((item): item is { rental: RentalHistoryItem; range: { start: Date; end: Date } } => Boolean(item.range));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const currentMonthHasPeriods = reservationRanges.some(({ range }) => range.start <= currentMonthEnd && range.end >= currentMonthStart);
+  const upcomingRange = reservationRanges
+    .filter(({ range }) => range.end >= today)
+    .sort((first, second) => first.range.start.getTime() - second.range.start.getTime())[0];
+  const latestRange = [...reservationRanges].sort((first, second) => second.range.end.getTime() - first.range.end.getTime())[0];
+  const initialRange = currentMonthHasPeriods ? null : (upcomingRange ?? latestRange);
+  const initialMonth = initialRange
+    ? new Date(initialRange.range.start.getFullYear(), initialRange.range.start.getMonth(), 1)
+    : currentMonthStart;
+  const [monthDate, setMonthDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const visibleMonth = monthDate ?? initialMonth;
+  const monthDays = buildMonthDays(visibleMonth);
 
   function reservationsForDay(day: Date) {
     return reservationRanges.filter(({ range }) => day >= range.start && day <= range.end).map(({ rental }) => rental);
@@ -1671,8 +1701,20 @@ function OwnerCalendar({
   const selectedRentals = selectedDate ? reservationsForDay(selectedDate) : [];
 
   function calendarStatusLabel(rental: RentalHistoryItem) {
-    if (rental.id.startsWith("availability-")) return "Réservée";
+    if (rental.id.startsWith("availability-maintenance-")) return "Maintenance";
+    if (rental.id.startsWith("availability-unavailable-")) return "Indisponible";
+    if (rental.id.startsWith("availability-reserved-")) return "Réservée";
     return rental.statusKey ? reservationStatusLabels[rental.statusKey] : rentalStatusLabels[rental.status];
+  }
+
+  function calendarDayClass(rental: RentalHistoryItem | null) {
+    if (!rental) return "";
+    if (rental.id.startsWith("availability-maintenance-")) return "bg-sky-600 text-white shadow-lg shadow-sky-950/15";
+    if (rental.id.startsWith("availability-unavailable-")) return "bg-red-100 text-red-800 ring-1 ring-red-300";
+    if (rental.statusKey === "active") return "bg-emerald-600 text-white shadow-lg shadow-emerald-950/15";
+    if (rental.statusKey === "pending") return "bg-amber-100 text-amber-900 ring-1 ring-amber-300";
+    if (rental.statusKey === "completed") return "bg-neutral-200 text-neutral-700";
+    return "bg-orange-500 text-white shadow-lg shadow-orange-950/15";
   }
 
   return (
@@ -1689,13 +1731,13 @@ function OwnerCalendar({
           <div className="border-b border-neutral-100 p-4 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-2xl font-black text-neutral-950">{formatMonthTitle(monthDate)}</h3>
+                <h3 className="text-2xl font-black text-neutral-950">{formatMonthTitle(visibleMonth)}</h3>
                 <p className="mt-1 text-sm text-neutral-600">Vue mensuelle des disponibilités et périodes réservées.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => { setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1)); setSelectedDate(null); }}
+                  onClick={() => { setMonthDate(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1)); setSelectedDate(null); }}
                   className="grid size-10 place-items-center rounded-full border border-neutral-200 text-lg font-black text-neutral-700 hover:border-orange-400 hover:text-orange-600"
                   aria-label="Mois précédent"
                 >
@@ -1710,7 +1752,7 @@ function OwnerCalendar({
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1)); setSelectedDate(null); }}
+                  onClick={() => { setMonthDate(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1)); setSelectedDate(null); }}
                   className="grid size-10 place-items-center rounded-full border border-neutral-200 text-lg font-black text-neutral-700 hover:border-orange-400 hover:text-orange-600"
                   aria-label="Mois suivant"
                 >
@@ -1720,6 +1762,7 @@ function OwnerCalendar({
                 <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">En attente</span>
                 <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">Réservé</span>
                 <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">En location</span>
+                <span className="rounded-full bg-sky-600 px-3 py-1 text-xs font-bold text-white">Maintenance</span>
               </div>
             </div>
           </div>
@@ -1764,11 +1807,7 @@ function OwnerCalendar({
                           aria-label={`${new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(day)} : ${rental ? `${dayRentals.length} réservation${dayRentals.length > 1 ? "s" : ""}` : "disponible"}`}
                           className={`relative grid size-10 place-items-center rounded-full text-sm font-black transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 sm:size-12 ${
                             rental
-                              ? rental.statusKey === "active"
-                                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/15"
-                                : rental.statusKey === "pending"
-                                  ? "bg-amber-100 text-amber-900 ring-1 ring-amber-300"
-                                : "bg-orange-500 text-white shadow-lg shadow-orange-950/15"
+                              ? calendarDayClass(rental)
                               : isToday
                                 ? "border-2 border-neutral-950 bg-white text-neutral-950"
                                 : "bg-white text-neutral-800 hover:bg-neutral-100"
@@ -1861,11 +1900,11 @@ function OwnerCalendar({
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="size-5 text-orange-600" aria-hidden />
-            <h3 className="font-black text-neutral-950">Périodes réservées</h3>
+            <h3 className="font-black text-neutral-950">Planning des périodes</h3>
           </div>
           <div className="mt-4 grid gap-3">
             {loading ? <SkeletonRows count={3} tone="orange" /> : null}
-            {!loading && !calendarRentals.length ? <p className="text-sm text-neutral-500">Aucune période réservée.</p> : null}
+            {!loading && !calendarRentals.length ? <p className="text-sm text-neutral-500">Aucune période planifiée.</p> : null}
             {calendarRentals.slice(0, 5).map((rental) => (
               <div key={rental.id} className={`rounded-xl border p-3 ${rental.statusKey === "active" ? "border-emerald-200 bg-emerald-50" : "border-orange-100 bg-orange-50"}`}>
                 <div className="flex items-start justify-between gap-3">

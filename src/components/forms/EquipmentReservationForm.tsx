@@ -1,8 +1,8 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, FileText, Loader2 } from "lucide-react";
+import { CheckCircle2, FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { formatDateRange, formatDh } from "@/lib/format";
 import { trackCommercialEvent } from "@/lib/commercial-analytics";
@@ -46,6 +46,7 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
   const { connected, token, user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [loadingAvailability, setLoadingAvailability] = useState(true);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
   const [blockedPeriods, setBlockedPeriods] = useState<EquipmentBlockedPeriod[]>([]);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -53,21 +54,37 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
 
+  const refreshAvailability = useCallback(async () => {
+    setLoadingAvailability(true);
+    setAvailabilityError(null);
+
+    try {
+      setBlockedPeriods(await getEquipmentBlockedPeriods(equipmentSlug));
+    } catch {
+      setAvailabilityError("Le calendrier n’est pas disponible pour le moment.");
+    } finally {
+      setLoadingAvailability(false);
+    }
+  }, [equipmentSlug]);
+
   useEffect(() => {
-    let mounted = true;
+    let active = true;
+
     getEquipmentBlockedPeriods(equipmentSlug)
       .then((periods) => {
-        if (mounted) setBlockedPeriods(periods);
+        if (!active) return;
+        setBlockedPeriods(periods);
+        setAvailabilityError(null);
       })
       .catch(() => {
-        if (mounted) setError("Les disponibilités n’ont pas pu être vérifiées. Merci de réessayer.");
+        if (active) setAvailabilityError("Le calendrier n’est pas disponible pour le moment.");
       })
       .finally(() => {
-        if (mounted) setLoadingAvailability(false);
+        if (active) setLoadingAvailability(false);
       });
 
     return () => {
-      mounted = false;
+      active = false;
     };
   }, [equipmentSlug]);
 
@@ -125,24 +142,12 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
       setQuote(null);
       setDateStart("");
       setDateEnd("");
-      setBlockedPeriods(await getEquipmentBlockedPeriods(equipmentSlug));
+      await refreshAvailability();
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (!connected) {
-    return (
-      <div className="mt-8 rounded-xl border border-orange-200 bg-white p-4">
-        <p className="font-black text-neutral-950">Connectez-vous pour réserver</p>
-        <p className="mt-2 text-sm leading-6 text-neutral-600">Votre compte permet de suivre la demande, sa confirmation et son historique.</p>
-        <Link href="/connexion" className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
-          Se connecter ou créer un compte
-        </Link>
-      </div>
-    );
   }
 
   return (
@@ -154,49 +159,71 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
         </div>
         {message ? <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">{message}</p> : null}
         {error ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p> : null}
-        <label className="grid gap-2 text-sm font-semibold">
-          Nom
-          <input name="client_name" defaultValue={user?.name ?? ""} required className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom ou entreprise" />
-        </label>
-        <label className="grid gap-2 text-sm font-semibold">
-          Téléphone
-          <input name="client_phone" defaultValue={user?.phone ?? ""} required inputMode="tel" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
-        </label>
+        {connected ? (
+          <>
+            <label className="grid gap-2 text-sm font-semibold">
+              Nom
+              <input name="client_name" defaultValue={user?.name ?? ""} required className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom ou entreprise" />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold">
+              Téléphone
+              <input name="client_phone" defaultValue={user?.phone ?? ""} required inputMode="tel" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
+            </label>
+          </>
+        ) : null}
         <input name="date_start" type="hidden" value={dateStart} />
         <input name="date_end" type="hidden" value={dateEnd} />
-        <ReservationDatePicker
-          blockedPeriods={blockedPeriods}
-          start={dateStart}
-          end={dateEnd}
-          onChange={(start, end) => {
-            setDateStart(start);
-            setDateEnd(end);
-            setQuote(null);
-            setError(null);
-          }}
-        />
-        <label className="grid gap-2 text-sm font-semibold">
-          Message
-          <textarea name="notes" className="min-h-24 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="Ville du chantier, besoin opérateur, livraison..." />
-        </label>
-        <button disabled={loadingAvailability || !equipmentId} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-neutral-300">
-          {loadingAvailability ? <Loader2 size={17} className="animate-spin" aria-hidden /> : <FileText size={17} aria-hidden />}
-          {loadingAvailability ? "Vérification des dates..." : "Voir le récapitulatif"}
-        </button>
-      </form>
-
-      {blockedPeriods.length ? (
-        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-          <p className="inline-flex items-center gap-2 text-sm font-black text-neutral-900"><CalendarDays size={17} aria-hidden /> Périodes indisponibles</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {blockedPeriods.slice(0, 5).map((period) => (
-              <span key={`${period.dateStart}-${period.dateEnd}`} className="rounded-md bg-white px-3 py-2 text-xs font-bold text-neutral-700">
-                {formatDateRange(period.dateStart, period.dateEnd)}
-              </span>
-            ))}
+        {loadingAvailability ? (
+          <div aria-label="Chargement du calendrier" aria-busy="true" className="rounded-lg border border-neutral-200 bg-white p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="h-4 w-36 animate-pulse rounded bg-neutral-200" />
+              <div className="flex gap-2"><span className="size-9 animate-pulse rounded-md bg-neutral-100" /><span className="size-9 animate-pulse rounded-md bg-neutral-100" /></div>
+            </div>
+            <div className="mx-auto mt-5 h-4 w-28 animate-pulse rounded bg-neutral-200" />
+            <div className="mt-4 grid grid-cols-7 gap-1">
+              {Array.from({ length: 35 }, (_, index) => <span key={index} className="aspect-square animate-pulse rounded-md bg-neutral-100" />)}
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : availabilityError ? (
+          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="font-black">Calendrier momentanément indisponible</p>
+            <p className="mt-1">{availabilityError}</p>
+            <button type="button" onClick={() => void refreshAvailability()} className="mt-3 h-10 rounded-md border border-red-200 bg-white px-4 font-black hover:border-red-400">Réessayer</button>
+          </div>
+        ) : (
+          <ReservationDatePicker
+            blockedPeriods={blockedPeriods}
+            start={dateStart}
+            end={dateEnd}
+            onChange={(start, end) => {
+              setDateStart(start);
+              setDateEnd(end);
+              setQuote(null);
+              setError(null);
+            }}
+          />
+        )}
+        {connected ? (
+          <>
+            <label className="grid gap-2 text-sm font-semibold">
+              Message
+              <textarea name="notes" className="min-h-24 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="Ville du chantier, besoin opérateur, livraison..." />
+            </label>
+            <button disabled={loadingAvailability || Boolean(availabilityError) || !equipmentId || !dateStart || !dateEnd} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-neutral-300">
+              {loadingAvailability ? <Loader2 size={17} className="animate-spin" aria-hidden /> : <FileText size={17} aria-hidden />}
+              {loadingAvailability ? "Vérification des dates..." : "Voir le récapitulatif"}
+            </button>
+          </>
+        ) : (
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+            <p className="font-black text-neutral-950">Connectez-vous pour réserver ces dates</p>
+            <p className="mt-1 text-sm leading-6 text-neutral-600">Vous pourrez confirmer la demande et suivre la réponse du propriétaire.</p>
+            <Link href="/connexion" className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
+              Se connecter ou créer un compte
+            </Link>
+          </div>
+        )}
+      </form>
 
       {quote ? (
         <section aria-labelledby="quote-title" className="rounded-xl border-2 border-orange-300 bg-orange-50 p-4">
