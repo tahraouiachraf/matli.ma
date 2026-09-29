@@ -13,7 +13,7 @@ function enableAnalytics() {
   external.dataset.matliGa = analyticsId;
   document.head.appendChild(external);
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) { window.dataLayer?.push(args); };
+  window.gtag = function gtag(..._args: unknown[]) { window.dataLayer?.push(arguments); };
   window.gtag("js", new Date());
   window.gtag("config", analyticsId, { anonymize_ip: true });
 }
