@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Nouveau mot de passe", robots: { ind
 export default async function ResetPasswordPage({ searchParams }: { searchParams: Promise<{ email?: string; token?: string }> }) {
   const params = await searchParams;
   return (
-    <AuthPageShell appearance="dark" eyebrow="Sécurité" title="Choisir un nouveau mot de passe" description="Utilisez un mot de passe unique contenant une majuscule, une minuscule, un chiffre et un symbole." alternativePrompt="Besoin d’un nouveau lien ?" alternativeLabel="Renvoyer l’email" alternativeHref="/mot-de-passe/oublie">
+    <AuthPageShell appearance="dark" eyebrow="Sécurité" title="Choisir un nouveau mot de passe" description="Utilisez un mot de passe unique contenant une majuscule, une minuscule, un chiffre et un symbole." alternativePrompt="Besoin d’un nouveau lien ?" alternativeLabel="Renvoyer l’email" alternativeHref="/forgot-password">
       <ResetPasswordForm email={params.email ?? ""} token={params.token ?? ""} />
     </AuthPageShell>
   );

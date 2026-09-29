@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function ProfilePage() {
   return (
     <AuthGuard title="Connectez-vous pour modifier votre profil">
-      <OwnerWorkspace activeHref="/profil">
+      <OwnerWorkspace activeHref="/profile">
         <section className="min-w-0">
           <div className="mb-8">
             <p className="font-bold text-orange-600">Mon compte</p>

@@ -32,7 +32,7 @@ export function EmailVerificationForm({ id, hash, expires, signature }: Verifica
     })
       .then(async (response) => {
         if (!response.ok) throw new Error("Ce lien de vérification est invalide ou expiré.");
-        router.replace("/connexion?verified=1");
+        router.replace("/login?verified=1");
       })
       .catch((exception: unknown) => {
         setError(exception instanceof Error ? exception.message : "La vérification n’a pas pu être effectuée.");
@@ -52,7 +52,7 @@ export function EmailVerificationForm({ id, hash, expires, signature }: Verifica
           Demandez un nouvel email depuis la page de connexion pour confirmer votre compte.
         </p>
         <Link
-          href="/connexion"
+          href="/login"
           className="inline-flex h-12 items-center justify-center rounded-md bg-orange-600 px-5 text-sm font-black text-white transition hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200"
         >
           Aller à la connexion

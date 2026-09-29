@@ -46,12 +46,12 @@ export function AuthNav({
     await logoutFromProvider();
     setOpen(false);
     onNavigate?.();
-    router.push("/connexion");
+    router.push("/login");
   }
 
   const accountLinks = [
-    [UserRound, "Profil", "/profil"],
-    [LayoutDashboard, "Dashboard", "/espace"],
+    [UserRound, "Profil", "/profile"],
+    [LayoutDashboard, "Dashboard", "/dashboard"],
   ] as const;
 
   function isActive(href: string) {
@@ -189,7 +189,7 @@ export function AuthNav({
   }
 
   return (
-    <ButtonLink href="/connexion" variant="secondary" className={mobile ? "mt-2 w-full" : compact ? "px-3" : ""} onClick={onNavigate}>
+    <ButtonLink href="/login" variant="secondary" className={mobile ? "mt-2 w-full" : compact ? "px-3" : ""} onClick={onNavigate}>
       {compact ? "Compte" : "Se connecter"}
     </ButtonLink>
   );

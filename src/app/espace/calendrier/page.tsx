@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Calendrier" };
 
 export default function OwnerCalendarPage() {
   return (
-    <OwnerWorkspace activeHref="/espace/calendrier">
+    <OwnerWorkspace activeHref="/dashboard/calendar">
       <OwnerSectionContent section="calendrier" />
     </OwnerWorkspace>
   );

@@ -12,10 +12,10 @@ import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
 
 const nav = [
   ["Accueil", "/"],
-  ["Louer", "/location"],
-  ["Entreprises", "/entreprises"],
-  ["Déposer un matériel", "/deposer"],
-  ["Comment ça marche ?", "/fonctionnement"],
+  ["Louer", "/rentals"],
+  ["Entreprises", "/companies"],
+  ["Déposer un matériel", "/list-equipment"],
+  ["Comment ça marche ?", "/how-it-works"],
 ];
 
 export function Header() {
@@ -23,7 +23,7 @@ export function Header() {
   const pathname = usePathname();
   const { connected, user } = useAuth();
   const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
-  const visibleNav = nav.filter(([, href]) => href !== "/deposer" || canDeposit);
+  const visibleNav = nav.filter(([, href]) => href !== "/list-equipment" || canDeposit);
 
   useEffect(() => {
     if (!open) return;
@@ -70,7 +70,7 @@ export function Header() {
         </nav>
 
         <div className="hidden min-w-[210px] items-center justify-end gap-3 lg:flex">
-          <ButtonLink href="/location" variant="ghost" className="px-3" aria-label="Rechercher une machine" title="Rechercher une machine">
+          <ButtonLink href="/rentals" variant="ghost" className="px-3" aria-label="Rechercher une machine" title="Rechercher une machine">
             <Search size={18} aria-hidden />
             <span className="sr-only">Rechercher une machine</span>
           </ButtonLink>
@@ -144,7 +144,7 @@ export function Header() {
 
             {canDeposit ? (
               <div className="border-t border-neutral-200 p-4">
-                <ButtonLink href="/deposer" className="w-full" onClick={() => setOpen(false)}>
+                <ButtonLink href="/list-equipment" className="w-full" onClick={() => setOpen(false)}>
                   Déposer une machine
                 </ButtonLink>
               </div>

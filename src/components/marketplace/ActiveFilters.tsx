@@ -25,7 +25,7 @@ export function ActiveFilters({ active, categories }: { active: Record<string, s
           {label}<X size={13} aria-hidden />
         </Link>
       ))}
-      <Link href="/location" className="inline-flex min-h-9 items-center px-2 text-xs font-black text-neutral-600 hover:text-orange-700">Tout effacer</Link>
+      <Link href="/rentals" className="inline-flex min-h-9 items-center px-2 text-xs font-black text-neutral-600 hover:text-orange-700">Tout effacer</Link>
     </div>
   );
 }

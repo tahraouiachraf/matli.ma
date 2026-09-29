@@ -60,7 +60,7 @@ export function EquipmentCard({ item }: { item: Equipment }) {
             <p className="text-xl font-black text-neutral-950">{formatDh(item.priceDay)} / jour</p>
           </div>
           <Link
-            href={`/materiel/${item.slug}`}
+            href={`/equipment/${item.slug}`}
             className="inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-orange-600 px-4 text-sm font-bold text-white hover:bg-orange-700 max-[379px]:w-full"
           >
             Voir le matériel

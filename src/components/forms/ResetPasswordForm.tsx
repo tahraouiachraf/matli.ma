@@ -22,7 +22,7 @@ export function ResetPasswordForm({ email, token }: { email: string; token: stri
         password: String(data.get("password") ?? ""),
         password_confirmation: String(data.get("password_confirmation") ?? ""),
       });
-      router.push("/connexion?password_reset=1");
+      router.push("/login?password_reset=1");
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Le lien est invalide ou expiré.");
     } finally {

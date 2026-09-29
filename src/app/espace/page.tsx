@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function OwnerSpacePage() {
   return (
-    <OwnerWorkspace activeHref="/espace">
+    <OwnerWorkspace activeHref="/dashboard">
       <DashboardHome />
     </OwnerWorkspace>
   );

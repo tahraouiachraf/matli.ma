@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function MyRentalsPage() {
   return (
     <AuthGuard title="Connectez-vous pour consulter vos locations">
-      <OwnerWorkspace activeHref="/mes-locations">
+      <OwnerWorkspace activeHref="/my-rentals">
         <RentalHistorySection embedded />
       </OwnerWorkspace>
     </AuthGuard>

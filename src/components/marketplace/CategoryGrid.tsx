@@ -15,7 +15,7 @@ export function CategoryGrid({ items = categories }: { items?: Category[] }) {
         return (
           <Link
             key={category.slug}
-            href={`/location?machine=${category.slug}`}
+            href={`/rentals?machine=${category.slug}`}
             className="group overflow-hidden rounded-md border border-neutral-200 bg-white transition hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl hover:shadow-neutral-950/10"
           >
             <div className="relative h-36 overflow-hidden bg-neutral-100">

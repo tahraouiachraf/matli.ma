@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: article.seoTitle ?? article.title,
     description: article.seoDescription ?? article.excerpt,
-    alternates: { canonical: `/actualites/${article.slug}` },
+    alternates: { canonical: `/news/${article.slug}` },
     openGraph: {
       type: "article",
       title: article.seoTitle ?? article.title,
@@ -50,7 +50,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
     dateModified: article.updatedAt,
     author: { "@type": "Organization", name: article.authorName ?? "MATLI.ma" },
     publisher: { "@type": "Organization", name: "MATLI.ma", url: absoluteUrl() },
-    mainEntityOfPage: absoluteUrl(`/actualites/${article.slug}`),
+    mainEntityOfPage: absoluteUrl(`/news/${article.slug}`),
   };
 
   return (
@@ -59,7 +59,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       <article>
         <header className="border-b border-neutral-200 bg-neutral-50">
           <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-            <Link href="/actualites" className="inline-flex items-center gap-2 text-sm font-black text-orange-700"><ArrowLeft size={17} aria-hidden /> Toutes les actualités</Link>
+            <Link href="/news" className="inline-flex items-center gap-2 text-sm font-black text-orange-700"><ArrowLeft size={17} aria-hidden /> Toutes les actualités</Link>
             <h1 className="mt-6 text-4xl font-black leading-tight text-neutral-950 sm:text-5xl">{article.title}</h1>
             <p className="mt-5 text-lg leading-8 text-neutral-600">{article.excerpt}</p>
             <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold text-neutral-500">

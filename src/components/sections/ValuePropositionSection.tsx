@@ -60,7 +60,7 @@ export function ValuePropositionSection() {
           <div>
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-xl font-black text-neutral-950">Pour les clients</h3>
-              <ButtonLink href="/location" variant="secondary" className="hidden sm:inline-flex">
+              <ButtonLink href="/rentals" variant="secondary" className="hidden sm:inline-flex">
                 Louer
               </ButtonLink>
             </div>
@@ -74,7 +74,7 @@ export function ValuePropositionSection() {
           <div>
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-xl font-black text-neutral-950">Pour les propriétaires</h3>
-              <ButtonLink href="/espace" className="hidden sm:inline-flex">
+              <ButtonLink href="/dashboard" className="hidden sm:inline-flex">
                 Mon espace
               </ButtonLink>
             </div>

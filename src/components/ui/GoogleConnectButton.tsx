@@ -37,7 +37,7 @@ export function GoogleConnectButton({ className = "", compact = false }: GoogleC
 
   function handleClick() {
     loginDemo();
-    router.push("/profil");
+    router.push("/profile");
   }
 
   return (

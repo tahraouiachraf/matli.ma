@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Mon matériel" };
 
 export default function OwnerEquipmentPage() {
   return (
-    <OwnerWorkspace activeHref="/espace/materiel">
+    <OwnerWorkspace activeHref="/dashboard/equipment">
       <OwnerSectionContent section="materiel" />
     </OwnerWorkspace>
   );

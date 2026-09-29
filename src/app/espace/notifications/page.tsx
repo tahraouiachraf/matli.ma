@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Notifications" };
 
 export default function OwnerNotificationsPage() {
   return (
-    <OwnerWorkspace activeHref="/espace/notifications">
+    <OwnerWorkspace activeHref="/dashboard/notifications">
       <OwnerSectionContent section="notifications" />
     </OwnerWorkspace>
   );

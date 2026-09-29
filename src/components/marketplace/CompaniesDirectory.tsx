@@ -138,7 +138,7 @@ export function CompaniesDirectory({ initialCompanies }: { initialCompanies: Com
                   <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-orange-500" aria-hidden />{company.city}</span>
                   <span className="inline-flex items-center gap-1.5"><Wrench size={16} className="text-orange-500" aria-hidden />{company.equipmentCount} machine{company.equipmentCount > 1 ? "s" : ""}</span>
                 </div>
-                <Link href={`/entreprise/${company.slug}`} className="mt-auto inline-flex min-h-11 items-center justify-between border-t border-neutral-100 pt-4 text-sm font-black text-orange-700 hover:text-orange-800">
+                <Link href={`/company/${company.slug}`} className="mt-auto inline-flex min-h-11 items-center justify-between border-t border-neutral-100 pt-4 text-sm font-black text-orange-700 hover:text-orange-800">
                   Voir le parc matériel <ArrowRight size={17} aria-hidden />
                 </Link>
               </article>

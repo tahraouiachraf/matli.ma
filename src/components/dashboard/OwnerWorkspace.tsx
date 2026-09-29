@@ -59,25 +59,25 @@ const notificationStorageKey = "matli-owner-notifications";
 type WorkspaceMenuItem = [string, string, LucideIcon];
 
 export const ownerMenu: WorkspaceMenuItem[] = [
-  ["Tableau de bord", "/espace", LayoutDashboard],
-  ["Mon matériel", "/espace/materiel", HardHat],
-  ["Locations", "/espace/locations", FolderKanban],
-  ["Demandes", "/espace/demandes", Bell],
-  ["Calendrier", "/espace/calendrier", CalendarDays],
-  ["Maintenance", "/espace/maintenance", Wrench],
-  ["Clients", "/espace/clients", UsersRound],
-  ["Opérateurs", "/espace/operateurs", HardHat],
-  ["Statistiques", "/espace/statistiques", ChartNoAxesCombined],
-  ["Notifications", "/espace/notifications", Bell],
-  ["Profil", "/profil", UserRound],
+  ["Tableau de bord", "/dashboard", LayoutDashboard],
+  ["Mon matériel", "/dashboard/equipment", HardHat],
+  ["Locations", "/dashboard/rentals", FolderKanban],
+  ["Demandes", "/dashboard/requests", Bell],
+  ["Calendrier", "/dashboard/calendar", CalendarDays],
+  ["Maintenance", "/dashboard/maintenance", Wrench],
+  ["Clients", "/dashboard/clients", UsersRound],
+  ["Opérateurs", "/dashboard/operators", HardHat],
+  ["Statistiques", "/dashboard/statistics", ChartNoAxesCombined],
+  ["Notifications", "/dashboard/notifications", Bell],
+  ["Profil", "/profile", UserRound],
 ];
 
 const clientMenu: WorkspaceMenuItem[] = [
-  ["Mon espace", "/espace", LayoutDashboard],
-  ["Louer un matériel", "/location", Search],
-  ["Mes locations", "/mes-locations", CalendarDays],
-  ["Notifications", "/espace/notifications", Bell],
-  ["Mon profil", "/profil", UserRound],
+  ["Mon espace", "/dashboard", LayoutDashboard],
+  ["Louer un matériel", "/rentals", Search],
+  ["Mes locations", "/my-rentals", CalendarDays],
+  ["Notifications", "/dashboard/notifications", Bell],
+  ["Mon profil", "/profile", UserRound],
 ];
 
 type OwnerWorkspaceProps = {
@@ -90,7 +90,7 @@ export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
   const role = getWorkspaceRole(user);
   const isOwner = isOwnerWorkspaceRole(role);
   const menu = isOwner
-    ? ownerMenu.filter(([, href]) => href !== "/espace/materiel" || isAdminWorkspaceRole(role))
+    ? ownerMenu.filter(([, href]) => href !== "/dashboard/equipment" || isAdminWorkspaceRole(role))
     : clientMenu;
 
   return (
@@ -150,10 +150,10 @@ export function DashboardHome() {
 
 function ClientDashboard({ name }: { name?: string }) {
   const actions: Array<[string, string, string, LucideIcon]> = [
-    ["Trouver une machine", "Recherchez par ville, catégorie, prix et disponibilité.", "/location", Search],
-    ["Mes locations", "Consultez vos réservations et votre historique de location.", "/mes-locations", CalendarDays],
-    ["Notifications", "Suivez les confirmations et les informations importantes.", "/espace/notifications", Bell],
-    ["Mon profil", "Gardez vos coordonnées à jour pour faciliter les échanges.", "/profil", UserRound],
+    ["Trouver une machine", "Recherchez par ville, catégorie, prix et disponibilité.", "/rentals", Search],
+    ["Mes locations", "Consultez vos réservations et votre historique de location.", "/my-rentals", CalendarDays],
+    ["Notifications", "Suivez les confirmations et les informations importantes.", "/dashboard/notifications", Bell],
+    ["Mon profil", "Gardez vos coordonnées à jour pour faciliter les échanges.", "/profile", UserRound],
   ];
 
   return (

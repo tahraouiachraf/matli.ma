@@ -11,7 +11,7 @@ export function AdminOnlyGuard({ children }: { children: React.ReactNode }) {
   const allowed = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
 
   useEffect(() => {
-    if (ready && connected && !allowed) router.replace("/espace");
+    if (ready && connected && !allowed) router.replace("/dashboard");
   }, [allowed, connected, ready, router]);
 
   if (!ready || !allowed) {

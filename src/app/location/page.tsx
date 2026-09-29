@@ -30,7 +30,7 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
   const query = new URLSearchParams();
   if (category) query.set("category", category);
   if (city) query.set("city", city);
-  const canonical = query.toString() ? `/location?${query.toString()}` : "/location";
+  const canonical = query.toString() ? `/rentals?${query.toString()}` : "/rentals";
 
   return {
     title: `${titleParts.join(" ")} - Engins disponibles`,
@@ -105,7 +105,7 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
           city={active.city}
           category={active.category}
           resultCount={catalog.total}
-          pagePath={`/location${analyticsQuery ? `?${analyticsQuery}` : ""}`}
+          pagePath={`/rentals${analyticsQuery ? `?${analyticsQuery}` : ""}`}
         />
       ) : null}
       {hasSearchIntent && catalog.total === 0 ? (
@@ -115,7 +115,7 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
           city={active.city}
           category={active.category}
           resultCount={0}
-          pagePath={`/location${analyticsQuery ? `?${analyticsQuery}` : ""}`}
+          pagePath={`/rentals${analyticsQuery ? `?${analyticsQuery}` : ""}`}
         />
       ) : null}
       <section className="border-b border-orange-100 bg-orange-50 px-4 py-8 sm:px-6 sm:py-14 lg:px-8">

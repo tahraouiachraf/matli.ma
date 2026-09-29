@@ -18,19 +18,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         title: `${company.name} - Location matériel à ${company.city}`,
         description: company.description,
         alternates: {
-          canonical: `/entreprise/${company.slug}`,
+          canonical: `/company/${company.slug}`,
         },
         openGraph: {
           title: `${company.name} - Machines BTP à louer à ${company.city}`,
           description: company.description,
-          url: `/entreprise/${company.slug}`,
+          url: `/company/${company.slug}`,
           type: "profile",
         },
       }
     : {
         title: "Entreprise de location de matériel BTP",
         description: "Consultez le parc matériel et les offres de cette entreprise sur MATLI.ma.",
-        alternates: { canonical: `/entreprise/${slug}` },
+        alternates: { canonical: `/company/${slug}` },
       };
 }
 

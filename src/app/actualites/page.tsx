@@ -6,7 +6,7 @@ import { getNewsArticlesStrict } from "@/services/api/matli";
 export const metadata: Metadata = {
   title: "Actualités du matériel BTP et de la location au Maroc",
   description: "Conseils, tendances et informations utiles pour louer, exploiter et gérer du matériel BTP au Maroc avec MATLI.ma.",
-  alternates: { canonical: "/actualites" },
+  alternates: { canonical: "/news" },
 };
 
 export const revalidate = 300;
@@ -40,7 +40,7 @@ export default async function NewsPage() {
                   <div className="flex items-center gap-2 text-xs font-bold text-neutral-500"><CalendarDays size={15} aria-hidden /> {dateLabel(article.publishedAt)}</div>
                   <h2 className="mt-4 text-xl font-black leading-snug text-neutral-950 group-hover:text-orange-700">{article.title}</h2>
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-neutral-600">{article.excerpt}</p>
-                  <Link href={`/actualites/${article.slug}`} className="mt-6 inline-flex items-center gap-2 self-start text-sm font-black text-orange-700" aria-label={`Lire l’article : ${article.title}`}>Lire l&apos;article <ArrowRight size={17} aria-hidden /></Link>
+                  <Link href={`/news/${article.slug}`} className="mt-6 inline-flex items-center gap-2 self-start text-sm font-black text-orange-700" aria-label={`Lire l’article : ${article.title}`}>Lire l&apos;article <ArrowRight size={17} aria-hidden /></Link>
                 </div>
               </article>
             ))}

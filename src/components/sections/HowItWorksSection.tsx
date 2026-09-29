@@ -24,7 +24,7 @@ export function HowItWorksSection() {
               De la recherche au retour du matériel, les informations essentielles restent visibles pour le client et le propriétaire.
             </p>
           </div>
-          <ButtonLink href="/location" className="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto">Voir les offres</ButtonLink>
+          <ButtonLink href="/rentals" className="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto">Voir les offres</ButtonLink>
         </div>
 
         <div className="relative mt-10">

@@ -27,7 +27,7 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
 
     try {
       await login(email, String(formData.get("password")));
-      router.push("/espace");
+      router.push("/dashboard");
     } catch (exception) {
       const message = exception instanceof Error ? exception.message : "Identifiants invalides.";
       setError(message);
@@ -110,13 +110,13 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
         </span>
       </label>
 
-      <Link href="/mot-de-passe/oublie" className="justify-self-end text-sm font-black text-orange-700 hover:text-orange-800">
+      <Link href="/forgot-password" className="justify-self-end text-sm font-black text-orange-700 hover:text-orange-800">
         Mot de passe oublié ?
       </Link>
 
       <button
         disabled={loading}
-        className="mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-orange-600 px-5 text-sm font-black text-white shadow-md shadow-orange-600/15 transition hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-orange-500 px-5 text-sm font-black text-white shadow-md shadow-orange-500/20 transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         {loading ? "Connexion en cours..." : "Se connecter"}

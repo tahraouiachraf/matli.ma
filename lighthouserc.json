@@ -5,8 +5,8 @@
       "startServerReadyPattern": "Ready",
       "url": [
         "http://localhost:3000/",
-        "http://localhost:3000/connexion",
-        "http://localhost:3000/fonctionnement"
+        "http://localhost:3000/login",
+        "http://localhost:3000/how-it-works"
       ],
       "numberOfRuns": 1
     },

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const page = getLocalSeoPage((await params).seoSlug);
   if (!page) return {};
 
-  const canonical = `/location/${page.slug}`;
+  const canonical = `/rentals/${page.slug}`;
   const title = `Location ${page.categoryName.toLowerCase()} à ${page.city}`;
   const description = `Comparez les ${page.categoryName.toLowerCase()} disponibles à ${page.city}, les prix par jour, la livraison et les offres avec ou sans opérateur.`;
 
@@ -37,7 +37,7 @@ export default async function LocalLocationPage({ params }: PageProps) {
   });
   if (!equipment.length) notFound();
 
-  const canonical = absoluteUrl(`/location/${page.slug}`);
+  const canonical = absoluteUrl(`/rentals/${page.slug}`);
   const structuredData = [
     {
       "@context": "https://schema.org",
@@ -52,7 +52,7 @@ export default async function LocalLocationPage({ params }: PageProps) {
       "@type": "BreadcrumbList",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Accueil", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Location", item: absoluteUrl("/location") },
+        { "@type": "ListItem", position: 2, name: "Location", item: absoluteUrl("/rentals") },
         { "@type": "ListItem", position: 3, name: `${page.categoryName} à ${page.city}`, item: canonical },
       ],
     },
@@ -63,7 +63,7 @@ export default async function LocalLocationPage({ params }: PageProps) {
         "@type": "ListItem",
         position: index + 1,
         name: item.title,
-        url: absoluteUrl(`/materiel/${item.slug}`),
+        url: absoluteUrl(`/equipment/${item.slug}`),
       })),
     },
   ];
@@ -74,7 +74,7 @@ export default async function LocalLocationPage({ params }: PageProps) {
       <section className="bg-neutral-950 px-4 py-12 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav aria-label="Fil d’Ariane" className="text-sm text-neutral-300">
-            <Link href="/" className="hover:text-orange-400">Accueil</Link> / <Link href="/location" className="hover:text-orange-400">Location</Link> / {page.city}
+            <Link href="/" className="hover:text-orange-400">Accueil</Link> / <Link href="/rentals" className="hover:text-orange-400">Location</Link> / {page.city}
           </nav>
           <h1 className="mt-5 max-w-4xl text-3xl font-black sm:text-5xl">Location de {page.categoryName.toLowerCase()} à {page.city}</h1>
           <p className="mt-4 max-w-3xl leading-7 text-neutral-300">
@@ -88,7 +88,7 @@ export default async function LocalLocationPage({ params }: PageProps) {
             <p className="text-sm font-black text-orange-600">Offres locales vérifiées</p>
             <h2 className="mt-1 text-2xl font-black">{equipment.length} machine{equipment.length > 1 ? "s" : ""} à comparer</h2>
           </div>
-          <Link href={`/location?category=${page.category}&city=${encodeURIComponent(page.city)}`} className="font-bold text-orange-700 hover:text-orange-800">Afficher tous les filtres</Link>
+          <Link href={`/rentals?category=${page.category}&city=${encodeURIComponent(page.city)}`} className="font-bold text-orange-700 hover:text-orange-800">Afficher tous les filtres</Link>
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {equipment.map((item) => <EquipmentCard key={item.backendId ?? item.id} item={item} />)}

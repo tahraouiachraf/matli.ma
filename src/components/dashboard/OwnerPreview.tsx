@@ -81,7 +81,7 @@ export function OwnerPreview() {
           {reconnect ? "Reconnectez-vous pour accéder à votre espace." : "Nous n'arrivons pas à afficher ces données pour le moment."}
         </p>
         {reconnect ? (
-          <Link href="/connexion" className="mt-4 inline-flex h-11 items-center rounded-md bg-neutral-950 px-5 text-sm font-black text-white">Se reconnecter</Link>
+          <Link href="/login" className="mt-4 inline-flex h-11 items-center rounded-md bg-neutral-950 px-5 text-sm font-black text-white">Se reconnecter</Link>
         ) : (
           <button type="button" onClick={retry} className="mt-4 h-11 rounded-md bg-neutral-950 px-5 text-sm font-black text-white">Réessayer</button>
         )}
@@ -120,9 +120,9 @@ export function OwnerPreview() {
       ) : null}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <Link href="/espace/locations" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><CalendarCheck size={20} className="text-orange-600" />Gérer les locations</Link>
-        <Link href="/espace/maintenance" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><Wrench size={20} className="text-orange-600" />Planifier une maintenance</Link>
-        <Link href="/espace/notifications" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><BellRing size={20} className="text-orange-600" />Voir les alertes</Link>
+        <Link href="/dashboard/rentals" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><CalendarCheck size={20} className="text-orange-600" />Gérer les locations</Link>
+        <Link href="/dashboard/maintenance" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><Wrench size={20} className="text-orange-600" />Planifier une maintenance</Link>
+        <Link href="/dashboard/notifications" className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-neutral-200 px-4 font-black text-neutral-800 hover:border-orange-300 hover:bg-orange-50"><BellRing size={20} className="text-orange-600" />Voir les alertes</Link>
       </div>
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
@@ -141,7 +141,7 @@ export function OwnerPreview() {
               </div>
             ))}
             {!machines.length ? (
-              <Link href="/profil" className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 text-sm font-black text-orange-800"><CirclePlus size={18} />Compléter le profil propriétaire</Link>
+              <Link href="/profile" className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 text-sm font-black text-orange-800"><CirclePlus size={18} />Compléter le profil propriétaire</Link>
             ) : null}
           </div>
         </div>

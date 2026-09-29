@@ -34,7 +34,7 @@ export function websiteJsonLd() {
     url: siteUrl,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${absoluteUrl("/location")}?category={search_term_string}`,
+      target: `${absoluteUrl("/rentals")}?category={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -57,7 +57,7 @@ export function marketplaceJsonLd() {
       "@type": "ListItem",
       position: index + 1,
       name: category.name,
-      url: absoluteUrl(`/location?category=${category.slug}`),
+      url: absoluteUrl(`/rentals?category=${category.slug}`),
     })),
   };
 }
@@ -80,7 +80,7 @@ export function equipmentJsonLd(item: Equipment) {
       price: item.priceDay,
       priceCurrency: "MAD",
       availability: item.status === "AVAILABLE" ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
-      url: absoluteUrl(`/materiel/${item.slug}`),
+      url: absoluteUrl(`/equipment/${item.slug}`),
       itemCondition: "https://schema.org/UsedCondition",
       shippingDetails: {
         "@type": "OfferShippingDetails",

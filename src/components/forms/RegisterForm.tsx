@@ -35,7 +35,7 @@ export function RegisterForm() {
         account_type: formData.get("account_type") === "client" ? "client" : "owner",
       });
       const emailSent = response.verification_email_sent === false ? "0" : "1";
-      router.push(`/connexion?registered=1&email_sent=${emailSent}&email=${encodeURIComponent(response.email)}`);
+      router.push(`/login?registered=1&email_sent=${emailSent}&email=${encodeURIComponent(response.email)}`);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Création du compte impossible.");
     } finally {

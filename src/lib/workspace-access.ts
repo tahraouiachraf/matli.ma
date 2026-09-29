@@ -8,8 +8,8 @@ type UserWithRoles = {
 const workspaceRoles: WorkspaceRole[] = ["sysadmin", "admin", "owner", "client"];
 
 const clientWorkspacePaths = new Set([
-  "/espace",
-  "/espace/notifications",
+  "/dashboard",
+  "/dashboard/notifications",
 ]);
 
 function normalizeRole(value?: string | null): WorkspaceRole | null {
@@ -45,7 +45,7 @@ export function isAdminWorkspaceRole(role: WorkspaceRole) {
 }
 
 export function canAccessWorkspacePath(role: WorkspaceRole, pathname: string) {
-  if (pathname === "/espace/materiel" || pathname.startsWith("/espace/materiel/")) {
+  if (pathname === "/dashboard/equipment" || pathname.startsWith("/dashboard/equipment/")) {
     return isAdminWorkspaceRole(role);
   }
 
