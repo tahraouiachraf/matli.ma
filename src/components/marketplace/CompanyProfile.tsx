@@ -101,7 +101,7 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
           <p className="mt-5 text-sm font-black uppercase text-orange-700">Entreprise introuvable</p>
           <h1 className="mt-2 text-3xl font-black text-neutral-950">Cette entreprise n’est plus disponible</h1>
           <p className="mt-3 text-neutral-600">Consultez les autres propriétaires vérifiés présents sur MATLI.</p>
-          <Link href="/entreprises" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600">
+          <Link href="/companies" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600">
             Voir les entreprises
           </Link>
         </div>
@@ -134,7 +134,7 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
           "@type": "LocalBusiness",
           name: company.name,
           description: company.description,
-          url: absoluteUrl(`/entreprise/${company.slug}`),
+          url: absoluteUrl(`/company/${company.slug}`),
           address: {
             "@type": "PostalAddress",
             addressLocality: company.city,
@@ -180,7 +180,7 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
             <h2 className="mt-2 text-3xl font-black text-neutral-950">Machines disponibles</h2>
             <p className="mt-2 text-sm leading-6 text-neutral-600">Comparez les prix, les options et la disponibilité avant d’envoyer votre demande.</p>
           </div>
-          <Link href={`/location?city=${encodeURIComponent(company.city)}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-orange-300 bg-white px-4 text-sm font-black text-orange-700 hover:bg-orange-50">
+          <Link href={`/rentals?city=${encodeURIComponent(company.city)}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-orange-300 bg-white px-4 text-sm font-black text-orange-700 hover:bg-orange-50">
             <Building2 size={17} aria-hidden /> Voir les offres à {company.city}
           </Link>
         </div>
@@ -201,7 +201,7 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
             <ShieldCheck className="mx-auto text-orange-500" size={34} aria-hidden />
             <h2 className="mt-4 text-xl font-black text-neutral-950">Aucune machine publiée actuellement</h2>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-neutral-600">Le parc de cette entreprise est en cours de mise à jour. Consultez les autres offres disponibles près de votre chantier.</p>
-            <Link href="/location" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600">Explorer les machines</Link>
+            <Link href="/rentals" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600">Explorer les machines</Link>
           </div>
         )}
       </section>

@@ -14,7 +14,7 @@ export function WorkspaceAccessGuard({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (ready && connected && !allowed) {
-      router.replace("/espace");
+      router.replace("/dashboard");
     }
   }, [allowed, connected, ready, router]);
 

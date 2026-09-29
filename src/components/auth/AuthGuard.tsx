@@ -37,13 +37,13 @@ export function AuthGuard({
           <p className="mt-4 text-neutral-600">{message}</p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link
-              href="/connexion"
+              href="/login"
               className="inline-flex min-h-11 items-center justify-center rounded-md bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600"
             >
               Se connecter
             </Link>
             <Link
-              href="/inscription"
+              href="/register"
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-neutral-200 px-5 text-sm font-bold text-neutral-800 hover:border-orange-400"
             >
               <ShieldCheck size={17} aria-hidden />

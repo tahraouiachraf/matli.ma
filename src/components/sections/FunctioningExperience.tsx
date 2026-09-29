@@ -132,7 +132,7 @@ export function FunctioningExperience() {
               {activeStep < journey.steps.length - 1 ? (
                 <button type="button" onClick={() => setActiveStep((value) => value + 1)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-black text-white hover:bg-neutral-800">Étape suivante <ChevronRight size={17} aria-hidden /></button>
               ) : (
-                <ButtonLink href={journeyKey === "renter" ? "/location" : "/inscription"} className="bg-orange-500 text-white hover:bg-orange-600">
+                <ButtonLink href={journeyKey === "renter" ? "/rentals" : "/register"} className="bg-orange-500 text-white hover:bg-orange-600">
                   {journeyKey === "renter" ? "Voir les machines" : "Créer mon compte"} <ChevronRight size={17} aria-hidden />
                 </ButtonLink>
               )}

@@ -57,7 +57,7 @@ export default async function Home() {
                 ))}
               </div>
 
-              <form action="/location" className="mt-6 grid min-w-0 gap-3 rounded-md bg-white p-3 shadow-xl shadow-orange-950/20 md:grid-cols-[1fr_0.8fr_auto]">
+              <form action="/rentals" className="mt-6 grid min-w-0 gap-3 rounded-md bg-white p-3 shadow-xl shadow-orange-950/20 md:grid-cols-[1fr_0.8fr_auto]">
                 <label className="relative min-w-0">
                   <span className="sr-only">Machine recherchée</span>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={19} aria-hidden />
@@ -132,7 +132,7 @@ export default async function Home() {
               title="Offres disponibles maintenant"
               description="Chaque annonce affiche les informations utiles avant contact: prix par jour, ville, disponibilité, opérateur, livraison, entreprise et état de la machine."
             />
-            <ButtonLink href="/location" variant="secondary">
+            <ButtonLink href="/rentals" variant="secondary">
               Voir tout le matériel
             </ButtonLink>
           </div>
@@ -154,7 +154,7 @@ export default async function Home() {
             description="Ajoutez vos équipements, gérez vos locations et votre maintenance, suivez la rentabilité et augmentez votre visibilité auprès des professionnels au Maroc."
           />
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/espace">
+            <ButtonLink href="/dashboard">
               Voir le dashboard
             </ButtonLink>
           </div>

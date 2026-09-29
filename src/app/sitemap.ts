@@ -13,35 +13,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages: MetadataRoute.Sitemap = [
     page("", 1, "daily"),
-    page("/location", 0.95, "daily"),
-    page("/entreprises", 0.8, "weekly"),
-    page("/actualites", 0.72, "weekly"),
-    page("/fonctionnement", 0.7, "monthly"),
-    page("/inscription", 0.35, "monthly"),
-    page("/conditions-generales", 0.3, "yearly"),
-    page("/confidentialite", 0.3, "yearly"),
-    page("/politique-annulation", 0.3, "yearly"),
-    page("/mentions-legales", 0.3, "yearly"),
+    page("/rentals", 0.95, "daily"),
+    page("/companies", 0.8, "weekly"),
+    page("/news", 0.72, "weekly"),
+    page("/how-it-works", 0.7, "monthly"),
+    page("/register", 0.35, "monthly"),
+    page("/terms", 0.3, "yearly"),
+    page("/privacy", 0.3, "yearly"),
+    page("/cancellation-policy", 0.3, "yearly"),
+    page("/legal-notice", 0.3, "yearly"),
   ];
 
   const categoryPages = categories.map((category) =>
-    page(`/location?category=${category.slug}`, 0.78, "weekly"),
+    page(`/rentals?category=${category.slug}`, 0.78, "weekly"),
   );
 
   const localPages = localSeoPages.map((item) =>
-    page(`/location/${item.slug}`, 0.8, "daily"),
+    page(`/rentals/${item.slug}`, 0.8, "daily"),
   );
 
   const equipmentPages = equipment.map((item) =>
-    page(`/materiel/${item.slug}`, 0.82, item.status === "AVAILABLE" ? "daily" : "weekly"),
+    page(`/equipment/${item.slug}`, 0.82, item.status === "AVAILABLE" ? "daily" : "weekly"),
   );
 
   const companyPages = companies.map((company) =>
-    page(`/entreprise/${company.slug}`, 0.72, "weekly"),
+    page(`/company/${company.slug}`, 0.72, "weekly"),
   );
 
   const newsPages = news.map((article) => ({
-    ...page(`/actualites/${article.slug}`, 0.68, "monthly"),
+    ...page(`/news/${article.slug}`, 0.68, "monthly"),
     lastModified: new Date(article.updatedAt),
   }));
 

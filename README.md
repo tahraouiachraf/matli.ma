@@ -5,11 +5,11 @@ MATLI.ma est une marketplace marocaine pour louer et déposer des machines BTP. 
 ## Fonctionnalités
 
 - Accueil marketplace avec offres machines chargées depuis l’API Laravel.
-- Catalogue `/location` paginé avec machines, catégories, villes et demandes clients.
+- Catalogue `/rentals` paginé avec machines, catégories, villes et demandes clients.
 - Recherche avancée avec suggestions, filtres persistants, tris et URL partageable.
-- Pages SEO locales `/location/[categorie-ville]` intégrées au sitemap.
-- Détail matériel `/materiel/[slug]` avec galerie, caractéristiques, calendrier, avis et machines similaires.
-- Page entreprise `/entreprise/[slug]`.
+- Pages SEO locales `/rentals/[categorie-ville]` intégrées au sitemap.
+- Détail matériel `/equipment/[slug]` avec galerie, caractéristiques, calendrier, avis et machines similaires.
+- Page entreprise `/company/[slug]`.
 - Authentification frontend via token Bearer Laravel.
 - Inscription propriétaire/client.
 - Espace connecté propriétaire/client protégé.

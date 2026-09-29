@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = { title: "Conditions générales d’utilisation", description: "Conditions d’utilisation de la marketplace MATLI.ma.", alternates: { canonical: "/conditions-generales" } };
+export const metadata: Metadata = { title: "Conditions générales d’utilisation", description: "Conditions d’utilisation de la marketplace MATLI.ma.", alternates: { canonical: "/terms" } };
 
 export default function TermsPage() {
   return <LegalPage title="Conditions générales d’utilisation" intro="Ces conditions encadrent l’accès à MATLI.ma et la mise en relation entre locataires et propriétaires de matériel BTP.">

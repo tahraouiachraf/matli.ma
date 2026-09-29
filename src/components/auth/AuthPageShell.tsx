@@ -36,7 +36,7 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
         <div className={`mx-auto grid min-w-0 max-w-full overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-[0_24px_70px_rgba(23,23,23,0.10)] lg:w-full ${isDark ? "lg:grid-cols-[1.12fr_0.88fr]" : "lg:grid-cols-[0.88fr_1.12fr]"}`}>
           <div
             className={`relative flex min-w-0 flex-col overflow-hidden px-5 py-6 sm:p-9 lg:min-h-[720px] lg:p-10 xl:p-12 ${isDark ? "bg-neutral-950 text-white" : "bg-orange-500 text-neutral-950"}`}
-            style={isDark ? { backgroundImage: "linear-gradient(125deg, #b84a12 0%, #4a281f 46%, #111827 100%)" } : undefined}
+            style={isDark ? { backgroundImage: "linear-gradient(125deg, #f58220 0%, #5a2d1d 46%, #111827 100%)" } : undefined}
           >
             {isDark ? <span aria-hidden className="absolute inset-y-0 left-0 w-2 bg-orange-500" /> : null}
             {isDark ? <span aria-hidden className="absolute -right-16 top-12 h-80 w-80 rounded-full border border-white/10" /> : null}

@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Locations" };
 
 export default function OwnerRentalsPage() {
   return (
-    <OwnerWorkspace activeHref="/espace/locations">
+    <OwnerWorkspace activeHref="/dashboard/rentals">
       <OwnerSectionContent section="locations" />
     </OwnerWorkspace>
   );

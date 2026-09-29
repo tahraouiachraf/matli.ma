@@ -218,7 +218,7 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
           <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
             <p className="font-black text-neutral-950">Connectez-vous pour réserver ces dates</p>
             <p className="mt-1 text-sm leading-6 text-neutral-600">Vous pourrez confirmer la demande et suivre la réponse du propriétaire.</p>
-            <Link href="/connexion" className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
+            <Link href="/login" className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
               Se connecter ou créer un compte
             </Link>
           </div>

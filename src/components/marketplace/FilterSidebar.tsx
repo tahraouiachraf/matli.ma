@@ -52,7 +52,7 @@ export function FilterSidebar({ active = {}, brands = [], items = fallbackCatego
           </div>
         </div>
         <Link
-          href="/location"
+          href="/rentals"
           className="inline-flex h-9 items-center gap-1 rounded-md border border-neutral-200 px-3 text-xs font-black text-neutral-700 transition hover:border-orange-300 hover:text-orange-700"
         >
           <X size={14} aria-hidden />

@@ -75,7 +75,7 @@ export function RentalHistorySection({ embedded = false }: { embedded?: boolean 
             Retrouvez vos locations, leurs statuts et l’historique de chaque réservation.
           </p>
         </div>
-        <Link href="/location" className="inline-flex h-11 items-center justify-center rounded-md border border-neutral-200 px-4 text-sm font-bold hover:border-orange-400">
+        <Link href="/rentals" className="inline-flex h-11 items-center justify-center rounded-md border border-neutral-200 px-4 text-sm font-bold hover:border-orange-400">
           Louer encore
         </Link>
       </div>

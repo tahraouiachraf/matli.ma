@@ -26,8 +26,8 @@ export function Footer() {
   const { connected, user } = useAuth();
   const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
   const ownerLinks = [
-    ...(canDeposit ? [["Déposer un matériel", "/deposer"]] : []),
-    ...(!connected ? [["Créer un compte", "/inscription"], ["Se connecter", "/connexion"]] : []),
+    ...(canDeposit ? [["Déposer un matériel", "/list-equipment"]] : []),
+    ...(!connected ? [["Créer un compte", "/register"], ["Se connecter", "/login"]] : []),
   ];
 
   return (
@@ -57,10 +57,10 @@ export function Footer() {
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["Marketplace", [["Location", "/location"], ["Entreprises", "/entreprises"]]],
+            ["Marketplace", [["Location", "/rentals"], ["Entreprises", "/companies"]]],
             ["Propriétaires", ownerLinks],
-            ["Compte", [["Profil", "/profil"], ["Mes locations", "/mes-locations"], ["Dashboard", "/espace"]]],
-            ["MATLI", [["Fonctionnement", "/fonctionnement"], ["Conseils location", "/fonctionnement#conseils"], ["Contact", "mailto:contact@matli.ma"]]],
+            ["Compte", [["Profil", "/profile"], ["Mes locations", "/my-rentals"], ["Dashboard", "/dashboard"]]],
+            ["MATLI", [["Fonctionnement", "/how-it-works"], ["Conseils location", "/how-it-works#conseils"], ["Contact", "mailto:contact@matli.ma"]]],
           ].filter(([, links]) => (links as string[][]).length > 0).map(([title, links]) => (
             <div key={title as string}>
               <h3 className="font-semibold text-neutral-950">{title}</h3>
@@ -77,10 +77,10 @@ export function Footer() {
       </div>
       <div className="border-t border-neutral-100">
         <div className="mx-auto flex max-w-7xl flex-wrap gap-x-5 gap-y-2 px-4 py-5 text-xs font-semibold text-neutral-500 sm:px-6 lg:px-8">
-          <Link href="/conditions-generales" className="hover:text-orange-600">Conditions générales</Link>
-          <Link href="/confidentialite" className="hover:text-orange-600">Confidentialité et cookies</Link>
-          <Link href="/politique-annulation" className="hover:text-orange-600">Politique d’annulation</Link>
-          <Link href="/mentions-legales" className="hover:text-orange-600">Mentions légales</Link>
+          <Link href="/terms" className="hover:text-orange-600">Conditions générales</Link>
+          <Link href="/privacy" className="hover:text-orange-600">Confidentialité et cookies</Link>
+          <Link href="/cancellation-policy" className="hover:text-orange-600">Politique d’annulation</Link>
+          <Link href="/legal-notice" className="hover:text-orange-600">Mentions légales</Link>
         </div>
       </div>
     </footer>

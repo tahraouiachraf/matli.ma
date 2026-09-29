@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = { title: "Politique d’annulation", description: "Règles d’annulation des réservations de matériel sur MATLI.ma.", alternates: { canonical: "/politique-annulation" } };
+export const metadata: Metadata = { title: "Politique d’annulation", description: "Règles d’annulation des réservations de matériel sur MATLI.ma.", alternates: { canonical: "/cancellation-policy" } };
 
 export default function CancellationPage() {
   return <LegalPage title="Politique d’annulation" intro="Les conditions financières précises sont présentées avant confirmation et peuvent dépendre du propriétaire, de la machine et des services commandés.">

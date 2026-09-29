@@ -13,5 +13,5 @@ export function filterHref(active: Record<string, string | undefined>, patch: Re
   if (!Object.prototype.hasOwnProperty.call(patch, "page")) params.delete("page");
 
   const query = params.toString();
-  return query ? `/location?${query}` : "/location";
+  return query ? `/rentals?${query}` : "/rentals";
 }

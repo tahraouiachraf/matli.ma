@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = { title: "Mentions légales", description: "Informations légales relatives à MATLI.ma.", alternates: { canonical: "/mentions-legales" } };
+export const metadata: Metadata = { title: "Mentions légales", description: "Informations légales relatives à MATLI.ma.", alternates: { canonical: "/legal-notice" } };
 
 export default function LegalNoticePage() {
   return <LegalPage title="Mentions légales" intro="Informations relatives à l’édition et à l’exploitation de la plateforme MATLI.ma.">

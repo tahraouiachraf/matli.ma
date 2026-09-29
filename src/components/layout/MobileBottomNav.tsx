@@ -10,13 +10,17 @@ import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { connected, user } = useAuth();
-  const authPage = pathname === "/connexion" || pathname === "/inscription" || pathname.startsWith("/mot-de-passe/");
+  const authPage = pathname === "/login"
+    || pathname === "/connexion"
+    || pathname === "/register"
+    || pathname === "/forgot-password"
+    || pathname === "/reset-password";
   const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
   const items: Array<[LucideIcon, string, string]> = [
     [Home, "Accueil", "/"],
-    [Search, "Louer", "/location"],
-    canDeposit ? [PlusCircle, "Déposer", "/deposer"] : [CalendarDays, "Locations", "/mes-locations"],
-    [CircleUserRound, connected ? "Profil" : "Compte", connected ? "/profil" : "/connexion"],
+    [Search, "Louer", "/rentals"],
+    canDeposit ? [PlusCircle, "Déposer", "/list-equipment"] : [CalendarDays, "Locations", "/my-rentals"],
+    [CircleUserRound, connected ? "Profil" : "Compte", connected ? "/profile" : "/login"],
   ];
 
   if (authPage) return null;

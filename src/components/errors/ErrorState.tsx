@@ -77,7 +77,7 @@ export function ErrorState({
             <Home size={17} aria-hidden />
             Accueil
           </Link>
-          <Link href="/location" className="inline-flex min-h-11 items-center justify-center rounded-md border border-neutral-200 px-5 text-sm font-bold text-neutral-800 hover:border-orange-400">
+          <Link href="/rentals" className="inline-flex min-h-11 items-center justify-center rounded-md border border-neutral-200 px-5 text-sm font-bold text-neutral-800 hover:border-orange-400">
             Voir les machines
           </Link>
         </div>

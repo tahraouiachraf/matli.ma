@@ -27,12 +27,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${item.title} à louer à ${item.city} - ${formatDh(item.priceDay)}/jour`,
     description: `${item.title}, ${item.brand} ${item.model}, disponible à la location à ${item.city}. Demandez une location ou un devis sur MATLI.`,
     alternates: {
-      canonical: `/materiel/${item.slug}`,
+      canonical: `/equipment/${item.slug}`,
     },
     openGraph: {
       title: `${item.title} à louer à ${item.city}`,
       description: `${item.brand} ${item.model} à ${formatDh(item.priceDay)}/jour. ${statusLabels[item.status]} sur MATLI.`,
-      url: `/materiel/${item.slug}`,
+      url: `/equipment/${item.slug}`,
       type: "website",
       images: [
         {
@@ -58,7 +58,7 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
   return (
     <div className="bg-white">
       <JsonLd data={equipmentJsonLd(item)} />
-      <CommercialEventTracker eventName="equipment_viewed" equipmentId={item.backendId} city={item.city} category={item.category} pagePath={`/materiel/${item.slug}`} />
+      <CommercialEventTracker eventName="equipment_viewed" equipmentId={item.backendId} city={item.city} category={item.category} pagePath={`/equipment/${item.slug}`} />
       <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>
           <EquipmentGallery images={item.images?.length ? item.images : [item.image]} title={item.title} city={item.city} />
@@ -138,7 +138,7 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
           <h2 className="font-black">Propriétaire</h2>
           <p className="mt-3 text-xl font-bold">{item.companyName}</p>
           <p className="mt-2 text-sm text-neutral-600">{item.companyVerified ? "Entreprise vérifiée" : "Identité en cours de vérification"} · {item.reviewsCount ? `Avis ${item.rating}/5` : "Nouveau sur MATLI"}</p>
-          <ButtonLink href={`/entreprise/${item.companySlug}`} variant="secondary" className="mt-5 w-full">
+          <ButtonLink href={`/company/${item.companySlug}`} variant="secondary" className="mt-5 w-full">
             Voir l&apos;entreprise
           </ButtonLink>
           <button className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-neutral-200 text-sm font-semibold">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 import { CookieSettingsButton } from "@/components/legal/CookieSettingsButton";
 
-export const metadata: Metadata = { title: "Politique de confidentialité", description: "Traitement et protection des données personnelles sur MATLI.ma.", alternates: { canonical: "/confidentialite" } };
+export const metadata: Metadata = { title: "Politique de confidentialité", description: "Traitement et protection des données personnelles sur MATLI.ma.", alternates: { canonical: "/privacy" } };
 
 export default function PrivacyPage() {
   return <LegalPage title="Politique de confidentialité" intro="MATLI limite la collecte aux données nécessaires à la gestion des comptes, annonces, réservations et échanges de service.">

@@ -60,10 +60,10 @@ export default function HowItWorksPage() {
               Trouvez une machine, comparez les conditions et envoyez votre demande. Le propriétaire confirme la disponibilité et organise la location avec vous.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/location" className="bg-orange-500 text-white hover:bg-orange-600">
+              <ButtonLink href="/rentals" className="bg-orange-500 text-white hover:bg-orange-600">
                 <Search size={18} aria-hidden /> Trouver une machine
               </ButtonLink>
-              <ButtonLink href="/inscription" className="border border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20">
+              <ButtonLink href="/register" className="border border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20">
                 Créer mon compte <ChevronRight size={18} aria-hidden />
               </ButtonLink>
             </div>
@@ -178,7 +178,7 @@ export default function HowItWorksPage() {
             <h2 className="text-xl font-black sm:text-2xl">Votre chantier peut avancer.</h2>
             <p className="mt-2 text-sm leading-6 text-neutral-300">Consultez les machines disponibles et comparez les offres proches de vous.</p>
           </div>
-          <ButtonLink href="/location" className="w-full shrink-0 bg-orange-500 text-white hover:bg-orange-600 sm:w-auto">
+          <ButtonLink href="/rentals" className="w-full shrink-0 bg-orange-500 text-white hover:bg-orange-600 sm:w-auto">
             Voir les machines <ChevronRight size={18} aria-hidden />
           </ButtonLink>
         </div>

@@ -27,7 +27,7 @@ export default async function VerificationEmailPage({ searchParams }: Verificati
       description="Nous vérifions votre adresse afin de sécuriser votre compte et vos échanges sur MATLI."
       alternativePrompt="Vous avez déjà confirmé votre compte ?"
       alternativeLabel="Se connecter"
-      alternativeHref="/connexion"
+      alternativeHref="/login"
     >
       <EmailVerificationForm
         id={value(params?.id)}
