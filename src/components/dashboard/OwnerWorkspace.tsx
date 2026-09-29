@@ -1143,7 +1143,7 @@ function MiniDonut({ label, value }: { label: string; value: number }) {
     <div className="rounded-2xl bg-neutral-50 p-5 text-center">
       <div
         className="mx-auto grid size-24 place-items-center rounded-full"
-        style={{ background: `conic-gradient(#f97316 ${value * 3.6}deg, #e5e7eb 0deg)` }}
+        style={{ background: `conic-gradient(#f58220 ${value * 3.6}deg, #e5e7eb 0deg)` }}
       >
         <div className="grid size-16 place-items-center rounded-full bg-white text-lg font-black text-neutral-950">{value}%</div>
       </div>

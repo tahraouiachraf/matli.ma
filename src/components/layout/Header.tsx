@@ -47,7 +47,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-neutral-200/80 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center" aria-label="MATLI accueil">
-          <span className="text-2xl font-black tracking-normal text-orange-700">MATLI</span>
+          <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Navigation principale">
@@ -99,7 +99,7 @@ export function Header() {
           <aside className="relative flex h-dvh w-screen flex-col bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl shadow-neutral-950/25">
             <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="MATLI accueil">
-                <span className="text-2xl font-black tracking-normal text-orange-700">MATLI</span>
+                <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>
               </Link>
               <button
                 type="button"
