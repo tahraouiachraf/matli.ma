@@ -43,7 +43,7 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
             <div className="relative z-10 flex items-center gap-3">
               <span className={`grid size-11 place-items-center rounded-full text-lg font-black shadow-sm ${isDark ? "bg-orange-500 text-white" : "border border-white/70 bg-white text-orange-600"}`}>M</span>
               <div>
-                <p className="text-base font-black leading-tight">MATLI.ma</p>
+                <p className={`text-base font-black leading-tight ${isDark ? "text-orange-500" : "text-white"}`}>MATLI.ma</p>
                 <p className={`text-xs font-bold ${isDark ? "text-white/75" : "text-neutral-800"}`}>{isDark ? "Marketplace BTP au Maroc" : "La marketplace des chantiers"}</p>
               </div>
             </div>

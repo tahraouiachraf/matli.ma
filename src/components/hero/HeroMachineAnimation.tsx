@@ -87,8 +87,8 @@ export function HeroMachineAnimation() {
               />
             ))}
           </g>
-          <circle cx="178" cy="371" r="28" fill="#f97316" stroke="#fff" strokeWidth="7" />
-          <circle cx="411" cy="371" r="28" fill="#f97316" stroke="#fff" strokeWidth="7" />
+          <circle cx="178" cy="371" r="28" fill="#f58220" stroke="#fff" strokeWidth="7" />
+          <circle cx="411" cy="371" r="28" fill="#f58220" stroke="#fff" strokeWidth="7" />
           <circle cx="178" cy="371" r="10" fill="#111827" />
           <circle cx="411" cy="371" r="10" fill="#111827" />
 
@@ -99,7 +99,7 @@ export function HeroMachineAnimation() {
             strokeWidth="7"
             strokeLinejoin="round"
           />
-          <path d="M197 245 H250 M207 267 H282" stroke="#f97316" strokeWidth="9" strokeLinecap="round" />
+          <path d="M197 245 H250 M207 267 H282" stroke="#f58220" strokeWidth="9" strokeLinecap="round" />
         </g>
 
         <g className="hero-machine-dust" fill="#fff7ed" opacity="0.75">

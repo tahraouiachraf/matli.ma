@@ -34,7 +34,7 @@ export function Footer() {
     <footer className="border-t border-neutral-200 bg-white text-neutral-950">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.05fr_2fr] lg:px-8">
         <div>
-          <div className="text-2xl font-black text-orange-700">MATLI</div>
+          <div className="text-2xl font-black text-orange-500">MATLI</div>
           <p className="mt-4 max-w-md text-sm leading-6 text-neutral-600">
             La plateforme marocaine de location et de gestion de matériel professionnel.
           </p>
