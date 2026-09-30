@@ -1,5 +1,6 @@
-import { BadgeCheck, Building2, CalendarCheck, Search, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Building2, CalendarCheck, Search, ShieldCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { HeroMachineAnimation } from "@/components/hero/HeroMachineAnimation";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
 import { ClientDemandSection } from "@/components/sections/ClientDemandSection";
@@ -17,6 +18,19 @@ const trustItems: Array<[LucideIcon, string, string]> = [
   [CalendarCheck, "Disponibilité lisible", "Le client comprend rapidement si la machine est libre, réservée ou en maintenance."],
   [ShieldCheck, "Demandes qualifiées", "Budget, durée, chantier et téléphone avant de mobiliser la machine."],
   [BadgeCheck, "Données structurées", "Machines, demandes, réservations et devis suivent une logique claire pour préparer le lancement."],
+];
+
+const heroActions = [
+  { label: "Je veux louer", href: "/rentals" },
+  { label: "Je veux déposer", href: "/list-equipment" },
+];
+
+const popularSearches = [
+  { label: "JCB 3CX", href: "/rentals?brand=JCB&model=3CX" },
+  { label: "Mini-pelle", href: "/rentals?category=mini-pelles" },
+  { label: "Telescopic", href: "/rentals?category=chariots-telescopiques" },
+  { label: "Chargeuse", href: "/rentals?category=chargeuses-sur-pneumatiques" },
+  { label: "Pelle sur chenilles", href: "/rentals?category=pelles-sur-chenilles" },
 ];
 
 export const revalidate = 60;
@@ -46,14 +60,15 @@ export default async function Home() {
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
-                {["Je veux louer", "Je veux déposer"].map((label) => (
-                  <button
-                    key={label}
+                {heroActions.map((action) => (
+                  <Link
+                    key={action.href}
+                    href={action.href}
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/40 bg-white/10 px-3 text-center text-sm font-black text-white backdrop-blur hover:bg-white/20 sm:justify-start sm:gap-3 sm:px-4"
                   >
                     <span className="size-5 rounded border-2 border-white/70 bg-white/10" />
-                    {label}
-                  </button>
+                    {action.label}
+                  </Link>
                 ))}
               </div>
 
@@ -88,12 +103,12 @@ export default async function Home() {
                 </button>
               </form>
 
-              <div className="mt-5 flex gap-2 overflow-x-auto pb-1 text-sm sm:flex-wrap sm:items-center sm:overflow-visible">
-                <span className="font-black text-white">Populaires :</span>
-                {["JCB 3CX", "Mini-pelle", "Telescopic", "Chargeuse", "Pelle sur chenilles"].map((tag) => (
-                  <span key={tag} className="shrink-0 rounded-full bg-white/15 px-3 py-2 font-semibold text-white sm:px-4">
-                    {tag}
-                  </span>
+              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-md border border-white/20 bg-white/10 p-3 text-sm sm:bg-transparent sm:p-0">
+                <span className="w-full text-xs font-black uppercase tracking-[0.12em] text-white sm:w-auto sm:text-sm sm:normal-case sm:tracking-normal">Populaires :</span>
+                {popularSearches.map((item) => (
+                  <Link key={item.href} href={item.href} className="inline-flex min-h-9 items-center rounded-full border border-white/20 bg-white/15 px-3 py-1.5 font-bold text-white transition hover:border-white hover:bg-white hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:px-4">
+                    {item.label}
+                  </Link>
                 ))}
               </div>
             </div>
@@ -106,17 +121,44 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 md:grid-cols-4 lg:px-8">
-          {trustItems.map(([Icon, title, text]) => (
-            <div key={title} className="flex gap-3">
-              <Icon className="mt-1 text-amber-700" size={22} aria-hidden />
-              <div>
-                <p className="font-bold text-neutral-950">{title}</p>
-                <p className="mt-1 text-sm leading-6 text-neutral-600">{text}</p>
-              </div>
+      <section className="border-y border-neutral-200 bg-white" aria-labelledby="marketplace-trust-title">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
+          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-end lg:gap-16">
+            <div className="max-w-xl">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-orange-700">Pensée pour le terrain</p>
+              <h2 id="marketplace-trust-title" className="mt-3 text-3xl font-black leading-tight text-neutral-950 sm:text-4xl">
+                Les bonnes informations, avant le premier appel.
+              </h2>
             </div>
-          ))}
+            <div className="flex flex-col items-start justify-between gap-5 border-l-2 border-orange-500 pl-5 sm:flex-row sm:items-end sm:pl-6">
+              <p className="max-w-2xl text-base leading-7 text-neutral-600">
+                MATLI rend chaque offre plus simple à comprendre et chaque demande plus facile à traiter, pour les clients comme pour les propriétaires.
+              </p>
+              <Link href="/how-it-works" className="inline-flex shrink-0 items-center gap-2 text-sm font-black text-orange-700 transition hover:text-orange-800">
+                Voir le fonctionnement <ArrowUpRight size={17} aria-hidden />
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 md:grid-cols-2">
+            {trustItems.map(([Icon, title, text], index) => (
+              <article key={title} className="group bg-white p-5 transition-colors hover:bg-orange-50/40 sm:p-7 lg:p-8">
+                <div className="flex items-start gap-4 sm:gap-5">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-md bg-orange-50 text-orange-700 transition-colors group-hover:bg-orange-500 group-hover:text-white">
+                    <Icon size={22} strokeWidth={2.2} aria-hidden />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-xs font-black uppercase tracking-[0.12em] text-orange-700">Avantage {String(index + 1).padStart(2, "0")}</p>
+                      <span className="h-px min-w-8 flex-1 bg-neutral-200" aria-hidden />
+                    </div>
+                    <h3 className="mt-3 text-lg font-black text-neutral-950 sm:text-xl">{title}</h3>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-neutral-600">{text}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

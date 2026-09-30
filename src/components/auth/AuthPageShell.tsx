@@ -32,7 +32,7 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
 
   return (
     <section className={`border-t border-orange-100 ${isDark ? "bg-orange-50/50" : "bg-neutral-50"}`}>
-      <div className="mx-auto grid max-w-7xl items-center px-0 py-0 sm:min-h-[calc(100vh-88px)] sm:px-6 sm:py-10 lg:px-8">
+      <div className="mx-auto grid max-w-7xl items-center px-3 py-3 sm:min-h-[calc(100vh-100px)] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
         <div className={`mx-auto grid min-w-0 max-w-full overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-[0_24px_70px_rgba(23,23,23,0.10)] lg:w-full ${isDark ? "lg:grid-cols-[1.12fr_0.88fr]" : "lg:grid-cols-[0.88fr_1.12fr]"}`}>
           <div
             className={`relative flex min-w-0 flex-col overflow-hidden px-5 py-6 sm:p-9 lg:min-h-[720px] lg:p-10 xl:p-12 ${isDark ? "bg-neutral-950 text-white" : "bg-orange-500 text-neutral-950"}`}

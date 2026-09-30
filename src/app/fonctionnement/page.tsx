@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
   return (
     <>
       <JsonLd data={faqJsonLd} />
-      <section className="relative isolate min-h-[610px] overflow-hidden bg-neutral-950 text-white sm:min-h-[640px]">
+      <section className="relative isolate min-h-[560px] overflow-hidden bg-neutral-950 text-white sm:min-h-[580px] lg:min-h-[540px]">
         <Image
           src="/equipment/jcb-excavator-quarry.jpg"
           alt="Pelle sur chenilles en activité sur un chantier"
@@ -47,8 +47,8 @@ export default function HowItWorksPage() {
           sizes="100vw"
           className="function-hero-image -z-20 object-cover object-[62%_center]"
         />
-        <div className="absolute inset-0 -z-10 bg-neutral-950/70" />
-        <div className="mx-auto flex min-h-[610px] max-w-7xl items-center px-4 py-12 sm:min-h-[640px] sm:px-6 sm:py-16 lg:px-8">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-neutral-950/90 via-neutral-950/70 to-neutral-950/25" />
+        <div className="mx-auto flex min-h-[560px] max-w-7xl items-center px-4 py-10 sm:min-h-[580px] sm:px-6 sm:py-14 lg:min-h-[540px] lg:px-8">
           <div className="min-w-0 max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-md border border-white/25 bg-neutral-950/35 px-3 py-1.5 text-xs font-black uppercase text-orange-300 backdrop-blur-sm">
               <HardHat size={15} aria-hidden /> Comment fonctionne MATLI ?
@@ -63,16 +63,32 @@ export default function HowItWorksPage() {
               <ButtonLink href="/rentals" className="bg-orange-500 text-white hover:bg-orange-600">
                 <Search size={18} aria-hidden /> Trouver une machine
               </ButtonLink>
-              <ButtonLink href="/register" className="border border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20">
+              <ButtonLink href="/register" className="border border-white bg-white text-neutral-950 hover:bg-neutral-100">
                 Créer mon compte <ChevronRight size={18} aria-hidden />
               </ButtonLink>
             </div>
-            <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/20 pt-5 text-sm font-bold text-white/90">
-              <span className="inline-flex items-center gap-2"><BadgeCheck size={18} className="text-orange-300" aria-hidden /> Offres comparables</span>
-              <span className="inline-flex items-center gap-2"><CalendarCheck size={18} className="text-orange-300" aria-hidden /> Dates suivies</span>
-              <span className="inline-flex items-center gap-2"><ShieldCheck size={18} className="text-orange-300" aria-hidden /> Échanges centralisés</span>
-            </div>
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-neutral-200 bg-white" aria-label="Garanties du parcours MATLI">
+        <div className="mx-auto grid max-w-7xl divide-y divide-neutral-200 px-4 sm:px-6 md:grid-cols-3 md:divide-x md:divide-y-0 lg:px-8">
+          {[
+            [BadgeCheck, "Offres comparables", "Prix, options et localisation restent lisibles avant la demande."],
+            [CalendarCheck, "Dates suivies", "Les périodes confirmées alimentent les calendriers de disponibilité."],
+            [ShieldCheck, "Échanges centralisés", "Chaque décision et changement de statut reste visible dans votre espace."],
+          ].map(([Icon, title, description]) => {
+            const FeatureIcon = Icon as typeof BadgeCheck;
+            return (
+              <div key={title as string} className="flex gap-3 py-5 md:px-6 md:first:pl-0 md:last:pr-0">
+                <span className="grid size-10 shrink-0 place-items-center rounded-md bg-orange-50 text-orange-700"><FeatureIcon size={19} aria-hidden /></span>
+                <div>
+                  <h2 className="text-sm font-black text-neutral-950">{title as string}</h2>
+                  <p className="mt-1 text-sm leading-6 text-neutral-600">{description as string}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -173,10 +189,10 @@ export default function HowItWorksPage() {
             ))}
           </div>
         </div>
-        <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-lg bg-neutral-950 p-5 text-white sm:flex-row sm:items-center sm:p-7">
+        <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-lg border border-neutral-200 bg-white p-5 sm:flex-row sm:items-center sm:p-7">
           <div>
-            <h2 className="text-xl font-black sm:text-2xl">Votre chantier peut avancer.</h2>
-            <p className="mt-2 text-sm leading-6 text-neutral-300">Consultez les machines disponibles et comparez les offres proches de vous.</p>
+            <h2 className="text-xl font-black text-neutral-950 sm:text-2xl">Votre chantier peut avancer.</h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">Consultez les machines disponibles et comparez les offres proches de vous.</p>
           </div>
           <ButtonLink href="/rentals" className="w-full shrink-0 bg-orange-500 text-white hover:bg-orange-600 sm:w-auto">
             Voir les machines <ChevronRight size={18} aria-hidden />

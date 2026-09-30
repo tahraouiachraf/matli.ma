@@ -1947,7 +1947,7 @@ function EmptyApiState({ label, loading }: { label: string; loading: boolean }) 
 }
 
 function SkeletonRows({ count = 3, tone = "neutral" }: { count?: number; tone?: "neutral" | "orange" }) {
-  const barClass = tone === "orange" ? "bg-orange-100" : "bg-neutral-100";
+  const barClass = tone === "orange" ? "bg-neutral-200" : "bg-neutral-100";
 
   return (
     <div className="grid gap-3" aria-label="Chargement">

@@ -10,10 +10,12 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 export function AuthNav({
   compact = false,
   mobile = false,
+  dark = false,
   onNavigate,
 }: {
   compact?: boolean;
   mobile?: boolean;
+  dark?: boolean;
   onNavigate?: () => void;
 }) {
   const { connected, ready, user, logout: logoutFromProvider } = useAuth();
@@ -59,7 +61,7 @@ export function AuthNav({
   }
 
   if (!ready) {
-    return <div className={`${mobile ? "mt-2 h-11 w-full" : "h-11 w-28"} rounded-md bg-neutral-100`} aria-hidden />;
+    return <div className={`${mobile ? "mt-2 h-11 w-full" : "h-11 w-28"} rounded-md ${dark ? "bg-white/10" : "bg-neutral-100"}`} aria-hidden />;
   }
 
   if (connected) {
@@ -69,7 +71,11 @@ export function AuthNav({
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
-            className="flex w-full items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-3 py-3 text-left text-sm font-black text-neutral-900 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+            className={`flex w-full items-center justify-between gap-3 rounded-md px-3 py-3 text-left text-sm font-black transition ${
+              dark
+                ? "border border-white/15 bg-white/5 text-white hover:border-[#F58220] hover:bg-white/10"
+                : "border border-neutral-200 bg-white text-neutral-900 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+            }`}
             aria-expanded={open}
           >
             <span>Profil</span>
@@ -81,7 +87,7 @@ export function AuthNav({
           </button>
 
           {open ? (
-            <div className="mt-2 grid gap-1 rounded-md border border-neutral-200 bg-neutral-50 p-2">
+            <div className={`mt-2 grid gap-1 rounded-md border p-2 ${dark ? "border-white/10 bg-white/5" : "border-neutral-200 bg-neutral-50"}`}>
               <div className="flex items-center gap-3 px-2 py-2">
                 <div className="grid size-9 shrink-0 place-items-center rounded-full bg-orange-500 text-sm font-black text-white">
                   {(user?.name ?? "Compte MATLI")
@@ -91,8 +97,8 @@ export function AuthNav({
                     .join("")}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-neutral-950">{user?.name ?? "Compte MATLI"}</p>
-                  <p className="truncate text-xs text-neutral-500">{user?.email ?? ""}</p>
+                  <p className={`truncate text-sm font-black ${dark ? "text-white" : "text-neutral-950"}`}>{user?.name ?? "Compte MATLI"}</p>
+                  <p className={`truncate text-xs ${dark ? "text-neutral-400" : "text-neutral-500"}`}>{user?.email ?? ""}</p>
                 </div>
               </div>
               {accountLinks.map(([Icon, label, href]) => (
@@ -102,7 +108,9 @@ export function AuthNav({
                   onClick={onNavigate}
                   aria-current={isActive(href) ? "page" : undefined}
                   className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm font-bold transition ${
-                    isActive(href) ? "bg-white text-orange-600" : "text-neutral-700 hover:bg-white hover:text-orange-600"
+                    isActive(href)
+                      ? dark ? "bg-white/10 text-[#F58220]" : "bg-white text-orange-600"
+                      : dark ? "text-neutral-300 hover:bg-white/10 hover:text-white" : "text-neutral-700 hover:bg-white hover:text-orange-600"
                   }`}
                 >
                   <Icon size={17} aria-hidden />
@@ -112,7 +120,7 @@ export function AuthNav({
               <button
                 type="button"
                 onClick={logout}
-                className="flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-black text-red-600 hover:bg-white"
+                className={`flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-black text-red-500 ${dark ? "hover:bg-white/10" : "hover:bg-white"}`}
               >
                 <LogOut size={17} aria-hidden />
                 Déconnexion
@@ -128,7 +136,11 @@ export function AuthNav({
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-neutral-200 bg-white px-3 text-sm font-bold text-neutral-800 transition hover:border-orange-400 hover:text-orange-600 ${compact ? "w-full" : ""}`}
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-3 text-sm font-bold transition ${
+            dark
+              ? "border-white/15 bg-white/5 text-white hover:border-[#F58220] hover:bg-white/10"
+              : "border-neutral-200 bg-white text-neutral-800 hover:border-orange-400 hover:text-orange-600"
+          } ${compact ? "w-full" : ""}`}
           aria-expanded={open}
           aria-haspopup="menu"
         >
@@ -188,8 +200,27 @@ export function AuthNav({
     );
   }
 
+  if (dark) {
+    return (
+      <Link
+        href="/login"
+        className={mobile
+          ? "mt-2 flex min-h-11 items-center rounded-lg px-2.5 text-sm font-bold text-neutral-300 transition hover:bg-white/5 hover:text-white"
+          : "inline-flex min-h-11 items-center px-3 text-sm font-bold text-neutral-200 transition hover:text-white"}
+        onClick={onNavigate}
+      >
+        {mobile ? "Connexion" : "Se connecter"}
+      </Link>
+    );
+  }
+
   return (
-    <ButtonLink href="/login" variant="secondary" className={mobile ? "mt-2 w-full" : compact ? "px-3" : ""} onClick={onNavigate}>
+    <ButtonLink
+      href="/login"
+      variant="secondary"
+      className={mobile ? "mt-2 w-full" : compact ? "px-3" : ""}
+      onClick={onNavigate}
+    >
       {compact ? "Compte" : "Se connecter"}
     </ButtonLink>
   );

@@ -21,7 +21,7 @@ export function WorkspaceAccessGuard({ children }: { children: React.ReactNode }
   if (ready && connected && !allowed) {
     return (
       <section className="mx-auto grid min-h-[60vh] max-w-7xl place-items-center px-4 py-16" aria-live="polite">
-        <div className="h-12 w-12 animate-pulse rounded-full bg-orange-200" aria-label="Chargement de votre espace" />
+        <div className="h-12 w-12 animate-pulse rounded-full bg-neutral-200" aria-label="Chargement de votre espace" />
       </section>
     );
   }

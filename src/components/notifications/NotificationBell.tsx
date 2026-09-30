@@ -7,10 +7,11 @@ import { getNotificationCenter } from "@/services/api/matli";
 
 type NotificationBellProps = {
   mobile?: boolean;
+  dark?: boolean;
   onNavigate?: () => void;
 };
 
-export function NotificationBell({ mobile = false, onNavigate }: NotificationBellProps) {
+export function NotificationBell({ mobile = false, dark = false, onNavigate }: NotificationBellProps) {
   const { connected, token } = useAuth();
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -27,7 +28,7 @@ export function NotificationBell({ mobile = false, onNavigate }: NotificationBel
         href="/dashboard/notifications"
         onClick={onNavigate}
         aria-label={`${count} notifications non lues`}
-        className="mt-2 flex items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-3 text-sm font-black text-neutral-900 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+        className={`mt-2 flex items-center justify-between rounded-md px-3 py-3 text-sm font-black transition ${dark ? "border border-white/15 bg-white/5 text-white hover:border-[#F58220] hover:bg-white/10" : "border border-neutral-200 bg-white text-neutral-900 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"}`}
       >
         <span className="flex items-center gap-2">
           <Bell size={18} aria-hidden />
@@ -38,5 +39,5 @@ export function NotificationBell({ mobile = false, onNavigate }: NotificationBel
     );
   }
 
-  return <Link href="/dashboard/notifications" aria-label={`${count} notifications non lues`} className="relative grid size-10 place-items-center rounded-md border border-neutral-200 text-neutral-700 hover:border-orange-300 hover:text-orange-700"><Bell size={18} aria-hidden />{count ? <span className="absolute -right-1.5 -top-1.5 grid min-h-5 min-w-5 place-items-center rounded-full bg-orange-500 px-1 text-[10px] font-black text-white">{count > 99 ? "99+" : count}</span> : null}</Link>;
+  return <Link href="/dashboard/notifications" aria-label={`${count} notifications non lues`} className={`relative grid size-10 place-items-center rounded-md border transition ${dark ? "border-white/15 text-neutral-300 hover:border-[#F58220] hover:bg-white/10 hover:text-white" : "border-neutral-200 text-neutral-700 hover:border-orange-300 hover:text-orange-700"}`}><Bell size={18} aria-hidden />{count ? <span className="absolute -right-1.5 -top-1.5 grid min-h-5 min-w-5 place-items-center rounded-full bg-[#F58220] px-1 text-[10px] font-black text-white">{count > 99 ? "99+" : count}</span> : null}</Link>;
 }

@@ -10,8 +10,8 @@ export default function EquipmentDetailLoading() {
             ))}
           </div>
         </div>
-        <aside className="h-fit rounded-xl border border-neutral-200 bg-neutral-50 p-6">
-          <div className="h-6 w-24 animate-pulse rounded bg-amber-100" />
+        <aside className="h-fit rounded-xl border border-neutral-200 bg-white p-6">
+          <div className="h-6 w-24 animate-pulse rounded bg-neutral-200" />
           <div className="mt-5 h-10 w-64 animate-pulse rounded bg-neutral-200" />
           <div className="mt-4 h-5 w-52 animate-pulse rounded bg-neutral-100" />
           <div className="mt-8 h-9 w-40 animate-pulse rounded bg-neutral-200" />
@@ -21,7 +21,7 @@ export default function EquipmentDetailLoading() {
             ))}
           </div>
           <div className="mt-8 grid gap-3">
-            <div className="h-12 animate-pulse rounded-xl bg-orange-100" />
+            <div className="h-12 animate-pulse rounded-xl bg-neutral-200" />
             <div className="h-12 animate-pulse rounded-xl bg-neutral-100" />
           </div>
         </aside>
