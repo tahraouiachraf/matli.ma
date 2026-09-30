@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronRight, Menu, Search, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthNav } from "@/components/layout/AuthNav";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -44,13 +45,11 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-neutral-200/80 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center" aria-label="MATLI accueil">
-          <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>
-        </Link>
+    <header className="sticky top-0 z-50 px-3 pt-2 sm:px-4 sm:pt-3">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between rounded-[22px] border border-neutral-200 bg-white px-3.5 shadow-[0_12px_32px_rgba(23,23,23,0.12)] sm:h-[72px] sm:px-5 xl:px-6">
+        <BrandLogo imageClassName="sm:size-11" textClassName="text-xl sm:text-2xl" />
 
-        <nav className="hidden items-center gap-6 lg:flex" aria-label="Navigation principale">
+        <nav className="hidden items-center gap-5 xl:flex 2xl:gap-7" aria-label="Navigation principale">
           {visibleNav.map(([label, href]) => {
             const active = isActive(href);
 
@@ -59,51 +58,52 @@ export function Header() {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`text-sm font-bold transition ${
-                  active ? "text-orange-700" : "text-neutral-700 hover:text-neutral-950"
+                className={`relative py-2 text-sm font-bold transition-colors ${
+                  active ? "text-[#F58220]" : "text-neutral-600 hover:text-neutral-950"
                 }`}
               >
                 {label}
+                {active ? <span className="absolute inset-x-0 -bottom-1 mx-auto h-0.5 rounded-full bg-[#F58220]" /> : null}
               </Link>
             );
           })}
         </nav>
 
-        <div className="hidden min-w-[210px] items-center justify-end gap-3 lg:flex">
-          <ButtonLink href="/rentals" variant="ghost" className="px-3" aria-label="Rechercher une machine" title="Rechercher une machine">
-            <Search size={18} aria-hidden />
-            <span className="sr-only">Rechercher une machine</span>
-          </ButtonLink>
+        <div className="hidden items-center justify-end gap-2 xl:flex">
           <NotificationBell />
           <AuthNav />
+          {!connected ? (
+            <ButtonLink href="/register" className="ml-1 bg-[#F58220] px-5 text-white shadow-sm hover:bg-[#dd6f12]">
+              S&apos;inscrire
+            </ButtonLink>
+          ) : null}
         </div>
 
         <button
           type="button"
-          className="grid size-11 place-items-center rounded-md border border-neutral-200 lg:hidden"
+          className="grid size-11 place-items-center rounded-xl border border-neutral-200 text-neutral-800 transition hover:border-[#F58220] hover:bg-orange-50 hover:text-[#d9670d] xl:hidden"
           onClick={() => setOpen((value) => !value)}
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-expanded={open}
         >
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
       {open ? (
-        <div className="fixed inset-0 z-[80] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu mobile">
+        <div className="fixed inset-0 z-[80] xl:hidden" role="dialog" aria-modal="true" aria-label="Menu mobile">
           <button
             type="button"
-            className="absolute inset-0 bg-neutral-950/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-neutral-950/15 backdrop-blur-[2px]"
             onClick={() => setOpen(false)}
             aria-label="Fermer le menu"
           />
-          <aside className="relative flex h-dvh w-screen flex-col bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl shadow-neutral-950/25">
-            <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
-              <Link href="/" onClick={() => setOpen(false)} className="flex items-center" aria-label="MATLI accueil">
-                <span className="text-2xl font-black tracking-normal text-orange-500">MATLI</span>
-              </Link>
+          <aside className="relative mx-3 mt-2 max-h-[calc(100dvh-1rem)] w-[calc(100%-1.5rem)] overflow-y-auto rounded-[24px] border border-neutral-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl shadow-neutral-950/20 sm:max-w-sm">
+            <div className="flex items-center justify-between">
+              <BrandLogo onClick={() => setOpen(false)} textClassName="text-xl" />
               <button
                 type="button"
-                className="grid size-10 place-items-center rounded-md border border-neutral-200 text-neutral-700"
+                className="grid size-10 place-items-center rounded-xl border border-neutral-200 text-neutral-800 transition hover:border-[#F58220] hover:bg-orange-50 hover:text-[#d9670d]"
                 onClick={() => setOpen(false)}
                 aria-label="Fermer le menu"
               >
@@ -111,8 +111,8 @@ export function Header() {
               </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto px-4 py-5" aria-label="Navigation mobile">
-              <div className="grid gap-2">
+            <nav className="mt-6" aria-label="Navigation mobile">
+              <div className="grid gap-1">
                 {visibleNav.map(([label, href]) => {
                   const active = isActive(href);
 
@@ -122,29 +122,29 @@ export function Header() {
                       href={href}
                       onClick={() => setOpen(false)}
                       aria-current={active ? "page" : undefined}
-                      className={`flex items-center justify-between rounded-md border px-3 py-3 text-sm font-black transition ${
-                        active
-                          ? "border-orange-200 bg-orange-50 text-orange-600"
-                          : "border-neutral-200 bg-white text-neutral-900 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
-                      }`}
+                      className={`flex min-h-11 items-center rounded-lg px-2.5 py-2 text-sm font-bold transition ${active ? "bg-orange-50 text-[#F58220]" : "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950"}`}
                     >
-                      <span>{label}</span>
-                      <ChevronRight size={17} aria-hidden />
+                      {label}
                     </Link>
                   );
                 })}
               </div>
 
-              <div className="mt-5 rounded-md bg-neutral-50 p-3">
-                <p className="text-xs font-black uppercase text-neutral-500">Compte</p>
+              <div className="mt-4 border-t border-neutral-200 pt-4">
                 <NotificationBell mobile onNavigate={() => setOpen(false)} />
                 <AuthNav mobile onNavigate={() => setOpen(false)} />
               </div>
             </nav>
 
-            {canDeposit ? (
-              <div className="border-t border-neutral-200 p-4">
-                <ButtonLink href="/list-equipment" className="w-full" onClick={() => setOpen(false)}>
+            {!connected ? (
+              <div className="mt-3">
+                <ButtonLink href="/register" className="w-full bg-[#F58220] text-white hover:bg-[#dd6f12]" onClick={() => setOpen(false)}>
+                  Créer mon espace gratuit
+                </ButtonLink>
+              </div>
+            ) : canDeposit ? (
+              <div className="mt-3">
+                <ButtonLink href="/list-equipment" className="w-full bg-[#F58220] text-white hover:bg-[#dd6f12]" onClick={() => setOpen(false)}>
                   Déposer une machine
                 </ButtonLink>
               </div>

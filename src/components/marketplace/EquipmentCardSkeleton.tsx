@@ -4,8 +4,8 @@ export function EquipmentCardSkeleton() {
       <div className="aspect-[16/10] animate-pulse bg-neutral-100" />
       <div className="grid gap-4 p-4 sm:p-5">
         <div className="flex items-center justify-between gap-4">
-          <div className="h-4 w-28 animate-pulse rounded bg-orange-100" />
-          <div className="h-6 w-20 animate-pulse rounded-full bg-emerald-50" />
+          <div className="h-4 w-28 animate-pulse rounded bg-neutral-200" />
+          <div className="h-6 w-20 animate-pulse rounded-full bg-neutral-100" />
         </div>
         <div className="h-6 w-3/5 animate-pulse rounded bg-neutral-200" />
         <div className="grid gap-2">
@@ -17,7 +17,7 @@ export function EquipmentCardSkeleton() {
             <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
             <div className="h-7 w-28 animate-pulse rounded bg-neutral-200" />
           </div>
-          <div className="h-11 w-32 animate-pulse rounded-md bg-orange-100" />
+          <div className="h-11 w-32 animate-pulse rounded-md bg-neutral-200" />
         </div>
       </div>
     </article>

@@ -17,7 +17,7 @@ export function AdminOnlyGuard({ children }: { children: React.ReactNode }) {
   if (!ready || !allowed) {
     return (
       <section className="mx-auto grid min-h-[60vh] max-w-7xl place-items-center px-4 py-16" aria-live="polite">
-        <div className="size-12 animate-pulse rounded-full bg-orange-200" aria-label="Vérification des droits d’accès" />
+        <div className="size-12 animate-pulse rounded-full bg-neutral-200" aria-label="Vérification des droits d’accès" />
       </section>
     );
   }

@@ -15,7 +15,7 @@ export function organizationJsonLd() {
     "@type": "Organization",
     name: siteName,
     url: siteUrl,
-    logo: absoluteUrl("/favicon.ico"),
+    logo: absoluteUrl("/favicon.png"),
     sameAs: ["https://www.instagram.com/matlimaroc/", "https://www.linkedin.com/"],
     contactPoint: {
       "@type": "ContactPoint",

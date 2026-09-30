@@ -20,7 +20,7 @@ export function AuthGuard({
   if (!ready) {
     return (
       <section className="mx-auto grid min-h-[60vh] max-w-7xl place-items-center px-4 py-16 sm:px-6 lg:px-8">
-        <div className="h-12 w-12 animate-pulse rounded-full bg-orange-200" aria-label="Chargement" />
+        <div className="h-12 w-12 animate-pulse rounded-full bg-neutral-200" aria-label="Chargement" />
       </section>
     );
   }

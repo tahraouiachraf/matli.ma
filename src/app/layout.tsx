@@ -82,7 +82,11 @@ export const metadata: Metadata = {
     images: ["/equipment/jcb-3cx-yard.jpg"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/favicon.png",
   },
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
@@ -96,11 +100,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full bg-neutral-50 text-neutral-950">
+      <body suppressHydrationWarning className="min-h-full bg-white text-neutral-950">
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <AuthProvider>
           <Header />
-          <main>{children}</main>
+          <main className="pt-2 sm:pt-3">{children}</main>
           <Footer />
           <MobileBottomNav />
           <AnalyticsConsent />
