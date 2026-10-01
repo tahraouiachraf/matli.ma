@@ -18,7 +18,7 @@ function ProfileSkeleton() {
   return (
     <main className="bg-neutral-50" aria-busy="true">
       <p className="sr-only" role="status">Chargement de l’entreprise</p>
-      <section className="border-b border-orange-100 bg-orange-50 px-4 py-12 sm:px-6 lg:px-8">
+      <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl animate-pulse">
           <div className="size-16 rounded-md bg-orange-200" />
           <div className="mt-5 h-4 w-44 rounded bg-orange-200" />
@@ -148,7 +148,7 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
           },
         }}
       />
-      <section className="border-b border-orange-100 bg-orange-50 px-4 py-12 sm:px-6 lg:px-8">
+      <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="max-w-3xl">
             <div className="grid size-16 place-items-center rounded-md bg-orange-500 text-xl font-black text-white shadow-sm">{company.logo}</div>

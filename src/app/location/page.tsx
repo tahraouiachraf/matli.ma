@@ -139,14 +139,14 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
           pagePath={`/rentals${analyticsQuery ? `?${analyticsQuery}` : ""}`}
         />
       ) : null}
-      <section className="border-b border-orange-100 bg-orange-50 px-4 py-8 sm:px-6 sm:py-14 lg:px-8">
+      <section className="border-b border-neutral-200 bg-white px-4 py-8 sm:px-6 sm:py-14 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-4xl">
+          <div className="max-w-4xl lg:mx-auto lg:text-center">
             <p className="inline-flex items-center gap-2 rounded-md border border-orange-200 bg-white px-3 py-1.5 text-xs font-black uppercase text-orange-700">
               <HardHat size={15} aria-hidden /> Marketplace BTP au Maroc
             </p>
             <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-950 sm:mt-5 sm:text-5xl lg:text-6xl">Trouvez la bonne machine, au bon endroit, au bon prix.</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600 sm:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600 sm:text-lg lg:mx-auto">
               Comparez les matériels disponibles près de votre chantier et envoyez une demande directement au propriétaire.
             </p>
           </div>

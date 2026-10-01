@@ -37,7 +37,7 @@ export function ResponsiveFilters({ children, count }: { children: React.ReactNo
       {open ? (
         <div className="fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label="Filtres de recherche">
           <button type="button" aria-label="Fermer les filtres" onClick={() => setOpen(false)} className="absolute inset-0 bg-neutral-900/35 backdrop-blur-[1px]" />
-          <div id="mobile-marketplace-filters" className="relative h-dvh w-full overflow-y-auto bg-orange-50 p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl sm:w-[min(92vw,420px)]">
+          <div id="mobile-marketplace-filters" className="relative h-dvh w-full overflow-y-auto bg-white p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl sm:w-[min(92vw,420px)]">
             <div className="sticky top-0 z-10 mb-3 flex items-center justify-between rounded-md border border-orange-100 bg-white p-3">
               <div>
                 <p className="font-black text-neutral-950">Affiner la recherche</p>

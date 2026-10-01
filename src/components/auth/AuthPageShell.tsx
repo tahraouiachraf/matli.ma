@@ -31,7 +31,7 @@ export function AuthPageShell({ appearance = "dark", alternativeHref, alternativ
   const displayedBenefits = isDark ? darkBenefits : benefits;
 
   return (
-    <section className={`border-t border-orange-100 ${isDark ? "bg-orange-50/50" : "bg-neutral-50"}`}>
+    <section className={`border-t border-neutral-200 ${isDark ? "bg-white" : "bg-neutral-50"}`}>
       <div className="mx-auto grid max-w-7xl items-center px-3 py-3 sm:min-h-[calc(100vh-100px)] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
         <div className={`mx-auto grid min-w-0 max-w-full overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-[0_24px_70px_rgba(23,23,23,0.10)] lg:w-full ${isDark ? "lg:grid-cols-[1.12fr_0.88fr]" : "lg:grid-cols-[0.88fr_1.12fr]"}`}>
           <div

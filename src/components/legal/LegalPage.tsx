@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 export function LegalPage({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
   return (
     <main className="bg-neutral-50">
-      <section className="border-b border-orange-100 bg-orange-50"><div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
+      <section className="border-b border-neutral-200 bg-white"><div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
         <p className="text-sm font-black uppercase text-orange-700">Informations légales</p>
         <h1 className="mt-3 text-3xl font-black text-neutral-950 sm:text-5xl">{title}</h1>
         <p className="mt-4 max-w-3xl leading-7 text-neutral-700">{intro}</p>

@@ -22,7 +22,7 @@ export default async function NewsPage() {
 
   return (
     <main>
-      <section className="border-b border-orange-100 bg-orange-50/60">
+      <section className="border-b border-neutral-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
           <span className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700"><Newspaper size={18} aria-hidden /> Actualités MATLI</span>
           <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight text-neutral-950 sm:text-5xl">Le terrain, les machines et la location BTP au Maroc.</h1>
