@@ -227,7 +227,7 @@ export default async function Home() {
 
       <RequestsPreviewSection requests={requests} />
 
-      <section id="proprietaires" className="border-y border-orange-100 bg-orange-50/50">
+      <section id="proprietaires" className="border-y border-neutral-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:px-8">
           <div className="max-w-xl">
             <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700">

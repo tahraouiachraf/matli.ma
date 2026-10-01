@@ -66,7 +66,7 @@ export function CompaniesDirectory({ initialCompanies }: { initialCompanies: Com
 
   return (
     <main className="bg-neutral-50">
-      <section className="border-b border-orange-100 bg-orange-50 px-4 py-12 sm:px-6 lg:px-8">
+      <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>
             <p className="inline-flex items-center gap-2 text-sm font-black text-orange-700">
