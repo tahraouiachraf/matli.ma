@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { BadgeCheck, CalendarCheck, CalendarDays, ChevronRight, CircleHelp, ClipboardCheck, Clock3, Handshake, HardHat, MapPin, Search, ShieldCheck, Truck, UserRoundCheck } from "lucide-react";
 import { FunctioningExperience } from "@/components/sections/FunctioningExperience";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -40,16 +39,15 @@ export default function HowItWorksPage() {
       <JsonLd data={faqJsonLd} />
       <section className="bg-white px-3 pb-8 pt-5 sm:px-6 sm:pb-12 sm:pt-8 lg:px-8">
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-xl border border-orange-400 bg-orange-500 text-white shadow-2xl shadow-orange-950/10">
-          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] border-l border-white/15 bg-white/[0.06] lg:block" aria-hidden />
-          <div className="relative grid items-center gap-4 px-5 py-9 sm:px-9 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:px-12 lg:py-14">
-            <div className="min-w-0 animate-fade-up">
+          <div className="relative px-5 py-9 sm:px-9 sm:py-12 lg:px-12 lg:py-14">
+            <div className="min-w-0 max-w-4xl animate-fade-up">
               <p className="inline-flex items-center gap-2 text-xs font-black uppercase text-white/90">
                 <HardHat size={16} aria-hidden /> Le mode d&apos;emploi MATLI
               </p>
               <h1 className="mt-4 max-w-2xl text-3xl font-black leading-[1.08] sm:text-5xl lg:text-[3.4rem]">
                 La bonne machine, au bon moment, avec un suivi clair.
               </h1>
-              <p className="mt-5 max-w-xl text-base font-semibold leading-7 text-white/90 sm:text-lg sm:leading-8">
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-white/90 sm:text-lg sm:leading-8">
                 Recherchez, comparez et demandez une location en quelques étapes. Chaque échange, date et décision reste accessible depuis votre espace.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -60,33 +58,13 @@ export default function HowItWorksPage() {
                   Proposer mon matériel <ChevronRight size={18} aria-hidden />
                 </ButtonLink>
               </div>
-              <div className="mt-7 grid grid-cols-3 gap-2 border-t border-white/25 pt-5 text-center sm:max-w-lg sm:text-left">
+              <div className="mt-7 grid grid-cols-3 gap-2 border-t border-white/25 pt-5 text-center sm:max-w-xl sm:text-left">
                 {[["2", "parcours"], ["5", "étapes guidées"], ["1", "espace de suivi"]].map(([value, label]) => (
                   <div key={label} className="min-w-0">
                     <strong className="block text-xl font-black sm:text-2xl">{value}</strong>
                     <span className="mt-0.5 block text-[11px] font-bold leading-4 text-white/80 sm:text-xs">{label}</span>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="relative hidden min-h-[330px] overflow-hidden rounded-lg border border-white/30 bg-white shadow-2xl shadow-orange-950/20 sm:block lg:min-h-[390px]">
-              <Image
-                src="/equipment/jcb-3cx-studio.png"
-                alt="Tractopelle professionnel présenté de face"
-                fill
-                priority
-                sizes="(min-width: 1024px) 48vw, 90vw"
-                className="object-contain object-center transition duration-700 hover:scale-[1.02]"
-              />
-              <div className="absolute bottom-3 left-1/2 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 border border-white/30 bg-white px-4 py-3 text-neutral-950 shadow-xl sm:bottom-5 sm:px-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-orange-700">Votre demande</p>
-                    <p className="mt-1 text-sm font-black">Complète, suivie et horodatée</p>
-                  </div>
-                  <BadgeCheck className="shrink-0 text-orange-500" size={24} aria-hidden />
-                </div>
               </div>
             </div>
           </div>
