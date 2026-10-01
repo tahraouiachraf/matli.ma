@@ -63,6 +63,8 @@ const nextConfig: NextConfig = {
       { source: "/dashboard/calendar", destination: "/espace/calendrier" },
       { source: "/dashboard/requests", destination: "/espace/demandes" },
       { source: "/dashboard/rentals", destination: "/espace/locations" },
+      { source: "/dashboard/equipment/new", destination: "/espace/materiel/nouveau" },
+      { source: "/dashboard/equipment/:id/edit", destination: "/espace/materiel/:id/modifier" },
       { source: "/dashboard/equipment", destination: "/espace/materiel" },
       { source: "/dashboard/operators", destination: "/espace/operateurs" },
       { source: "/dashboard/settings", destination: "/espace/parametres" },
