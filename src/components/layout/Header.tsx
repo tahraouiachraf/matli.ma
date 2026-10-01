@@ -9,7 +9,7 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 const nav = [
   ["Accueil", "/"],
@@ -23,7 +23,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { connected, user } = useAuth();
-  const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
+  const canDeposit = connected && isOwnerWorkspaceRole(getWorkspaceRole(user));
   const visibleNav = nav.filter(([, href]) => href !== "/list-equipment" || canDeposit);
 
   useEffect(() => {

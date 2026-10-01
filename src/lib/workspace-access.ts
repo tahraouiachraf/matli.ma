@@ -46,7 +46,7 @@ export function isAdminWorkspaceRole(role: WorkspaceRole) {
 
 export function canAccessWorkspacePath(role: WorkspaceRole, pathname: string) {
   if (pathname === "/dashboard/equipment" || pathname.startsWith("/dashboard/equipment/")) {
-    return isAdminWorkspaceRole(role);
+    return isOwnerWorkspaceRole(role);
   }
 
   return isOwnerWorkspaceRole(role) || clientWorkspacePaths.has(pathname);

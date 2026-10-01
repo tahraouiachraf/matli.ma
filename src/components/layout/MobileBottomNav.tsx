@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -15,7 +15,7 @@ export function MobileBottomNav() {
     || pathname === "/register"
     || pathname === "/forgot-password"
     || pathname === "/reset-password";
-  const canDeposit = connected && isAdminWorkspaceRole(getWorkspaceRole(user));
+  const canDeposit = connected && isOwnerWorkspaceRole(getWorkspaceRole(user));
   const items: Array<[LucideIcon, string, string]> = [
     [Home, "Accueil", "/"],
     [Search, "Louer", "/rentals"],
