@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { ImagePlus, Images, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { categories, cities } from "@/lib/data";
 import { createWorkspaceEquipment, updateWorkspaceEquipment, uploadEquipmentImage } from "@/services/api/matli";
@@ -19,6 +20,18 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [primaryImage, setPrimaryImage] = useState<File | null>(null);
+  const [galleryImages, setGalleryImages] = useState<File[]>([]);
+  const primaryPreview = useMemo(() => primaryImage ? URL.createObjectURL(primaryImage) : null, [primaryImage]);
+  const galleryPreviews = useMemo(() => galleryImages.map((file) => ({ file, url: URL.createObjectURL(file) })), [galleryImages]);
+
+  useEffect(() => () => {
+    if (primaryPreview) URL.revokeObjectURL(primaryPreview);
+  }, [primaryPreview]);
+
+  useEffect(() => () => {
+    galleryPreviews.forEach(({ url }) => URL.revokeObjectURL(url));
+  }, [galleryPreviews]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,9 +45,13 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       .split("\n")
       .map((item) => item.trim())
       .filter(Boolean);
-    const imageFiles = formData.getAll("images").filter((file): file is File => file instanceof File && file.size > 0);
+    const imageFiles = [primaryImage, ...galleryImages]
+      .filter((file): file is File => file !== null);
 
     try {
+      if (!equipment && !primaryImage) {
+        throw new Error("Ajoutez une photo principale pour publier ce matériel.");
+      }
       if (imageFiles.length > 8) {
         throw new Error("Vous pouvez ajouter jusqu’à 8 photos par matériel.");
       }
@@ -72,6 +89,8 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       if (equipment) onUpdated?.(item);
       else onCreated?.(item);
       form.reset();
+      setPrimaryImage(null);
+      setGalleryImages([]);
       setMessage(equipment ? "Machine modifiée et envoyée en validation." : "Machine ajoutée et envoyée en validation.");
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Merci de vérifier les informations puis de réessayer.");
@@ -170,12 +189,48 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           Sponsorisé
         </label>
       </div>
-      <label className="grid gap-2 text-sm font-semibold md:col-span-2">
-        Photos du matériel
-        <input name="images" type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" className="min-h-12 rounded-md border border-neutral-200 bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700" />
-        <span className="text-xs font-normal text-neutral-500">Jusqu’à 8 photos. La première devient la photo principale. JPEG, PNG, WebP ou AVIF, 8 Mo maximum par image.</span>
-        {equipment?.images?.length ? <span className="text-xs font-semibold text-orange-700">{equipment.images.length} photo(s) actuellement enregistrée(s). Choisir de nouvelles photos remplacera la galerie.</span> : null}
-      </label>
+      <fieldset className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4 md:col-span-2 sm:p-5">
+        <legend className="text-base font-black text-neutral-950">Photos du matériel</legend>
+        <p className="-mt-3 text-sm leading-6 text-neutral-600">Présentez clairement la machine avec une photo principale et plusieurs angles complémentaires.</p>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+          <div className="grid gap-3 rounded-xl border border-dashed border-neutral-300 bg-white p-4 text-sm font-semibold transition hover:border-orange-400">
+            <label htmlFor="equipment-primary-image" className="flex items-center gap-2 text-neutral-950"><ImagePlus size={19} className="text-orange-600" aria-hidden /> Photo principale {!equipment ? <span className="text-red-600">*</span> : null}</label>
+            <input
+              id="equipment-primary-image"
+              name="primary_image"
+              type="file"
+              required={!equipment}
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              onChange={(event) => setPrimaryImage(event.target.files?.[0] ?? null)}
+              className="text-xs font-normal text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700"
+            />
+            {primaryPreview ? <span className="block aspect-[16/10] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${primaryPreview})` }} aria-label="Aperçu de la photo principale" /> : equipment?.image ? <span className="block aspect-[16/10] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${equipment.image})` }} aria-label="Photo principale actuelle" /> : <span className="grid aspect-[16/10] place-items-center rounded-lg bg-neutral-100 text-center text-xs font-semibold text-neutral-500">La photo utilisée dans les résultats de recherche</span>}
+          </div>
+          <div className="grid content-start gap-3 rounded-xl border border-dashed border-neutral-300 bg-white p-4 text-sm font-semibold transition hover:border-orange-400">
+            <label htmlFor="equipment-gallery-images" className="flex items-center gap-2 text-neutral-950"><Images size={19} className="text-orange-600" aria-hidden /> Images supplémentaires</label>
+            <input
+              id="equipment-gallery-images"
+              name="gallery_images"
+              type="file"
+              multiple
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              onChange={(event) => setGalleryImages(Array.from(event.target.files ?? []).slice(0, 7))}
+              className="text-xs font-normal text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700"
+            />
+            {galleryPreviews.length ? (
+              <span className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {galleryPreviews.map(({ file, url }, index) => (
+                  <span key={`${file.name}-${file.lastModified}`} className="group relative aspect-square rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} title={file.name}>
+                    <button type="button" onClick={(event) => { event.preventDefault(); setGalleryImages((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-white text-neutral-800 shadow" aria-label={`Retirer ${file.name}`}><X size={14} aria-hidden /></button>
+                  </span>
+                ))}
+              </span>
+            ) : <span className="grid min-h-28 place-items-center rounded-lg bg-neutral-100 px-4 text-center text-xs font-semibold text-neutral-500">Ajoutez jusqu’à 7 vues : côtés, cabine, godet et état général.</span>}
+          </div>
+        </div>
+        <p className="text-xs leading-5 text-neutral-500">JPEG, PNG, WebP ou AVIF. 8 Mo maximum par image, 8 photos au total.</p>
+        {equipment?.images?.length ? <p className="text-xs font-semibold text-orange-700">{equipment.images.length} photo(s) actuellement enregistrée(s). Ajouter de nouvelles images remplacera la galerie actuelle.</p> : null}
+      </fieldset>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description
         <textarea name="description" defaultValue={equipment?.description} className="min-h-28 rounded-md border border-neutral-200 p-3 font-normal outline-none focus:border-orange-500" placeholder="État de la machine, accessoires, conditions de location..." />

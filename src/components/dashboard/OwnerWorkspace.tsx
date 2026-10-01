@@ -14,7 +14,6 @@ import {
   Search,
   UserRound,
   UsersRound,
-  Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -24,7 +23,7 @@ import { trackCommercialEvent } from "@/lib/commercial-analytics";
 import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusLabels, statusLabels } from "@/lib/data";
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { getWorkspaceRole, isAdminWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import {
@@ -62,11 +61,8 @@ export const ownerMenu: WorkspaceMenuItem[] = [
   ["Tableau de bord", "/dashboard", LayoutDashboard],
   ["Mon matériel", "/dashboard/equipment", HardHat],
   ["Locations", "/dashboard/rentals", FolderKanban],
-  ["Demandes", "/dashboard/requests", Bell],
   ["Calendrier", "/dashboard/calendar", CalendarDays],
-  ["Maintenance", "/dashboard/maintenance", Wrench],
   ["Clients", "/dashboard/clients", UsersRound],
-  ["Opérateurs", "/dashboard/operators", HardHat],
   ["Statistiques", "/dashboard/statistics", ChartNoAxesCombined],
   ["Notifications", "/dashboard/notifications", Bell],
   ["Profil", "/profile", UserRound],
@@ -197,8 +193,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   const [reservationError, setReservationError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
-  const [confirmEquipmentDelete, setConfirmEquipmentDelete] = useState<string | null>(null);
+  const [confirmEquipmentDelete, setConfirmEquipmentDelete] = useState<Equipment | null>(null);
   const [equipmentAction, setEquipmentAction] = useState<string | null>(null);
   const [reservationAction, setReservationAction] = useState<{ id: string; status: string } | null>(null);
 
@@ -394,22 +389,9 @@ export function OwnerSectionContent({ section }: { section: string }) {
         description="Ajoutez vos machines, gardez vos prix à jour et suivez la disponibilité de chaque matériel."
         loading={loading}
         actionLabel="Ajouter un matériel"
+        actionHref="/dashboard/equipment/new"
       >
         {apiError ? <InlineApiError /> : null}
-        <div className="mb-6">
-          <OwnerFormBlock title={editingEquipment ? "Modifier le matériel" : "Ajouter un matériel"} description="Toute création ou modification est envoyée à l’administration pour validation avant publication.">
-            <DepositMachineForm
-              key={editingEquipment?.backendId ?? "new-equipment"}
-              equipment={editingEquipment}
-              onCancel={() => setEditingEquipment(null)}
-              onCreated={(item) => setWorkspaceEquipment((current) => [item, ...(current ?? [])])}
-              onUpdated={(item) => {
-                setWorkspaceEquipment((current) => (current ?? []).map((row) => row.backendId === item.backendId ? item : row));
-                setEditingEquipment(null);
-              }}
-            />
-          </OwnerFormBlock>
-        </div>
         {uiNotice ? <p className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{uiNotice}</p> : null}
         {!apiError && items.length ? (
           <div className="grid gap-4">
@@ -426,26 +408,31 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">{statusLabels[item.status]}</span>
                   {item.operator ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Avec opérateur</span> : null}
                   {item.delivery ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700">Livraison</span> : null}
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-                    {item.archivedAt ? "Archivée" : ({ draft: "Brouillon", pending_review: "En validation", approved: "Validée", rejected: "Refusée" }[item.moderationStatus ?? "approved"])}
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.archivedAt ? "bg-neutral-100 text-neutral-600" : "bg-emerald-50 text-emerald-700"}`}>
+                    {item.archivedAt ? "Désactivée" : "Active"}
                   </span>
+                  {!item.archivedAt ? <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{{ draft: "Brouillon", pending_review: "En validation", approved: "Validée", rejected: "Refusée" }[item.moderationStatus ?? "approved"]}</span> : null}
                 </div>
                 {item.moderationNotes ? <p className="mt-2 text-xs font-semibold text-red-700">{item.moderationNotes}</p> : null}
               </div>
               <div className="grid gap-2 sm:flex md:grid">
-                <button type="button" disabled={Boolean(item.archivedAt)} onClick={() => setEditingEquipment(item)} className="rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white disabled:opacity-40">Modifier</button>
-                <button type="button" disabled={equipmentAction === item.backendId} onClick={() => changeEquipmentState(item, item.archivedAt ? "restore" : "archive")} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-bold disabled:opacity-40">{item.archivedAt ? "Restaurer" : "Archiver"}</button>
+                {item.backendId && !item.archivedAt ? <Link href={`/dashboard/equipment/${item.backendId}/edit`} className="rounded-lg bg-neutral-950 px-4 py-2 text-center text-sm font-black text-white">Modifier</Link> : <span className="rounded-lg bg-neutral-200 px-4 py-2 text-center text-sm font-black text-neutral-500">Modifier</span>}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={!item.archivedAt}
+                  aria-label={`${item.archivedAt ? "Activer" : "Désactiver"} ${item.title}`}
+                  disabled={equipmentAction === item.backendId}
+                  onClick={() => changeEquipmentState(item, item.archivedAt ? "restore" : "archive")}
+                  className="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-neutral-200 px-3 text-sm font-bold text-neutral-700 disabled:opacity-40"
+                >
+                  <span className={`relative h-6 w-11 rounded-full transition ${item.archivedAt ? "bg-neutral-300" : "bg-orange-500"}`} aria-hidden>
+                    <span className={`absolute top-1 size-4 rounded-full bg-white shadow transition ${item.archivedAt ? "left-1" : "left-6"}`} />
+                  </span>
+                  {equipmentAction === item.backendId ? "Mise à jour..." : item.archivedAt ? "Activer" : "Désactiver"}
+                </button>
                 {item.moderationStatus === "rejected" || item.moderationStatus === "draft" ? <button type="button" onClick={() => changeEquipmentState(item, "submit")} className="rounded-lg border border-orange-200 px-4 py-2 text-sm font-bold text-orange-700">Envoyer en validation</button> : null}
-                <button type="button" onClick={() => setConfirmEquipmentDelete(item.backendId ?? null)} className="rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700">Supprimer</button>
-                {confirmEquipmentDelete === item.backendId ? (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                    <p className="text-xs font-bold text-red-800">Supprimer définitivement cette machine ?</p>
-                    <div className="mt-2 flex gap-2">
-                      <button type="button" disabled={equipmentAction === item.backendId} onClick={() => removeEquipment(item)} className="rounded-md bg-red-600 px-3 py-2 text-xs font-black text-white">Confirmer</button>
-                      <button type="button" onClick={() => setConfirmEquipmentDelete(null)} className="rounded-md bg-white px-3 py-2 text-xs font-bold">Retour</button>
-                    </div>
-                  </div>
-                ) : null}
+                <button type="button" onClick={() => setConfirmEquipmentDelete(item)} className="rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700">Supprimer</button>
               </div>
             </div>
             ))}
@@ -453,6 +440,15 @@ export function OwnerSectionContent({ section }: { section: string }) {
         ) : !apiError ? (
           <EmptyApiState loading={loading} label="Aucune machine trouvée dans votre compte." />
         ) : null}
+        <ConfirmationModal
+          open={Boolean(confirmEquipmentDelete)}
+          busy={Boolean(confirmEquipmentDelete?.backendId && equipmentAction === confirmEquipmentDelete.backendId)}
+          title="Retirer ce matériel ?"
+          description={`${confirmEquipmentDelete?.title ?? "Ce matériel"} ne sera plus visible dans votre espace ni dans le catalogue. Ses données resteront conservées dans la base pour l’historique.`}
+          confirmLabel="Retirer le matériel"
+          onCancel={() => setConfirmEquipmentDelete(null)}
+          onConfirm={() => { if (confirmEquipmentDelete) void removeEquipment(confirmEquipmentDelete); }}
+        />
       </DashboardPanel>
     );
   }
@@ -1184,6 +1180,7 @@ function ClientMetric({ label, value }: { label: string; value: string }) {
 }
 
 function DashboardPanel({
+  actionHref,
   children,
   description,
   actionLabel = "Nouvelle action",
@@ -1191,6 +1188,7 @@ function DashboardPanel({
   onAction,
   title,
 }: {
+  actionHref?: string;
   children: React.ReactNode;
   description: string;
   actionLabel?: string | null;
@@ -1206,9 +1204,15 @@ function DashboardPanel({
           <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">{description}</p>
         </div>
         {actionLabel ? (
-          <button type="button" disabled={loading} onClick={onAction} className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-wait disabled:bg-orange-200">
-            {loading ? <span className="block h-4 w-28 animate-pulse rounded-full bg-white/70" aria-label="Chargement" /> : actionLabel}
-          </button>
+          actionHref && !loading ? (
+            <Link href={actionHref} className="inline-flex h-11 items-center justify-center rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
+              {actionLabel}
+            </Link>
+          ) : (
+            <button type="button" disabled={loading} onClick={onAction} className="h-11 rounded-xl bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600 disabled:cursor-wait disabled:bg-orange-200">
+              {loading ? <span className="block h-4 w-28 animate-pulse rounded-full bg-white/70" aria-label="Chargement" /> : actionLabel}
+            </button>
+          )
         ) : null}
       </div>
       {children}

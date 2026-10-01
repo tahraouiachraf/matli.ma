@@ -506,6 +506,12 @@ export function getWorkspaceEquipmentStrict(token?: string | null) {
   return apiRequest<ApiListResponse<ApiEquipment>>("/workspace/equipment?per_page=30", { token }).then((payload) => listData(payload).map(mapEquipment));
 }
 
+export function getWorkspaceEquipmentItem(id: string, token?: string | null) {
+  if (!token) throw new Error("Authentification requise.");
+
+  return apiRequest<ApiEquipment>(`/workspace/equipment/${id}`, { token }).then(mapEquipment);
+}
+
 export type CreateEquipmentPayload = {
   category_slug: string;
   title: string;
