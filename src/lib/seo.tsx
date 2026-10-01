@@ -3,7 +3,7 @@ import type { Equipment } from "@/types";
 export const siteUrl = "https://www.matli.ma";
 export const siteName = "MATLI.ma";
 export const siteDescription =
-  "Marketplace marocaine pour louer, comparer et déposer des machines BTP: tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses.";
+  "Location de matériel BTP au Maroc: comparez JCB 3CX, tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses sur MATLI.ma.";
 
 export function absoluteUrl(path = "") {
   return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
@@ -34,7 +34,7 @@ export function websiteJsonLd() {
     url: siteUrl,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${absoluteUrl("/rentals")}?category={search_term_string}`,
+      target: `${absoluteUrl("/rentals")}?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -42,6 +42,7 @@ export function websiteJsonLd() {
 
 export function marketplaceJsonLd() {
   const categories = [
+    { name: "JCB 3CX", slug: "?brand=JCB&model=3CX" },
     { name: "Tractopelles", slug: "tractopelles" },
     { name: "Mini-pelles", slug: "mini-pelles" },
     { name: "Chariots télescopiques", slug: "chariots-telescopiques" },
@@ -57,7 +58,9 @@ export function marketplaceJsonLd() {
       "@type": "ListItem",
       position: index + 1,
       name: category.name,
-      url: absoluteUrl(`/rentals?category=${category.slug}`),
+      url: category.slug.startsWith("?")
+        ? absoluteUrl(`/rentals${category.slug}`)
+        : absoluteUrl(`/rentals?category=${category.slug}`),
     })),
   };
 }

@@ -22,27 +22,48 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
   const params = await searchParams;
   const category = singleParam(params?.category);
   const city = singleParam(params?.city);
+  const brand = singleParam(params?.brand);
+  const model = singleParam(params?.model);
+  const search = singleParam(params?.q);
+  const machineName = [brand, model].filter(Boolean).join(" ") || search;
   const titleParts = [
-    "Location matériel BTP",
+    machineName ? `Location ${machineName}` : "Location matériel BTP",
     category ? readableSlug(category) : null,
     city ? `à ${city}` : "au Maroc",
   ].filter(Boolean);
   const query = new URLSearchParams();
+  if (search) query.set("q", search);
   if (category) query.set("category", category);
   if (city) query.set("city", city);
+  if (brand) query.set("brand", brand);
+  if (model) query.set("model", model);
   const canonical = query.toString() ? `/rentals?${query.toString()}` : "/rentals";
+  const description = machineName
+    ? `Comparez les offres de ${machineName} disponibles ${city ? `à ${city}` : "au Maroc"}, les prix par jour, la livraison et les options avec ou sans opérateur.`
+    : city
+      ? `Comparez les prix des machines BTP disponibles à ${city}: tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses.`
+      : "Comparez les prix de tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses à louer au Maroc.";
 
   return {
     title: `${titleParts.join(" ")} - Engins disponibles`,
-    description: city
-      ? `Comparez les prix des machines BTP disponibles à ${city}: tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses.`
-      : "Comparez les prix de tractopelles, mini-pelles, chariots télescopiques, pelles et chargeuses à louer au Maroc.",
+    description,
+    keywords: [
+      "location matériel BTP Maroc",
+      "matériel BTP",
+      "JCB 3CX",
+      "location mini pelle",
+      "location telescopic",
+      "location chargeuse",
+      machineName ? `location ${machineName} Maroc` : "machines BTP à louer",
+      category ? `location ${readableSlug(category)} Maroc` : "engins de chantier Maroc",
+      city ? `location matériel BTP ${city}` : "location machines BTP Maroc",
+    ],
     alternates: {
       canonical,
     },
     openGraph: {
       title: `${titleParts.join(" ")} | MATLI`,
-      description: "Trouvez des machines BTP disponibles, comparez les prix et contactez les propriétaires au Maroc.",
+      description,
       url: canonical,
       type: "website",
       images: ["/matli-social-preview.webp"],
