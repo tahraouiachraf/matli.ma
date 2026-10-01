@@ -7,11 +7,11 @@ export async function MachinesSection() {
   const categories = await getCategoriesStrict().catch(() => fallbackCategories);
 
   return (
-    <section id="categories" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <section id="categories" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 lg:px-8">
       <SectionHeading
         eyebrow="Machines"
         title="Quel type de machine voulez-vous louer ?"
-        description="Une taxonomie simple pour les besoins terrain: terrassement, levage, manutention, travaux publics et chargement. Chaque catégorie pourra ensuite recevoir ses propres filtres avancés."
+        description="Choisissez la catégorie adaptée à votre chantier, puis comparez les modèles, les tarifs, les options et les disponibilités près de chez vous."
       />
       <div className="mt-10">
         <CategoryGrid items={categories} />

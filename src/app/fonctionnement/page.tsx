@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { BadgeCheck, CalendarCheck, CalendarDays, ChevronRight, CircleHelp, ClipboardCheck, Clock3, HardHat, MapPin, Search, ShieldCheck, Truck, UserRoundCheck } from "lucide-react";
+import { BadgeCheck, CalendarCheck, CalendarDays, ChevronRight, CircleHelp, ClipboardCheck, Clock3, Handshake, HardHat, MapPin, Search, ShieldCheck, Truck, UserRoundCheck } from "lucide-react";
 import { FunctioningExperience } from "@/components/sections/FunctioningExperience";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { JsonLd } from "@/lib/seo";
@@ -38,53 +38,77 @@ export default function HowItWorksPage() {
   return (
     <>
       <JsonLd data={faqJsonLd} />
-      <section className="relative isolate min-h-[560px] overflow-hidden bg-neutral-950 text-white sm:min-h-[580px] lg:min-h-[540px]">
-        <Image
-          src="/equipment/jcb-excavator-quarry.jpg"
-          alt="Pelle sur chenilles en activité sur un chantier"
-          fill
-          priority
-          sizes="100vw"
-          className="function-hero-image -z-20 object-cover object-[62%_center]"
-        />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-neutral-950/90 via-neutral-950/70 to-neutral-950/25" />
-        <div className="mx-auto flex min-h-[560px] max-w-7xl items-center px-4 py-10 sm:min-h-[580px] sm:px-6 sm:py-14 lg:min-h-[540px] lg:px-8">
-          <div className="min-w-0 max-w-3xl">
-            <p className="inline-flex items-center gap-2 rounded-md border border-white/25 bg-neutral-950/35 px-3 py-1.5 text-xs font-black uppercase text-orange-300 backdrop-blur-sm">
-              <HardHat size={15} aria-hidden /> Comment fonctionne MATLI ?
-            </p>
-            <h1 className="mt-5 max-w-3xl text-3xl font-black leading-tight sm:text-5xl lg:text-[3.5rem]">
-              Louer du matériel BTP devient simple et transparent.
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-200 sm:text-lg sm:leading-8">
-              Trouvez une machine, comparez les conditions et envoyez votre demande. Le propriétaire confirme la disponibilité et organise la location avec vous.
-            </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/rentals" className="bg-orange-500 text-white hover:bg-orange-600">
-                <Search size={18} aria-hidden /> Trouver une machine
-              </ButtonLink>
-              <ButtonLink href="/register" className="border border-white bg-white text-neutral-950 hover:bg-neutral-100">
-                Créer mon compte <ChevronRight size={18} aria-hidden />
-              </ButtonLink>
+      <section className="bg-white px-3 pb-8 pt-5 sm:px-6 sm:pb-12 sm:pt-8 lg:px-8">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-xl border border-orange-400 bg-orange-500 text-white shadow-2xl shadow-orange-950/10">
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] border-l border-white/15 bg-white/[0.06] lg:block" aria-hidden />
+          <div className="relative grid items-center gap-4 px-5 py-9 sm:px-9 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:px-12 lg:py-14">
+            <div className="min-w-0 animate-fade-up">
+              <p className="inline-flex items-center gap-2 text-xs font-black uppercase text-white/90">
+                <HardHat size={16} aria-hidden /> Le mode d&apos;emploi MATLI
+              </p>
+              <h1 className="mt-4 max-w-2xl text-3xl font-black leading-[1.08] sm:text-5xl lg:text-[3.4rem]">
+                La bonne machine, au bon moment, avec un suivi clair.
+              </h1>
+              <p className="mt-5 max-w-xl text-base font-semibold leading-7 text-white/90 sm:text-lg sm:leading-8">
+                Recherchez, comparez et demandez une location en quelques étapes. Chaque échange, date et décision reste accessible depuis votre espace.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <ButtonLink href="/rentals" className="bg-white text-neutral-950 hover:bg-orange-50">
+                  <Search size={18} aria-hidden /> Voir les machines
+                </ButtonLink>
+                <ButtonLink href="/register" className="border border-white/60 bg-transparent text-white hover:bg-white/10">
+                  Proposer mon matériel <ChevronRight size={18} aria-hidden />
+                </ButtonLink>
+              </div>
+              <div className="mt-7 grid grid-cols-3 gap-2 border-t border-white/25 pt-5 text-center sm:max-w-lg sm:text-left">
+                {[["2", "parcours"], ["5", "étapes guidées"], ["1", "espace de suivi"]].map(([value, label]) => (
+                  <div key={label} className="min-w-0">
+                    <strong className="block text-xl font-black sm:text-2xl">{value}</strong>
+                    <span className="mt-0.5 block text-[11px] font-bold leading-4 text-white/80 sm:text-xs">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative hidden min-h-[330px] overflow-hidden rounded-lg border border-white/30 bg-white shadow-2xl shadow-orange-950/20 sm:block lg:min-h-[390px]">
+              <Image
+                src="/equipment/jcb-3cx-studio.png"
+                alt="Tractopelle professionnel présenté de face"
+                fill
+                priority
+                sizes="(min-width: 1024px) 48vw, 90vw"
+                className="object-contain object-center transition duration-700 hover:scale-[1.02]"
+              />
+              <div className="absolute bottom-3 left-1/2 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 border border-white/30 bg-white px-4 py-3 text-neutral-950 shadow-xl sm:bottom-5 sm:px-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase text-orange-700">Votre demande</p>
+                    <p className="mt-1 text-sm font-black">Complète, suivie et horodatée</p>
+                  </div>
+                  <BadgeCheck className="shrink-0 text-orange-500" size={24} aria-hidden />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-neutral-200 bg-white" aria-label="Garanties du parcours MATLI">
-        <div className="mx-auto grid max-w-7xl divide-y divide-neutral-200 px-4 sm:px-6 md:grid-cols-3 md:divide-x md:divide-y-0 lg:px-8">
+      <section className="border-y border-neutral-200 bg-neutral-50" aria-label="Les cinq étapes MATLI">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 px-4 sm:px-6 md:grid-cols-5 lg:px-8">
           {[
-            [BadgeCheck, "Offres comparables", "Prix, options et localisation restent lisibles avant la demande."],
-            [CalendarCheck, "Dates suivies", "Les périodes confirmées alimentent les calendriers de disponibilité."],
-            [ShieldCheck, "Échanges centralisés", "Chaque décision et changement de statut reste visible dans votre espace."],
-          ].map(([Icon, title, description]) => {
-            const FeatureIcon = Icon as typeof BadgeCheck;
+            [Search, "01", "Rechercher"],
+            [BadgeCheck, "02", "Comparer"],
+            [CalendarDays, "03", "Choisir les dates"],
+            [ClipboardCheck, "04", "Demander"],
+            [Handshake, "05", "Louer"],
+          ].map(([Icon, number, label], index) => {
+            const StepIcon = Icon as typeof Search;
             return (
-              <div key={title as string} className="flex gap-3 py-5 md:px-6 md:first:pl-0 md:last:pr-0">
-                <span className="grid size-10 shrink-0 place-items-center rounded-md bg-orange-50 text-orange-700"><FeatureIcon size={19} aria-hidden /></span>
-                <div>
-                  <h2 className="text-sm font-black text-neutral-950">{title as string}</h2>
-                  <p className="mt-1 text-sm leading-6 text-neutral-600">{description as string}</p>
+              <div key={label as string} className={`flex min-w-0 items-center gap-3 border-neutral-200 py-4 sm:py-5 md:px-4 ${index > 0 ? "md:border-l" : ""} ${index === 4 ? "col-span-2 border-t md:col-span-1 md:border-t-0" : index > 1 ? "border-t md:border-t-0" : ""}`}>
+                <span className="grid size-9 shrink-0 place-items-center rounded-md bg-orange-100 text-orange-700"><StepIcon size={17} aria-hidden /></span>
+                <div className="min-w-0">
+                  <span className="block text-[10px] font-black text-orange-700">ÉTAPE {number as string}</span>
+                  <strong className="block truncate text-sm text-neutral-950">{label as string}</strong>
                 </div>
               </div>
             );
@@ -94,7 +118,7 @@ export default function HowItWorksPage() {
 
       <FunctioningExperience />
 
-      <section className="border-y border-neutral-200 bg-white">
+      <section className="border-y border-neutral-200 bg-neutral-100">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:px-8">
           <div>
             <p className="text-sm font-black uppercase text-orange-700">Exemple indicatif</p>
@@ -123,7 +147,7 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 shadow-xl shadow-neutral-950/5">
+          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl shadow-orange-950/5">
             <div className="flex items-center justify-between gap-4 border-b border-neutral-200 bg-white p-5 sm:p-6">
               <div>
                 <p className="text-xs font-black uppercase text-orange-700">Récapitulatif estimatif</p>
@@ -189,12 +213,12 @@ export default function HowItWorksPage() {
             ))}
           </div>
         </div>
-        <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-lg border border-neutral-200 bg-white p-5 sm:flex-row sm:items-center sm:p-7">
+        <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-xl bg-orange-500 p-6 text-white shadow-xl shadow-orange-950/10 sm:flex-row sm:items-center sm:p-8">
           <div>
-            <h2 className="text-xl font-black text-neutral-950 sm:text-2xl">Votre chantier peut avancer.</h2>
-            <p className="mt-2 text-sm leading-6 text-neutral-600">Consultez les machines disponibles et comparez les offres proches de vous.</p>
+            <h2 className="text-xl font-black sm:text-2xl">Votre chantier peut avancer.</h2>
+            <p className="mt-2 text-sm font-semibold leading-6 text-white/90">Consultez les machines disponibles et comparez les offres proches de vous.</p>
           </div>
-          <ButtonLink href="/rentals" className="w-full shrink-0 bg-orange-500 text-white hover:bg-orange-600 sm:w-auto">
+          <ButtonLink href="/rentals" className="w-full shrink-0 bg-white text-neutral-950 hover:bg-orange-50 sm:w-auto">
             Voir les machines <ChevronRight size={18} aria-hidden />
           </ButtonLink>
         </div>

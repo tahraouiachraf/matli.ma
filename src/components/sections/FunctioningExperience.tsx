@@ -68,73 +68,79 @@ export function FunctioningExperience() {
   return (
     <section id="fonctionnement" className="scroll-mt-20 border-b border-neutral-200 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-        <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div className="max-w-3xl">
-            <p className="text-sm font-black uppercase text-orange-700">Votre parcours MATLI</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-neutral-950 sm:text-4xl">Un fonctionnement clair pour chaque utilisateur.</h2>
-            <p className="mt-4 text-base leading-7 text-neutral-600 sm:text-lg">Sélectionnez votre profil et découvrez les étapes, les informations nécessaires et le résultat attendu.</p>
+            <p className="text-sm font-black uppercase text-orange-700">Un parcours adapté à votre besoin</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-neutral-950 sm:text-4xl">Vous savez toujours quelle est la prochaine étape.</h2>
+            <p className="mt-4 text-base leading-7 text-neutral-600 sm:text-lg">Choisissez votre profil. MATLI vous montre les informations à préparer, l&apos;action à effectuer et le résultat attendu.</p>
           </div>
-          <p className="w-fit rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs font-black uppercase text-neutral-600">5 étapes guidées</p>
+          <div className="inline-grid w-full grid-cols-2 rounded-lg border border-neutral-200 bg-neutral-100 p-1 sm:w-auto" role="tablist" aria-label="Choisir un parcours">
+            {(Object.keys(journeys) as JourneyKey[]).map((key) => (
+              <button key={key} type="button" role="tab" aria-selected={journeyKey === key} aria-controls="journey-panel" onClick={() => selectJourney(key)} className={`min-h-11 rounded-md px-3 text-sm font-black transition sm:px-5 ${journeyKey === key ? "bg-orange-500 text-white shadow-sm" : "text-neutral-600 hover:bg-white hover:text-orange-800"}`}>
+                {journeys[key].label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-8 inline-grid w-full grid-cols-2 rounded-lg border border-neutral-200 bg-white p-1 sm:w-auto" role="tablist" aria-label="Choisir un parcours">
-          {(Object.keys(journeys) as JourneyKey[]).map((key) => (
-            <button key={key} type="button" role="tab" aria-selected={journeyKey === key} aria-controls="journey-panel" onClick={() => selectJourney(key)} className={`min-h-11 rounded-md px-3 text-sm font-black transition sm:px-5 ${journeyKey === key ? "bg-orange-500 text-white shadow-sm" : "text-neutral-600 hover:bg-orange-50 hover:text-orange-800"}`}>
-              {journeys[key].label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-8">
-          <div className="flex snap-x gap-2 overflow-x-auto pb-2 lg:grid lg:overflow-visible lg:pb-0" role="tablist" aria-label={journey.title}>
+        <div className="mt-9">
+          <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm sm:grid-cols-5" role="tablist" aria-label={journey.title}>
             {journey.steps.map(({ Icon, title }, index) => {
               const selected = activeStep === index;
               return (
-                <button key={title} type="button" role="tab" aria-selected={selected} aria-controls="journey-panel" onClick={() => setActiveStep(index)} className={`group flex min-h-[72px] min-w-[178px] snap-start items-center gap-3 rounded-lg border px-3 text-left transition lg:min-w-0 ${selected ? "border-orange-500 bg-white text-neutral-950 shadow-md shadow-orange-950/5" : "border-neutral-200 bg-neutral-50 text-neutral-600 hover:border-orange-300 hover:bg-white"}`}>
-                  <span className={`grid size-9 shrink-0 place-items-center rounded-md ${selected ? "bg-orange-500 text-white" : "bg-white text-neutral-500 group-hover:text-orange-700"}`}><Icon size={18} aria-hidden /></span>
+                <button
+                  key={title}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  aria-controls="journey-panel"
+                  onClick={() => setActiveStep(index)}
+                  className={`group relative flex min-h-[86px] min-w-0 items-center gap-3 px-3 text-left transition sm:min-h-[104px] sm:flex-col sm:items-start sm:justify-center sm:px-4 ${index === 4 ? "col-span-2 sm:col-span-1" : ""} ${index < 4 && index % 2 === 0 ? "border-r border-neutral-200" : ""} ${index < 4 ? "border-b border-neutral-200 sm:border-b-0 sm:border-r" : ""} ${selected ? "bg-orange-500 text-white" : "bg-white text-neutral-700 hover:bg-orange-50"}`}
+                >
+                  <span className={`grid size-9 shrink-0 place-items-center rounded-md transition ${selected ? "bg-white text-orange-600" : "bg-neutral-100 text-neutral-500 group-hover:bg-white group-hover:text-orange-700"}`}><Icon size={18} aria-hidden /></span>
                   <span className="min-w-0">
-                    <span className="block text-[11px] font-black uppercase text-orange-700">Étape {String(index + 1).padStart(2, "0")}</span>
-                    <span className="mt-0.5 block text-sm font-black leading-5">{title}</span>
+                    <span className={`block text-[10px] font-black uppercase ${selected ? "text-white/80" : "text-orange-700"}`}>Étape {String(index + 1).padStart(2, "0")}</span>
+                    <span className="mt-1 block text-sm font-black leading-5">{title}</span>
                   </span>
+                  {selected ? <span className="absolute inset-x-0 bottom-0 h-1 bg-white/90" aria-hidden /> : null}
                 </button>
               );
             })}
           </div>
 
-          <article id="journey-panel" role="tabpanel" aria-live="polite" key={`${journeyKey}-${activeStep}`} className="animate-panel-in overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-xl shadow-neutral-950/5">
+          <article id="journey-panel" role="tabpanel" aria-live="polite" key={`${journeyKey}-${activeStep}`} className="mt-4 animate-panel-in overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-xl shadow-neutral-950/5 sm:mt-5">
             <div className="h-1 bg-neutral-100" aria-hidden>
               <span className="block h-full bg-orange-500 transition-all duration-300" style={{ width: `${((activeStep + 1) / journey.steps.length) * 100}%` }} />
             </div>
-            <div className="border-b border-neutral-200 p-5 sm:p-8">
-              <div className="flex items-start justify-between gap-5">
-                <div>
-                  <p className="text-xs font-black uppercase text-orange-700">{journey.label} · Étape {activeStep + 1}</p>
-                  <h3 className="mt-2 text-2xl font-black text-neutral-950 sm:text-3xl">{step.title}</h3>
+            <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
+              <div className="border-b border-neutral-200 bg-white p-5 sm:p-8 lg:border-b-0 lg:border-r">
+                <div className="flex items-start justify-between gap-5">
+                  <div>
+                    <p className="text-xs font-black uppercase text-orange-700">{journey.label} · Étape {activeStep + 1} sur {journey.steps.length}</p>
+                    <h3 className="mt-2 text-2xl font-black text-neutral-950 sm:text-3xl">{step.title}</h3>
+                  </div>
+                  <span className="grid size-12 shrink-0 place-items-center rounded-md bg-orange-50 text-orange-700 sm:size-14"><StepIcon size={24} aria-hidden /></span>
                 </div>
-                <span className="grid size-12 shrink-0 place-items-center rounded-md bg-orange-50 text-orange-700 sm:size-14"><StepIcon size={24} aria-hidden /></span>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-600">{step.description}</p>
               </div>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-600">{step.description}</p>
-            </div>
-
-            <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-[1fr_0.9fr]">
-              <div>
-                <p className="text-xs font-black uppercase text-neutral-500">Informations utiles</p>
+              <div className="p-5 sm:p-8">
+                <p className="text-xs font-black uppercase text-neutral-500">À préparer</p>
                 <ul className="mt-4 grid gap-3">
-                  {step.checklist.map((item) => (
-                    <li key={item} className="flex items-center gap-3 text-sm font-bold text-neutral-700">
-                      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-700"><Check size={14} strokeWidth={3} aria-hidden /></span>
-                      {item}
-                    </li>
-                  ))}
+                    {step.checklist.map((item) => (
+                      <li key={item} className="flex items-center gap-3 text-sm font-bold text-neutral-700">
+                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-700"><Check size={14} strokeWidth={3} aria-hidden /></span>
+                        {item}
+                      </li>
+                    ))}
                 </ul>
-              </div>
-              <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 sm:p-5">
-                <p className="text-xs font-black uppercase text-orange-700">Résultat</p>
-                <p className="mt-3 text-sm font-bold leading-6 text-neutral-800">{step.result}</p>
+                <div className="mt-6 border-l-4 border-orange-500 bg-white p-4">
+                  <p className="text-[10px] font-black uppercase text-orange-700">Résultat attendu</p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-neutral-800">{step.result}</p>
+                </div>
               </div>
             </div>
 
-            <div className="border-t border-neutral-200 bg-neutral-50 p-4 sm:px-8">
+            <div className="border-t border-neutral-200 bg-white p-4 sm:px-8">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-xs font-bold text-neutral-500">Étape {activeStep + 1} sur {journey.steps.length}</p>
                 <div className="flex items-center gap-2">
@@ -142,7 +148,7 @@ export function FunctioningExperience() {
                     <ChevronLeft size={17} aria-hidden /><span className="hidden sm:inline">Précédente</span>
                   </button>
                   {activeStep < journey.steps.length - 1 ? (
-                    <button type="button" onClick={() => setActiveStep((value) => value + 1)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-black text-white hover:bg-neutral-800">Étape suivante <ChevronRight size={17} aria-hidden /></button>
+                    <button type="button" onClick={() => setActiveStep((value) => value + 1)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">Étape suivante <ChevronRight size={17} aria-hidden /></button>
                   ) : (
                     <ButtonLink href={journeyKey === "renter" ? "/rentals" : "/register"} className="bg-orange-500 text-white hover:bg-orange-600">
                       {journeyKey === "renter" ? "Voir les machines" : "Créer mon compte"} <ChevronRight size={17} aria-hidden />
