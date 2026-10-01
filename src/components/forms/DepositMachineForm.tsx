@@ -4,6 +4,7 @@ import { ImagePlus, Images, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { categories, cities } from "@/lib/data";
+import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
 import { createWorkspaceEquipment, updateWorkspaceEquipment, uploadEquipmentImage } from "@/services/api/matli";
 import type { CreateEquipmentPayload } from "@/services/api/matli";
 import type { Equipment } from "@/types";
@@ -16,7 +17,8 @@ type DepositMachineFormProps = {
 };
 
 export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }: DepositMachineFormProps) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const canManageSponsoring = isAdminWorkspaceRole(getWorkspaceRole(user));
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -175,7 +177,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           <option value="maintenance">En maintenance</option>
         </select>
       </label>
-      <div className="grid gap-3 rounded-md bg-neutral-50 p-4 md:col-span-2 sm:grid-cols-3">
+      <div className={`grid gap-3 rounded-md bg-neutral-50 p-4 md:col-span-2 ${canManageSponsoring ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
         <label className="flex items-center gap-2 text-sm font-semibold">
           <input type="checkbox" name="operator_available" value="1" defaultChecked={equipment?.operator} className="size-4 accent-orange-500" />
           Opérateur disponible
@@ -184,10 +186,10 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           <input type="checkbox" name="delivery_available" value="1" defaultChecked={equipment?.delivery} className="size-4 accent-orange-500" />
           Livraison possible
         </label>
-        <label className="flex items-center gap-2 text-sm font-semibold">
+        {canManageSponsoring ? <label className="flex items-center gap-2 text-sm font-semibold">
           <input type="checkbox" name="is_sponsored" value="1" defaultChecked={equipment?.sponsored} className="size-4 accent-orange-500" />
           Sponsorisé
-        </label>
+        </label> : null}
       </div>
       <fieldset className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4 md:col-span-2 sm:p-5">
         <legend className="text-base font-black text-neutral-950">Photos du matériel</legend>

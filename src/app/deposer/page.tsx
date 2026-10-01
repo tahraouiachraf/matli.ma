@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { AdminOnlyGuard } from "@/components/auth/AdminOnlyGuard";
+import { WorkspaceAccessGuard } from "@/components/auth/WorkspaceAccessGuard";
 import { DepositMachineForm } from "@/components/forms/DepositMachineForm";
 import { DepositSection } from "@/components/sections/DepositSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
@@ -17,10 +17,10 @@ export default async function DepositPage() {
 
   return (
     <AuthGuard
-      title="Connectez-vous avec un compte administrateur"
-      message="La publication de matériel est réservée à l’administration MATLI."
+      title="Connectez-vous avec un compte propriétaire"
+      message="La publication de matériel est réservée aux propriétaires et à l’administration MATLI."
     >
-      <AdminOnlyGuard>
+      <WorkspaceAccessGuard>
         <DepositSection />
         <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <div>
@@ -33,7 +33,7 @@ export default async function DepositPage() {
           <DepositMachineForm />
         </section>
         <RequestsPreviewSection requests={requests} />
-      </AdminOnlyGuard>
+      </WorkspaceAccessGuard>
     </AuthGuard>
   );
 }

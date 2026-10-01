@@ -25,7 +25,7 @@ import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceRole, isAdminWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
+import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import {
   createRentalRequest,
   createReservation,
@@ -34,8 +34,6 @@ import {
   deleteWorkspaceItem,
   deleteWorkspaceEquipment,
   getMarketplaceRequestsStrict,
-  getClientNotifications,
-  markClientNotificationsRead,
   getWorkspaceCollectionStrict,
   getWorkspaceDashboardStrict,
   getWorkspaceEquipmentStrict,
@@ -45,15 +43,6 @@ import {
 } from "@/services/api/matli";
 import type { CreateRentalRequestPayload, CreateReservationPayload, WorkspaceCrudPayload, WorkspaceDashboard } from "@/services/api/matli";
 import type { ClientRequest, Equipment, RentalHistoryItem } from "@/types";
-
-type OwnerNotification = {
-  id: string;
-  title: string;
-  description: string;
-  createdAt: string;
-};
-
-const notificationStorageKey = "matli-owner-notifications";
 
 type WorkspaceMenuItem = [string, string, LucideIcon];
 
@@ -85,9 +74,7 @@ export function OwnerWorkspace({ activeHref, children }: OwnerWorkspaceProps) {
   const { user } = useAuth();
   const role = getWorkspaceRole(user);
   const isOwner = isOwnerWorkspaceRole(role);
-  const menu = isOwner
-    ? ownerMenu.filter(([, href]) => href !== "/dashboard/equipment" || isAdminWorkspaceRole(role))
-    : clientMenu;
+  const menu = isOwner ? ownerMenu : clientMenu;
 
   return (
     <section className="mx-auto grid max-w-7xl grid-cols-[60px_minmax(0,1fr)] gap-2 px-2 py-4 min-[380px]:grid-cols-[68px_minmax(0,1fr)] min-[380px]:gap-3 min-[380px]:px-3 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">
@@ -181,14 +168,12 @@ function ClientDashboard({ name }: { name?: string }) {
 }
 
 export function OwnerSectionContent({ section }: { section: string }) {
-  const { token, user } = useAuth();
-  const ownerAccount = isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const { token } = useAuth();
   const [workspaceEquipment, setWorkspaceEquipment] = useState<Equipment[] | null>(null);
   const [workspaceRentals, setWorkspaceRentals] = useState<RentalHistoryItem[] | null>(null);
   const [marketplaceRequests, setMarketplaceRequests] = useState<ClientRequest[] | null>(null);
   const [workspaceItems, setWorkspaceItems] = useState<Record<string, unknown>[] | null>(null);
   const [workspaceDashboard, setWorkspaceDashboard] = useState<WorkspaceDashboard | null>(null);
-  const [notifications, setNotifications] = useState<OwnerNotification[]>([]);
   const [uiNotice, setUiNotice] = useState<string | null>(null);
   const [reservationError, setReservationError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -230,24 +215,16 @@ export function OwnerSectionContent({ section }: { section: string }) {
           const payload = await getWorkspaceReservationsStrict(token);
           if (mounted) setWorkspaceRentals(payload);
         } else if (section === "notifications") {
-          const payload = ownerAccount
-            ? await getWorkspaceCollectionStrict<Record<string, unknown>>("notifications", token)
-            : (await getClientNotifications(token)).map((item) => ({ ...item } as Record<string, unknown>));
-          if (mounted) {
-            setWorkspaceItems(payload);
-            setNotifications(readStoredNotifications());
-          }
+          // NotificationCenter charge les notifications du compte authentifié.
         } else if (section === "statistiques") {
-          const [equipmentPayload, rentalsPayload, requestsPayload, dashboardPayload] = await Promise.all([
+          const [equipmentPayload, rentalsPayload, dashboardPayload] = await Promise.all([
             getWorkspaceEquipmentStrict(token),
             getWorkspaceReservationsStrict(token),
-            getMarketplaceRequestsStrict(),
             getWorkspaceDashboardStrict(token),
           ]);
           if (mounted) {
             setWorkspaceEquipment(equipmentPayload);
             setWorkspaceRentals(rentalsPayload);
-            setMarketplaceRequests(requestsPayload);
             setWorkspaceDashboard(dashboardPayload);
           }
         } else {
@@ -283,17 +260,14 @@ export function OwnerSectionContent({ section }: { section: string }) {
     return () => {
       mounted = false;
     };
-  }, [ownerAccount, section, token]);
+  }, [section, token]);
 
   async function saveReservation(payload: CreateReservationPayload, machineLabel: string) {
     await createReservation(payload, token);
     trackCommercialEvent("reservation_requested", { equipmentId: payload.equipment_id }, { persist: false });
     const rentalsPayload = await getWorkspaceReservationsStrict(token);
-    const notificationPayload = await getWorkspaceCollectionStrict<Record<string, unknown>>("notifications", token).catch(() => []);
     setWorkspaceRentals(rentalsPayload);
-    setWorkspaceItems(notificationPayload);
-    addReservationNotification(machineLabel, payload.client_name);
-    setUiNotice("Réservation enregistrée. Le client et la notification sont ajoutés automatiquement.");
+    setUiNotice(`Réservation enregistrée pour ${machineLabel}. Le client et les notifications sont synchronisés avec votre compte.`);
   }
 
   async function saveRentalRequest(payload: CreateRentalRequestPayload) {
@@ -365,19 +339,6 @@ export function OwnerSectionContent({ section }: { section: string }) {
     } finally {
       setReservationAction(null);
     }
-  }
-
-  function addReservationNotification(machine: string, client: string) {
-    const notification: OwnerNotification = {
-      id: `notif-${Date.now()}`,
-      title: "Nouvelle réservation enregistrée",
-      description: `${client || "Un client"} a réservé ${machine || "une machine"}. Le client sera ajouté automatiquement dans l'historique.`,
-      createdAt: new Date().toISOString(),
-    };
-    const nextNotifications = [notification, ...readStoredNotifications()].slice(0, 20);
-    localStorage.setItem(notificationStorageKey, JSON.stringify(nextNotifications));
-    setNotifications(nextNotifications);
-    setUiNotice("Réservation enregistrée. Une notification a été ajoutée.");
   }
 
   if (section === "materiel") {
@@ -622,80 +583,6 @@ export function OwnerSectionContent({ section }: { section: string }) {
 
   if (section === "notifications") {
     return <NotificationCenter />;
-    const apiNotifications = (workspaceItems ?? []).map((item, index) => ({
-      id: String(item.id ?? `api-${index}`),
-      title: stringValue(item.title) ?? stringValue(item.message) ?? "Notification",
-      description: stringValue(item.body) ?? stringValue(item.description) ?? stringValue(item.message) ?? "Nouvelle information dans votre espace.",
-      createdAt: stringValue(item.created_at) ?? new Date().toISOString(),
-      source: "Compte",
-    }));
-    const localNotifications = notifications.map((notification) => ({ ...notification, source: "Réservation" }));
-    const allNotifications = [...localNotifications, ...apiNotifications];
-
-    return (
-      <DashboardPanel
-        title="Notifications"
-        description="Suivez les événements importants: nouvelles réservations, demandes, paiements et alertes de disponibilité."
-        actionLabel={null}
-        loading={loading}
-      >
-        {apiError ? <InlineApiError /> : null}
-        {!apiError && allNotifications.length ? (
-          <div className="grid gap-5">
-            <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 p-4">
-                <div>
-                  <h3 className="font-black text-neutral-950">Centre de notifications</h3>
-                  <p className="mt-1 text-sm text-neutral-600">Les nouvelles réservations remontent ici automatiquement.</p>
-                </div>
-                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-700">
-                  {allNotifications.length} notification{allNotifications.length > 1 ? "s" : ""}
-                </span>
-                {!ownerAccount ? (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const response = await markClientNotificationsRead(token);
-                      setWorkspaceItems((current) => (current ?? []).map((item) => ({ ...item, read_at: new Date().toISOString() })));
-                      setUiNotice(response.message);
-                    }}
-                    className="rounded-md border border-neutral-200 px-3 py-2 text-xs font-black text-neutral-700 hover:border-orange-300"
-                  >
-                    Tout marquer comme lu
-                  </button>
-                ) : null}
-              </div>
-              <div className="divide-y divide-neutral-100">
-                {allNotifications.map((notification, index) => (
-                  <div key={notification.id} className="flex gap-4 p-4">
-                    <span className={`mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full ${
-                      index === 0 ? "bg-orange-500 text-white" : "bg-orange-50 text-orange-700"
-                    }`}>
-                      <Bell className="h-5 w-5" aria-hidden />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <p className="text-xs font-black uppercase text-orange-600">{notification.source}</p>
-                          <h4 className="mt-1 font-black text-neutral-950">{notification.title}</h4>
-                        </div>
-                        <span className="shrink-0 rounded-full bg-neutral-100 px-3 py-1 text-xs font-black text-neutral-600">
-                          {formatDateTime(notification.createdAt)}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-neutral-600">{notification.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        ) : !apiError ? (
-          <EmptyApiState loading={loading} label="Aucune notification pour le moment." />
-        ) : null}
-      </DashboardPanel>
-    );
   }
 
   const fallbackContent: Record<string, [string, string, string[]]> = {
@@ -714,7 +601,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
   if (section === "statistiques") {
     return (
       <DashboardPanel title={title} description={description} actionLabel={null}>
-        <StatsCharts equipment={workspaceEquipment ?? []} rentals={workspaceRentals ?? []} requests={marketplaceRequests ?? []} conversion={workspaceDashboard?.conversion} />
+        <StatsCharts equipment={workspaceEquipment ?? []} rentals={workspaceRentals ?? []} conversion={workspaceDashboard?.conversion} estimatedRevenue={workspaceDashboard?.stats.estimated_revenue ?? 0} />
       </DashboardPanel>
     );
   }
@@ -1041,15 +928,15 @@ function dateInputValue(value: unknown) {
 function StatsCharts({
   equipment,
   rentals,
-  requests,
   conversion,
+  estimatedRevenue,
 }: {
   equipment: Equipment[];
   rentals: RentalHistoryItem[];
-  requests: ClientRequest[];
   conversion?: WorkspaceDashboard["conversion"];
+  estimatedRevenue: number;
 }) {
-  const totalRevenue = rentals.reduce((sum, rental) => sum + rental.total, 0);
+  const requestCount = Math.max(conversion?.reservation_requests ?? 0, rentals.filter((rental) => rental.statusKey === "pending").length);
   const cityGroups = groupCount(equipment.map((item) => item.city));
   const categoryGroups = groupCount(equipment.map((item) => item.category));
   const maxCity = Math.max(...cityGroups.map((item) => item.count), 1);
@@ -1060,8 +947,8 @@ function StatsCharts({
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ClientMetric label="Machines" value={String(equipment.length)} />
         <ClientMetric label="Réservations" value={String(rentals.length)} />
-        <ClientMetric label="Demandes" value={String(requests.length)} />
-        <ClientMetric label="CA estimé" value={formatDh(totalRevenue)} />
+        <ClientMetric label="Demandes" value={String(requestCount)} />
+        <ClientMetric label="CA estimé" value={formatDh(estimatedRevenue)} />
       </div>
       <div className="grid gap-6 xl:grid-cols-2">
         <ChartCard title="Machines par ville" items={cityGroups} max={maxCity} />
@@ -1071,7 +958,7 @@ function StatsCharts({
         <h3 className="font-black text-neutral-950">Performance marketplace</h3>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <MiniDonut label="Disponibilité" value={equipment.length ? Math.round((equipment.filter((item) => item.status === "AVAILABLE").length / equipment.length) * 100) : 0} />
-          <MiniDonut label="Conversion" value={requests.length ? Math.min(100, Math.round((rentals.length / requests.length) * 100)) : 0} />
+          <MiniDonut label="Conversion" value={conversion?.request_to_confirmation_rate ?? 0} />
           <MiniDonut label="Parc actif" value={equipment.length ? Math.round((equipment.filter((item) => item.status !== "UNAVAILABLE").length / equipment.length) * 100) : 0} />
         </div>
       </div>
@@ -1083,11 +970,10 @@ function StatsCharts({
           </div>
           <p className="text-sm font-black text-orange-700">{conversion?.request_to_confirmation_rate ?? 0}% demandes confirmées</p>
         </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
-            ["Recherches", conversion?.searches ?? 0],
-            ["Fiches consultées", conversion?.equipment_views ?? 0],
-            ["Demandes envoyées", conversion?.reservation_requests ?? 0],
+            ["Fiches de votre parc consultées", conversion?.equipment_views ?? 0],
+            ["Demandes reçues", conversion?.reservation_requests ?? 0],
             ["Réservations confirmées", conversion?.confirmed_reservations ?? 0],
           ].map(([label, value], index) => (
             <div key={String(label)} className="relative rounded-xl border border-neutral-200 bg-neutral-50 p-4">
@@ -1096,21 +982,6 @@ function StatsCharts({
               <p className="mt-1 text-sm font-bold text-neutral-600">{label}</p>
             </div>
           ))}
-        </div>
-        <div className="mt-5 grid gap-4 lg:grid-cols-[0.7fr_1.3fr]">
-          <div className="rounded-xl bg-orange-50 p-4">
-            <p className="text-xs font-black uppercase text-orange-700">Recherche</p>
-            <p className="mt-2 text-3xl font-black text-neutral-950">{conversion?.zero_result_searches ?? 0}</p>
-            <p className="mt-1 text-sm font-semibold text-neutral-600">recherches sans résultat</p>
-          </div>
-          <div className="rounded-xl border border-neutral-200 p-4">
-            <p className="font-black text-neutral-950">Besoins non couverts</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {conversion?.top_zero_result_searches.length ? conversion.top_zero_result_searches.map((item) => (
-                <span key={item.query} className="rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-bold text-neutral-700">{item.query} · {item.count}</span>
-              )) : <span className="text-sm text-neutral-500">Aucune recherche sans résultat enregistrée.</span>}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -1335,17 +1206,6 @@ function ReservationForm({
       </button>
     </form>
   );
-}
-
-function readStoredNotifications(): OwnerNotification[] {
-  try {
-    const raw = localStorage.getItem(notificationStorageKey);
-    if (!raw) return [];
-    const payload = JSON.parse(raw);
-    return Array.isArray(payload) ? payload : [];
-  } catch {
-    return [];
-  }
 }
 
 function ClientRequestForm({ onSaved }: { onSaved: (payload: CreateRentalRequestPayload) => Promise<void> }) {

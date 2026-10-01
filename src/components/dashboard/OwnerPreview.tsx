@@ -3,18 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BellRing, CalendarCheck, ChartNoAxesCombined, CirclePlus, Wrench } from "lucide-react";
-import { requestStatusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getEquipmentListStrict, getMarketplaceRequestsStrict, getWorkspaceDashboardStrict, getWorkspaceEquipmentStrict, mapWorkspaceRentals } from "@/services/api/matli";
+import { getWorkspaceDashboardStrict, getWorkspaceEquipmentStrict, mapWorkspaceRentals } from "@/services/api/matli";
 import { ApiError } from "@/services/api/client";
-import type { ClientRequest, Equipment } from "@/types";
+import type { Equipment } from "@/types";
 
 export function OwnerPreview() {
   const { token } = useAuth();
   const [dashboard, setDashboard] = useState<Awaited<ReturnType<typeof getWorkspaceDashboardStrict>>>(null);
   const [machines, setMachines] = useState<Equipment[]>([]);
-  const [requests, setRequests] = useState<ClientRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<number | null>(null);
   const [partialError, setPartialError] = useState(false);
@@ -32,10 +30,9 @@ export function OwnerPreview() {
 
     Promise.allSettled([
       getWorkspaceDashboardStrict(token),
-      token ? getWorkspaceEquipmentStrict(token) : getEquipmentListStrict({ perPage: 3 }),
-      getMarketplaceRequestsStrict(),
+      getWorkspaceEquipmentStrict(token),
     ])
-      .then(([dashboardResult, machineResult, requestResult]) => {
+      .then(([dashboardResult, machineResult]) => {
         if (!mounted) return;
 
         if (dashboardResult.status === "rejected") {
@@ -45,8 +42,7 @@ export function OwnerPreview() {
 
         setDashboard(dashboardResult.value);
         setMachines(machineResult.status === "fulfilled" ? machineResult.value : []);
-        setRequests(requestResult.status === "fulfilled" ? requestResult.value : []);
-        setPartialError(machineResult.status === "rejected" || requestResult.status === "rejected");
+        setPartialError(machineResult.status === "rejected");
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -67,6 +63,7 @@ export function OwnerPreview() {
     : [];
 
   const rentals = mapWorkspaceRentals(dashboard);
+  const pendingRentals = rentals.filter((rental) => rental.statusKey === "pending");
 
   if (loading) {
     return <OwnerPreviewSkeleton />;
@@ -141,26 +138,24 @@ export function OwnerPreview() {
               </div>
             ))}
             {!machines.length ? (
-              <Link href="/profile" className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 text-sm font-black text-orange-800"><CirclePlus size={18} />Compléter le profil propriétaire</Link>
+              <Link href="/dashboard/equipment/new" className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 text-sm font-black text-orange-800"><CirclePlus size={18} />Ajouter votre premier matériel</Link>
             ) : null}
           </div>
         </div>
 
         <div className="rounded-xl border border-neutral-200 p-3 sm:p-4">
-          <h3 className="font-black text-neutral-950">Demandes reçues</h3>
+          <h3 className="font-black text-neutral-950">Demandes à traiter</h3>
           <div className="mt-4 grid gap-3">
-            {requests.slice(0, 3).map((request) => (
-              <div key={request.id} className="rounded-xl bg-orange-50 p-3">
+            {pendingRentals.slice(0, 3).map((rental) => (
+              <div key={rental.id} className="rounded-xl bg-orange-50 p-3">
                 <div className="grid gap-1 sm:flex sm:items-center sm:justify-between sm:gap-3">
-                  <p className="font-bold text-neutral-950">{request.machine}</p>
-                  <span className="text-xs font-black text-orange-700">{requestStatusLabels[request.status]}</span>
+                  <p className="font-bold text-neutral-950">{rental.equipmentTitle}</p>
+                  <span className="text-xs font-black text-orange-700">En attente</span>
                 </div>
-                <p className="mt-1 text-xs text-neutral-600">
-                  {request.city} · budget {formatDh(request.budgetDay)}/j
-                </p>
+                <p className="mt-1 text-xs text-neutral-600">{rental.companyName} · {rental.period}</p>
               </div>
             ))}
-            {!requests.length ? (
+            {!pendingRentals.length ? (
               <p className="rounded-xl bg-orange-50 p-3 text-sm font-semibold text-orange-900">Aucune demande reçue pour le moment.</p>
             ) : null}
           </div>
@@ -172,7 +167,7 @@ export function OwnerPreview() {
           <ChartNoAxesCombined className="text-amber-400" size={24} aria-hidden />
           <div>
             <p className="text-sm text-neutral-300">Taux d&apos;utilisation du parc</p>
-            <p className="text-2xl font-black sm:text-3xl">{dashboard ? `${Math.round((dashboard.stats.reservations / Math.max(dashboard.stats.equipment, 1)) * 100)}%` : "67%"}</p>
+            <p className="text-2xl font-black sm:text-3xl">{dashboard ? `${Math.round((dashboard.stats.reservations / Math.max(dashboard.stats.equipment, 1)) * 100)}%` : "0%"}</p>
           </div>
         </div>
       </div>
