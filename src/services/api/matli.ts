@@ -194,6 +194,16 @@ const imageFallbacks = [
   "/equipment/jcb-excavator-quarry.jpg",
 ];
 
+const categoryImages: Record<string, string> = {
+  "tractopelles": "/equipment/jcb-3cx-yard.jpg",
+  "mini-pelles": "/equipment/jcb-excavator-quarry.jpg",
+  "chariots-telescopiques": "/equipment/jcb-telescopic-site.jpg",
+  "nacelles-telescopiques-articules": "/equipment/jcb-telescopic-site.jpg",
+  "grues": "/equipment/jcb-telescopic-site.jpg",
+  "pelles-sur-chenilles": "/equipment/jcb-excavator-quarry.jpg",
+  "chargeuses-sur-pneumatiques": "/equipment/jcb-3cx-studio.jpg",
+};
+
 const statusMap: Record<ApiEquipment["status"], Equipment["status"]> = {
   available: "AVAILABLE",
   reserved: "RESERVED",
@@ -311,7 +321,7 @@ function mapCategory(item: ApiCategory, index = 0): Category {
     name: item.name,
     slug: item.slug,
     description: item.description ?? "Catégorie de matériel BTP disponible à la location.",
-    image: imageFallbacks[index % imageFallbacks.length],
+    image: categoryImages[item.slug] ?? imageFallbacks[index % imageFallbacks.length],
     icon: item.icon ?? "Package",
     seoTitle: `Location ${item.name} au Maroc | MATLI`,
     metaDescription: item.description ?? `Comparez les offres de ${item.name} à louer au Maroc.`,

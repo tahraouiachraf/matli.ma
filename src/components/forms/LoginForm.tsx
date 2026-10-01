@@ -6,6 +6,9 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 
+const fieldClass = "flex h-12 min-w-0 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 transition focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/10";
+const controlClass = "h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-neutral-950 outline-none placeholder:text-neutral-400";
+
 export function LoginForm({ notice, initialVerificationEmail }: { notice?: string; initialVerificationEmail?: string }) {
   const router = useRouter();
   const { login, resendVerification } = useAuth();
@@ -38,7 +41,7 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
   }
 
   return (
-    <form className="grid gap-4" onSubmit={handleSubmit}>
+    <form className="grid min-w-0 gap-4" onSubmit={handleSubmit}>
       {notice ? (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold leading-6 text-emerald-800">
           {notice}
@@ -72,9 +75,9 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
       ) : null}
       {resendMessage ? <p className="text-sm font-semibold text-emerald-700">{resendMessage}</p> : null}
 
-      <label className="grid gap-2 text-sm font-black text-neutral-800">
+      <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
         Adresse email
-        <span className="flex h-12 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 transition focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/10">
+        <span className={fieldClass}>
           <Mail className="h-5 w-5 shrink-0 text-neutral-400" />
           <input
             name="email"
@@ -82,14 +85,14 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
             autoComplete="email"
             required
             placeholder="nom@entreprise.ma"
-            className="h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-neutral-950 outline-none placeholder:text-neutral-400"
+            className={controlClass}
           />
         </span>
       </label>
 
-      <label className="grid gap-2 text-sm font-black text-neutral-800">
+      <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
         Mot de passe
-        <span className="flex h-12 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 transition focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/10">
+        <span className={fieldClass}>
           <LockKeyhole className="h-5 w-5 shrink-0 text-neutral-400" />
           <input
             name="password"
@@ -97,7 +100,7 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
             autoComplete="current-password"
             required
             placeholder="Votre mot de passe"
-            className="h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-neutral-950 outline-none placeholder:text-neutral-400"
+            className={controlClass}
           />
           <button
             type="button"

@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatDate, formatDateTime, formatDh } from "@/lib/format";
 import { trackCommercialEvent } from "@/lib/commercial-analytics";
 import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusLabels, statusLabels } from "@/lib/data";
@@ -804,15 +804,25 @@ function WorkspaceCrudSection({
 }) {
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const formBlockRef = useRef<HTMLDetailsElement>(null);
   const itemLabel = crudTitleFor(section);
+
+  useEffect(() => {
+    if (!editing || !formBlockRef.current) return;
+
+    formBlockRef.current.open = true;
+    formBlockRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [editing]);
 
   return (
     <div className="grid gap-5">
       <OwnerFormBlock
+        detailsRef={formBlockRef}
         title={editing ? `Modifier ${itemLabel}` : `Ajouter ${itemLabel}`}
         description="Les informations sont enregistrées directement dans Laravel et réaffichées dans la liste."
       >
         <WorkspaceCrudForm
+          key={editing ? String(editing.id) : `new-${section}`}
           editing={editing}
           equipment={equipment}
           rentals={rentals}
@@ -839,10 +849,10 @@ function WorkspaceCrudSection({
                 <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
                   <ApiSummaryCard item={item} />
                   <div className="flex flex-wrap gap-2 md:justify-end">
-                    <button onClick={() => setEditing(item)} className="h-10 rounded-lg border border-neutral-200 px-4 text-sm font-black text-neutral-800 hover:border-orange-400">
+                    <button type="button" onClick={() => setEditing(item)} className="h-10 rounded-lg border border-neutral-200 px-4 text-sm font-black text-neutral-800 hover:border-orange-400 hover:bg-orange-50">
                       Modifier
                     </button>
-                    <button onClick={() => setConfirmDeleteId(id)} className="h-10 rounded-lg bg-red-50 px-4 text-sm font-black text-red-700 hover:bg-red-100">
+                    <button type="button" onClick={() => setConfirmDeleteId(id)} className="h-10 rounded-lg bg-red-50 px-4 text-sm font-black text-red-700 hover:bg-red-100">
                       Supprimer
                     </button>
                   </div>
@@ -898,8 +908,9 @@ function WorkspaceCrudForm({
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setError(null);
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const payload = fields.reduce<WorkspaceCrudPayload>((acc, field) => {
       const value = String(formData.get(field.name) ?? "");
       acc[field.name] = field.kind === "number" ? Number(value || 0) : value || null;
@@ -909,7 +920,7 @@ function WorkspaceCrudForm({
     try {
       setSubmitting(true);
       await onSaved(payload, editing ? String(editing.id) : undefined);
-      event.currentTarget.reset();
+      form.reset();
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Merci de réessayer plus tard.");
     } finally {
@@ -1208,16 +1219,18 @@ function DashboardPanel({
 function OwnerFormBlock({
   children,
   description,
+  detailsRef,
   id,
   title,
 }: {
   children: React.ReactNode;
   description: string;
+  detailsRef?: React.RefObject<HTMLDetailsElement | null>;
   id?: string;
   title: string;
 }) {
   return (
-    <details id={id} className="group scroll-mt-24 rounded-2xl border border-orange-200 bg-orange-50/60 p-3 open:bg-white sm:p-4">
+    <details ref={detailsRef} id={id} className="group scroll-mt-24 rounded-2xl border border-orange-200 bg-orange-50/60 p-3 open:bg-white sm:p-4">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
         <span>
           <span className="block text-lg font-black text-neutral-950">{title}</span>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffaf5;
-  --foreground: #26201c;
+  --background: #ffffff;
+  --foreground: #262626;
 }
 
 @theme inline {
@@ -10,18 +10,28 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-orange-50: #fff8f1;
-  --color-orange-100: #ffead8;
-  --color-orange-200: #ffd4b0;
-  --color-orange-300: #ffb778;
-  --color-orange-400: #fb9748;
+  --color-orange-50: #fff9f4;
+  --color-orange-100: #fff0e2;
+  --color-orange-200: #ffdec0;
+  --color-orange-300: #ffc28a;
+  --color-orange-400: #f99f50;
   --color-orange-500: #f58220;
-  --color-orange-600: #bd4607;
-  --color-orange-700: #9f3e08;
-  --color-orange-800: #7f330d;
-  --color-orange-900: #692d0f;
-  --color-orange-950: #391506;
+  --color-orange-600: #e46f0f;
+  --color-orange-700: #ad4b00;
+  --color-orange-800: #963f00;
+  --color-orange-900: #7a3400;
+  --color-orange-950: #542200;
+  --color-amber-50: #fff9f4;
+  --color-amber-100: #fff0e2;
+  --color-amber-200: #ffdec0;
+  --color-amber-300: #ffc28a;
+  --color-amber-400: #f99f50;
   --color-amber-500: #f58220;
+  --color-amber-600: #e46f0f;
+  --color-amber-700: #ad4b00;
+  --color-amber-800: #963f00;
+  --color-amber-900: #7a3400;
+  --color-amber-950: #542200;
 }
 
 body {
@@ -53,7 +63,7 @@ select {
 
 ::selection {
   background: #f58220;
-  color: #171717;
+  color: #ffffff;
 }
 
 @keyframes matli-fade-up {

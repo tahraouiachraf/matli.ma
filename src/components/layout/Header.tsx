@@ -73,7 +73,7 @@ export function Header() {
           <NotificationBell />
           <AuthNav />
           {!connected ? (
-            <ButtonLink href="/register" className="ml-1 bg-[#F58220] px-5 text-white shadow-sm hover:bg-[#dd6f12]">
+            <ButtonLink href="/register" className="ml-1 bg-[#F58220] px-5 text-white shadow-sm hover:bg-orange-600">
               S&apos;inscrire
             </ButtonLink>
           ) : null}
@@ -81,7 +81,7 @@ export function Header() {
 
         <button
           type="button"
-          className="grid size-11 place-items-center rounded-xl border border-neutral-200 text-neutral-800 transition hover:border-[#F58220] hover:bg-orange-50 hover:text-[#d9670d] xl:hidden"
+          className="grid size-11 place-items-center rounded-xl border border-neutral-200 text-neutral-800 transition hover:border-[#F58220] hover:bg-orange-50 hover:text-orange-600 xl:hidden"
           onClick={() => setOpen((value) => !value)}
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={open}
@@ -103,7 +103,7 @@ export function Header() {
               <BrandLogo onClick={() => setOpen(false)} textClassName="text-xl" />
               <button
                 type="button"
-                className="grid size-10 place-items-center rounded-xl border border-neutral-200 text-neutral-800 transition hover:border-[#F58220] hover:bg-orange-50 hover:text-[#d9670d]"
+                className="grid size-10 place-items-center rounded-xl border border-neutral-200 text-neutral-800 transition hover:border-[#F58220] hover:bg-orange-50 hover:text-orange-600"
                 onClick={() => setOpen(false)}
                 aria-label="Fermer le menu"
               >
@@ -138,13 +138,13 @@ export function Header() {
 
             {!connected ? (
               <div className="mt-3">
-                <ButtonLink href="/register" className="w-full bg-[#F58220] text-white hover:bg-[#dd6f12]" onClick={() => setOpen(false)}>
+                <ButtonLink href="/register" className="w-full bg-[#F58220] text-white hover:bg-orange-600" onClick={() => setOpen(false)}>
                   Créer mon espace gratuit
                 </ButtonLink>
               </div>
             ) : canDeposit ? (
               <div className="mt-3">
-                <ButtonLink href="/list-equipment" className="w-full bg-[#F58220] text-white hover:bg-[#dd6f12]" onClick={() => setOpen(false)}>
+                <ButtonLink href="/list-equipment" className="w-full bg-[#F58220] text-white hover:bg-orange-600" onClick={() => setOpen(false)}>
                   Déposer une machine
                 </ButtonLink>
               </div>

@@ -1,4 +1,16 @@
-import { ArrowUpRight, BadgeCheck, Building2, CalendarCheck, Search, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BadgeCheck,
+  BarChart3,
+  Building2,
+  CalendarCheck,
+  CalendarDays,
+  ClipboardCheck,
+  Search,
+  ShieldCheck,
+  Wrench,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { HeroMachineAnimation } from "@/components/hero/HeroMachineAnimation";
@@ -30,7 +42,6 @@ const popularSearches = [
   { label: "Mini-pelle", href: "/rentals?category=mini-pelles" },
   { label: "Telescopic", href: "/rentals?category=chariots-telescopiques" },
   { label: "Chargeuse", href: "/rentals?category=chargeuses-sur-pneumatiques" },
-  { label: "Pelle sur chenilles", href: "/rentals?category=pelles-sur-chenilles" },
 ];
 
 export const revalidate = 60;
@@ -103,13 +114,19 @@ export default async function Home() {
                 </button>
               </form>
 
-              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-md border border-white/20 bg-white/10 p-3 text-sm sm:bg-transparent sm:p-0">
-                <span className="w-full text-xs font-black uppercase tracking-[0.12em] text-white sm:w-auto sm:text-sm sm:normal-case sm:tracking-normal">Populaires :</span>
-                {popularSearches.map((item) => (
-                  <Link key={item.href} href={item.href} className="inline-flex min-h-9 items-center rounded-full border border-white/20 bg-white/15 px-3 py-1.5 font-bold text-white transition hover:border-white hover:bg-white hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:px-4">
-                    {item.label}
-                  </Link>
-                ))}
+              <div className="mt-5 grid min-w-0 gap-2.5 rounded-md border border-white/20 bg-white/10 p-3 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center lg:grid-cols-1 xl:grid-cols-[auto_minmax(0,1fr)]">
+                <span className="text-xs font-black uppercase tracking-[0.12em] text-white sm:normal-case sm:tracking-normal">Populaires :</span>
+                <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+                  {popularSearches.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="inline-flex min-h-10 min-w-0 items-center justify-center rounded-md border border-white/25 bg-white/15 px-2 py-1.5 text-center text-xs font-black leading-4 text-white transition hover:border-white hover:bg-white hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:text-sm"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -188,43 +205,104 @@ export default async function Home() {
 
       <RequestsPreviewSection requests={requests} />
 
-      <section id="proprietaires" className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-        <div>
-          <SectionHeading
-            eyebrow="Pour les propriétaires"
-            title="Un site professionnel pour montrer votre parc et gagner des demandes."
-            description="Ajoutez vos équipements, gérez vos locations et votre maintenance, suivez la rentabilité et augmentez votre visibilité auprès des professionnels au Maroc."
-          />
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/dashboard">
-              Voir le dashboard
-            </ButtonLink>
+      <section id="proprietaires" className="border-y border-orange-100 bg-orange-50/50">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:px-8">
+          <div className="max-w-xl">
+            <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700">
+              <Building2 size={18} aria-hidden />
+              Pour les propriétaires
+            </p>
+            <h2 className="mt-4 text-3xl font-black leading-tight text-neutral-950 sm:text-4xl lg:text-5xl">
+              Votre parc visible. Vos locations mieux pilotées.
+            </h2>
+            <p className="mt-5 text-base leading-7 text-neutral-600 sm:text-lg">
+              Publiez vos machines, recevez des demandes qualifiées et suivez chaque réservation depuis un espace pensé pour les professionnels du BTP au Maroc.
+            </p>
+
+            <ul className="mt-7 grid gap-3 text-sm font-bold text-neutral-800 sm:grid-cols-2">
+              {[
+                "Annonces structurées et visibles",
+                "Demandes centralisées",
+                "Planning des disponibilités",
+                "Maintenance et activité suivies",
+              ].map((benefit) => (
+                <li key={benefit} className="flex items-center gap-3">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-orange-100 text-orange-700">
+                    <BadgeCheck size={16} aria-hidden />
+                  </span>
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8">
+              <ButtonLink href="/dashboard">
+                Accéder à mon espace
+                <ArrowRight size={18} aria-hidden />
+              </ButtonLink>
+            </div>
           </div>
-        </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl shadow-neutral-950/5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              ["Machines publiées", String(equipment.length || 0), "offres visibles"],
-              ["Demandes clients", String(requests.length || 0), "besoins qualifiés"],
-              ["Réservations", "API", "suivi propriétaire"],
-              ["Finances", "MAD", "paiements et cautions"],
-            ].map(([label, value, helper]) => (
-              <div key={label} className="rounded-xl bg-neutral-50 p-4">
-                <p className="text-xs font-bold uppercase text-neutral-500">{label}</p>
-                <p className="mt-2 text-2xl font-black text-neutral-950">{value}</p>
-                <p className="mt-1 text-xs font-semibold text-orange-700">{helper}</p>
+
+          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-2xl shadow-orange-950/10">
+            <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-4 py-4 sm:px-6">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-orange-500 text-white">
+                  <BarChart3 size={21} aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="truncate font-black text-neutral-950">Vue d’ensemble du parc</h3>
+                  <p className="truncate text-xs font-medium text-neutral-500">Activité propriétaire centralisée</p>
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="mt-4 rounded-xl border border-neutral-200 p-4">
-            <h3 className="font-black text-neutral-950">Pilotage propriétaire</h3>
-            <div className="mt-4 grid gap-3">
-              {["Matériel publié", "Demandes reçues", "Calendrier réservé"].map((label, index) => (
-                <div key={label} className="flex items-center justify-between gap-3 rounded-xl bg-orange-50 p-3">
-                  <span className="font-bold text-neutral-950">{label}</span>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-orange-700">{index + 1}</span>
+              <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
+                <span className="size-2 rounded-full bg-emerald-500" />
+                À jour
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 border-b border-neutral-200 sm:grid-cols-4">
+              {[
+                ["Machines en ligne", String(equipment.length || 0), "visibles"],
+                ["Demandes reçues", String(requests.length || 0), "à traiter"],
+                ["Planning", "Centralisé", "dates maîtrisées"],
+                ["Activité", "Suivie", "parc et revenus"],
+              ].map(([label, value, helper], index) => (
+                <div
+                  key={label}
+                  className={`min-w-0 px-4 py-5 sm:px-5 ${index % 2 ? "border-l border-neutral-200" : ""} ${index > 1 ? "border-t border-neutral-200 sm:border-t-0" : ""} ${index > 0 ? "sm:border-l sm:border-neutral-200" : ""}`}
+                >
+                  <p className="text-xs font-bold text-neutral-500">{label}</p>
+                  <p className={`mt-2 font-black text-neutral-950 ${value.length > 4 ? "text-lg" : "text-3xl"}`}>{value}</p>
+                  <p className="mt-1 text-xs font-semibold text-orange-700">{helper}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="p-4 sm:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-black text-neutral-950">Du dépôt à la location</p>
+                  <p className="mt-1 text-xs font-medium text-neutral-500">Un parcours clair pour chaque machine</p>
+                </div>
+                <CalendarDays className="text-orange-500" size={22} aria-hidden />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  [Wrench, "Publier", "Ajoutez les informations utiles"],
+                  [ClipboardCheck, "Recevoir", "Centralisez les demandes"],
+                  [CalendarCheck, "Planifier", "Bloquez les dates confirmées"],
+                ].map(([Icon, label, helper]) => {
+                  const StepIcon = Icon as LucideIcon;
+
+                  return (
+                    <div key={label as string} className="group rounded-lg border border-neutral-200 p-4 transition hover:border-orange-200 hover:bg-orange-50/60">
+                      <StepIcon className="text-orange-500" size={20} aria-hidden />
+                      <p className="mt-4 font-black text-neutral-950">{label as string}</p>
+                      <p className="mt-1 text-xs leading-5 text-neutral-500">{helper as string}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
