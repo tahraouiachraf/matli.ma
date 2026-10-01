@@ -24,9 +24,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/legal-notice", 0.3, "yearly"),
   ];
 
+  const highIntentCategories = new Set(["mini-pelles", "chariots-telescopiques", "chargeuses-sur-pneumatiques"]);
   const categoryPages = categories.map((category) =>
-    page(`/rentals?category=${category.slug}`, 0.78, "weekly"),
+    page(
+      `/rentals?category=${category.slug}`,
+      highIntentCategories.has(category.slug) ? 0.82 : 0.78,
+      highIntentCategories.has(category.slug) ? "daily" : "weekly",
+    ),
   );
+
+  const popularMachinePages: MetadataRoute.Sitemap = [
+    page("/rentals?brand=JCB&model=3CX", 0.84, "daily"),
+  ];
 
   const localPages = localSeoPages.map((item) =>
     page(`/rentals/${item.slug}`, 0.8, "daily"),
@@ -45,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(article.updatedAt),
   }));
 
-  return [...staticPages, ...categoryPages, ...localPages, ...equipmentPages, ...companyPages, ...newsPages];
+  return [...staticPages, ...categoryPages, ...popularMachinePages, ...localPages, ...equipmentPages, ...companyPages, ...newsPages];
 }
 
 function page(

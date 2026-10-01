@@ -12,6 +12,7 @@ import {
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroMachineAnimation } from "@/components/hero/HeroMachineAnimation";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
@@ -44,6 +45,27 @@ const popularSearches = [
   { label: "Chargeuse", href: "/rentals?category=chargeuses-sur-pneumatiques" },
 ];
 
+export const metadata: Metadata = {
+  title: "Location de matériel BTP au Maroc",
+  description: "Louez du matériel BTP au Maroc sur MATLI.ma: JCB 3CX, mini-pelles, chariots télescopiques et chargeuses disponibles auprès de propriétaires locaux.",
+  keywords: [
+    "location matériel BTP Maroc",
+    "matériel BTP",
+    "JCB 3CX Maroc",
+    "location mini pelle",
+    "location telescopic",
+    "location chargeuse",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Location de matériel BTP au Maroc | MATLI.ma",
+    description: "Comparez les prix et disponibilités des JCB 3CX, mini-pelles, télescopiques et chargeuses au Maroc.",
+    url: "/",
+    type: "website",
+    images: ["/matli-social-preview.webp"],
+  },
+};
+
 export const revalidate = 60;
 
 export default async function Home() {
@@ -67,7 +89,7 @@ export default async function Home() {
                 au Maroc
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-white sm:text-lg">
-                Trouvez une machine disponible, comparez les prix entre propriétaires et envoyez une demande claire. Les propriétaires déposent leur matériel et reçoivent des clients qualifiés.
+                MATLI est la marketplace marocaine de location de matériel BTP. Trouvez un JCB 3CX, une mini-pelle, un télescopique ou une chargeuse, comparez les prix et envoyez une demande claire au propriétaire.
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">

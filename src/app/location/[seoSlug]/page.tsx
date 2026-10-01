@@ -21,9 +21,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    keywords: [
+      `location ${page.categoryName.toLowerCase()} ${page.city}`,
+      `matériel BTP ${page.city}`,
+      `engins de chantier ${page.city}`,
+      "location matériel BTP Maroc",
+      ...categoryKeywords(page.category),
+    ],
     alternates: { canonical },
     openGraph: { title: `${title} | MATLI`, description, url: canonical, type: "website" },
   };
+}
+
+function categoryKeywords(category: string) {
+  const keywords: Record<string, string[]> = {
+    tractopelles: ["JCB 3CX", "location JCB 3CX", "location tractopelle"],
+    "mini-pelles": ["mini pelle", "location mini-pelle", "mini pelle chantier"],
+    "chariots-telescopiques": ["telescopic", "chariot télescopique", "location télescopique"],
+    "nacelles-telescopiques-articules": ["nacelle articulée", "télescopique articulé"],
+    "pelles-sur-chenilles": ["pelle sur chenilles", "location pelle BTP"],
+    "chargeuses-sur-pneumatiques": ["chargeuse", "location chargeuse", "chargeuse sur pneus"],
+    grues: ["grue mobile", "location grue"],
+  };
+
+  return keywords[category] ?? [];
 }
 
 export default async function LocalLocationPage({ params }: PageProps) {

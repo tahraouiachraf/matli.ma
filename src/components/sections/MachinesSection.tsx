@@ -11,7 +11,7 @@ export async function MachinesSection() {
       <SectionHeading
         eyebrow="Machines"
         title="Quel type de machine voulez-vous louer ?"
-        description="Choisissez la catégorie adaptée à votre chantier, puis comparez les modèles, les tarifs, les options et les disponibilités près de chez vous."
+        description="Choisissez votre matériel BTP: JCB 3CX, tractopelle, mini-pelle, chariot télescopique, pelle ou chargeuse. Comparez les modèles, les tarifs et les disponibilités au Maroc."
       />
       <div className="mt-10">
         <CategoryGrid items={categories} />
