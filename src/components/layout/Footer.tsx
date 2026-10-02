@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 function InstagramIcon() {
   return (
@@ -24,10 +23,8 @@ function LinkedinIcon() {
 }
 
 export function Footer() {
-  const { connected, user } = useAuth();
-  const canDeposit = connected && isOwnerWorkspaceRole(getWorkspaceRole(user));
+  const { connected } = useAuth();
   const ownerLinks = [
-    ...(canDeposit ? [["Déposer un matériel", "/list-equipment"]] : []),
     ...(!connected ? [["Créer un compte", "/register"], ["Se connecter", "/login"]] : []),
   ];
 

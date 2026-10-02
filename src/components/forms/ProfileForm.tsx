@@ -112,7 +112,7 @@ export function ProfileForm() {
         </button>
         {canDeposit ? (
           <a
-            href="/list-equipment"
+            href="/dashboard/equipment/new"
             className="inline-flex h-12 items-center justify-center rounded-md border border-neutral-200 px-5 text-sm font-bold hover:border-orange-400"
           >
             Déposer une machine
