@@ -11,7 +11,12 @@ import {
   LayoutDashboard,
   Loader2,
   MapPin,
+  Pencil,
+  Power,
+  PowerOff,
   Search,
+  Send,
+  Trash2,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -357,9 +362,9 @@ export function OwnerSectionContent({ section }: { section: string }) {
         {!apiError && items.length ? (
           <div className="grid gap-4">
             {items.map((item) => (
-            <div key={item.id} className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-3 sm:p-4 md:grid-cols-[140px_1fr_auto] md:items-center">
-              <div className="h-28 rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} />
-              <div>
+            <article key={item.id} className="grid gap-4 overflow-hidden rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition hover:border-neutral-300 hover:shadow-md sm:p-4 md:grid-cols-[160px_minmax(0,1fr)] xl:grid-cols-[168px_minmax(0,1fr)_auto] xl:items-center">
+              <div className="aspect-[4/3] overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} role="img" aria-label={`Photo de ${item.title}`} />
+              <div className="min-w-0">
                 <h3 className="text-lg font-black sm:text-xl">{item.title}</h3>
                 <p className="mt-1 text-sm text-neutral-600">
                   {item.category} · {item.city} · {item.brand} {item.model}
@@ -376,8 +381,8 @@ export function OwnerSectionContent({ section }: { section: string }) {
                 </div>
                 {item.moderationNotes ? <p className="mt-2 text-xs font-semibold text-red-700">{item.moderationNotes}</p> : null}
               </div>
-              <div className="grid gap-2 sm:flex md:grid">
-                {item.backendId && !item.archivedAt ? <Link href={`/dashboard/equipment/${item.backendId}/edit`} className="rounded-lg bg-neutral-950 px-4 py-2 text-center text-sm font-black text-white">Modifier</Link> : <span className="rounded-lg bg-neutral-200 px-4 py-2 text-center text-sm font-black text-neutral-500">Modifier</span>}
+              <div className="grid grid-cols-2 gap-2 md:col-span-2 sm:flex xl:col-span-1 xl:grid xl:min-w-44">
+                {item.backendId && !item.archivedAt ? <Link href={`/dashboard/equipment/${item.backendId}/edit`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white transition hover:bg-neutral-800"><Pencil size={16} aria-hidden />Modifier</Link> : <span className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-neutral-100 px-4 py-2 text-sm font-black text-neutral-400"><Pencil size={16} aria-hidden />Modifier</span>}
                 <button
                   type="button"
                   role="switch"
@@ -385,17 +390,15 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   aria-label={`${item.archivedAt ? "Activer" : "Désactiver"} ${item.title}`}
                   disabled={equipmentAction === item.backendId}
                   onClick={() => changeEquipmentState(item, item.archivedAt ? "restore" : "archive")}
-                  className="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-neutral-200 px-3 text-sm font-bold text-neutral-700 disabled:opacity-40"
+                  className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold transition disabled:opacity-40 ${item.archivedAt ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100" : "border-orange-200 bg-orange-50 text-orange-800 hover:bg-orange-100"}`}
                 >
-                  <span className={`relative h-6 w-11 rounded-full transition ${item.archivedAt ? "bg-neutral-300" : "bg-orange-500"}`} aria-hidden>
-                    <span className={`absolute top-1 size-4 rounded-full bg-white shadow transition ${item.archivedAt ? "left-1" : "left-6"}`} />
-                  </span>
+                  {item.archivedAt ? <Power size={17} aria-hidden /> : <PowerOff size={17} aria-hidden />}
                   {equipmentAction === item.backendId ? "Mise à jour..." : item.archivedAt ? "Activer" : "Désactiver"}
                 </button>
-                {item.moderationStatus === "rejected" || item.moderationStatus === "draft" ? <button type="button" onClick={() => changeEquipmentState(item, "submit")} className="rounded-lg border border-orange-200 px-4 py-2 text-sm font-bold text-orange-700">Envoyer en validation</button> : null}
-                <button type="button" onClick={() => setConfirmEquipmentDelete(item)} className="rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700">Supprimer</button>
+                {item.moderationStatus === "rejected" || item.moderationStatus === "draft" ? <button type="button" onClick={() => changeEquipmentState(item, "submit")} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-orange-200 px-4 py-2 text-sm font-bold text-orange-700 transition hover:bg-orange-50"><Send size={16} aria-hidden />Envoyer en validation</button> : null}
+                <button type="button" onClick={() => setConfirmEquipmentDelete(item)} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-700 transition hover:bg-red-50"><Trash2 size={16} aria-hidden />Supprimer</button>
               </div>
-            </div>
+            </article>
             ))}
           </div>
         ) : !apiError ? (
