@@ -1,6 +1,7 @@
 "use client";
 
 import { ImagePlus, Images, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { categories, cities } from "@/lib/data";
@@ -17,6 +18,7 @@ type DepositMachineFormProps = {
 };
 
 export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }: DepositMachineFormProps) {
+  const router = useRouter();
   const { token, user } = useAuth();
   const canManageSponsoring = isAdminWorkspaceRole(getWorkspaceRole(user));
   const [submitting, setSubmitting] = useState(false);
@@ -54,14 +56,28 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       if (!equipment && !primaryImage) {
         throw new Error("Ajoutez une photo principale pour publier ce matériel.");
       }
-      if (imageFiles.length > 8) {
+      const existingImages = equipment?.images?.length ? equipment.images : equipment?.image ? [equipment.image] : [];
+      const resultingImageCount = equipment
+        ? (primaryImage ? 1 : Math.min(existingImages.length, 1)) + existingImages.slice(1).length + galleryImages.length
+        : imageFiles.length;
+      if (resultingImageCount > 8) {
         throw new Error("Vous pouvez ajouter jusqu’à 8 photos par matériel.");
       }
       if (imageFiles.some((file) => file.size > 8 * 1024 * 1024)) {
         throw new Error("Chaque image doit peser au maximum 8 Mo.");
       }
       const uploadedImages = await Promise.all(imageFiles.map((file) => uploadEquipmentImage(file, token)));
-      const imageUrls = uploadedImages.map((image) => image.url);
+      let uploadedIndex = 0;
+      const uploadedPrimary = primaryImage ? uploadedImages[uploadedIndex++]?.url : undefined;
+      const uploadedGallery = uploadedImages.slice(uploadedIndex).map((image) => image.url);
+      const imageUrls = equipment
+        ? Array.from(new Set([
+            uploadedPrimary ?? existingImages[0],
+            ...existingImages.slice(1),
+            ...uploadedGallery,
+          ].filter((url): url is string => Boolean(url))))
+        : uploadedImages.map((image) => image.url);
+      const imagesChanged = imageFiles.length > 0;
       const payload: CreateEquipmentPayload = {
           category_slug: String(formData.get("category_slug") ?? ""),
           title: String(formData.get("title") ?? ""),
@@ -76,8 +92,8 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           price_day: Number(formData.get("price_day")),
           price_week: Number(formData.get("price_week")) || undefined,
           status: String(formData.get("status") ?? "available") as CreateEquipmentPayload["status"],
-          image_url: imageUrls[0],
-          image_urls: imageUrls.length ? imageUrls : undefined,
+          image_url: imagesChanged || !equipment ? imageUrls[0] : undefined,
+          image_urls: imagesChanged || !equipment ? imageUrls : undefined,
           description: String(formData.get("description") ?? ""),
           operator_available: formData.get("operator_available") === "1",
           delivery_available: formData.get("delivery_available") === "1",
@@ -94,6 +110,10 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       setPrimaryImage(null);
       setGalleryImages([]);
       setMessage(equipment ? "Machine modifiée et envoyée en validation." : "Machine ajoutée et envoyée en validation.");
+      if (!equipment && !onCreated) {
+        router.push("/dashboard/equipment");
+        router.refresh();
+      }
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Merci de vérifier les informations puis de réessayer.");
     } finally {
@@ -227,11 +247,19 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
                   </span>
                 ))}
               </span>
+            ) : equipment?.images?.slice(1).length ? (
+              <span className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {equipment.images.slice(1).map((url, index) => (
+                  <span key={url} className="relative aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }}>
+                    <span className="absolute bottom-1 left-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600">Photo {index + 2}</span>
+                  </span>
+                ))}
+              </span>
             ) : <span className="grid min-h-28 place-items-center rounded-lg bg-neutral-100 px-4 text-center text-xs font-semibold text-neutral-500">Ajoutez jusqu’à 7 vues : côtés, cabine, godet et état général.</span>}
           </div>
         </div>
         <p className="text-xs leading-5 text-neutral-500">JPEG, PNG, WebP ou AVIF. 8 Mo maximum par image, 8 photos au total.</p>
-        {equipment?.images?.length ? <p className="text-xs font-semibold text-orange-700">{equipment.images.length} photo(s) actuellement enregistrée(s). Ajouter de nouvelles images remplacera la galerie actuelle.</p> : null}
+        {equipment?.images?.length ? <p className="text-xs font-semibold text-orange-700">{equipment.images.length} photo(s) actuellement enregistrée(s). Les nouvelles vues seront ajoutées à la galerie; une nouvelle photo principale remplacera uniquement la photo principale actuelle.</p> : null}
       </fieldset>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description

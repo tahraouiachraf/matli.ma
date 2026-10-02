@@ -223,11 +223,21 @@ const requestStatusMap: Record<ApiRentalRequest["status"], ClientRequest["status
 function localImage(url: string | null | undefined, index = 0) {
   if (!url) return imageFallbacks[index % imageFallbacks.length];
   if (url.includes("default-machine")) return imageFallbacks[index % imageFallbacks.length];
-  const optimizedUrl = url
+  let optimizedUrl = url
     .replace("jcb-3cx-yard.png", "jcb-3cx-yard.jpg")
     .replace("jcb-3cx-studio.png", "jcb-3cx-studio.jpg")
     .replace("jcb-telescopic-site.png", "jcb-telescopic-site.jpg")
     .replace("jcb-excavator-quarry.png", "jcb-excavator-quarry.jpg");
+
+  try {
+    const parsedUrl = new URL(optimizedUrl);
+    if (["localhost", "127.0.0.1"].includes(parsedUrl.hostname) && parsedUrl.pathname.startsWith("/storage/")) {
+      optimizedUrl = `${API_ORIGIN}${parsedUrl.pathname}${parsedUrl.search}`;
+    }
+  } catch {
+    // Relative media paths are resolved against the Laravel API below.
+  }
+
   if (optimizedUrl.startsWith("/storage/")) return `${API_ORIGIN}${optimizedUrl}`;
   return optimizedUrl;
 }
