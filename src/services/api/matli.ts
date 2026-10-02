@@ -202,6 +202,7 @@ const categoryImages: Record<string, string> = {
   "grues": "/equipment/jcb-telescopic-site.jpg",
   "pelles-sur-chenilles": "/equipment/jcb-excavator-quarry.jpg",
   "chargeuses-sur-pneumatiques": "/equipment/jcb-3cx-studio.jpg",
+  "compacteurs-rouleaux-compresseurs": "/equipment/jcb-3cx-yard.jpg",
 };
 
 const statusMap: Record<ApiEquipment["status"], Equipment["status"]> = {

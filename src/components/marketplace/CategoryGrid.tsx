@@ -1,4 +1,4 @@
-import { ArrowUpRight, Construction, Forklift, MoveUpRight, Pickaxe, Shovel, Tractor, Truck } from "lucide-react";
+import { ArrowUpRight, CircleGauge, Construction, Forklift, MoveUpRight, Pickaxe, Shovel, Tractor, Truck } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { categories } from "@/lib/data";
@@ -12,10 +12,12 @@ const categoryIcons = {
   "grues": Construction,
   "pelles-sur-chenilles": Pickaxe,
   "chargeuses-sur-pneumatiques": Truck,
+  "compacteurs-rouleaux-compresseurs": CircleGauge,
 };
 
 function desktopSpan(itemCount: number, index: number) {
   if (itemCount === 7) return index < 4 ? "lg:col-span-3" : "lg:col-span-4";
+  if (itemCount === 8) return "lg:col-span-3";
   if (itemCount === 4) return "lg:col-span-3";
   return "lg:col-span-4";
 }

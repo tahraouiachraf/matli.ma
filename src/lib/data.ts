@@ -55,6 +55,15 @@ export const categories: Category[] = [
     seoTitle: "Location chargeuse Maroc | MATLI",
     metaDescription: "Chargeuses sur pneumatiques disponibles à la location.",
   },
+  {
+    name: "Compacteurs / Rouleaux compresseurs",
+    slug: "compacteurs-rouleaux-compresseurs",
+    description: "Compacteurs et rouleaux compresseurs pour routes, plateformes, terrassements et travaux de voirie.",
+    image: "/equipment/jcb-3cx-yard.jpg",
+    icon: "Gauge",
+    seoTitle: "Location compacteur et rouleau compresseur Maroc | MATLI",
+    metaDescription: "Trouvez des compacteurs et rouleaux compresseurs disponibles à la location au Maroc.",
+  },
 ];
 
 export const companies: Company[] = [
