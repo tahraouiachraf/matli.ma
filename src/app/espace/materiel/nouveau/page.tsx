@@ -18,7 +18,7 @@ export default function NewEquipmentPage() {
         </Link>
 
         <div className="mt-5 border-b border-neutral-200 pb-6">
-          <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700"><Camera size={18} aria-hidden /> Nouvelle annonce</p>
+          {/* <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700"><Camera size={18} aria-hidden /> Nouvelle annonce</p> */}
           <h1 className="mt-2 text-3xl font-black text-neutral-950 sm:text-4xl">Ajouter un matériel</h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 sm:text-base">Renseignez les caractéristiques, les conditions de location et des photos nettes. L’annonce sera envoyée à l’administration pour validation avant sa publication.</p>
           <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold text-neutral-600 sm:text-sm">
