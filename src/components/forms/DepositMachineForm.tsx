@@ -26,6 +26,8 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
   const [error, setError] = useState<string | null>(null);
   const [primaryImage, setPrimaryImage] = useState<File | null>(null);
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>(() => equipment?.images?.length ? equipment.images : equipment?.image ? [equipment.image] : []);
+  const [existingImagesChanged, setExistingImagesChanged] = useState(false);
   const primaryPreview = useMemo(() => primaryImage ? URL.createObjectURL(primaryImage) : null, [primaryImage]);
   const galleryPreviews = useMemo(() => galleryImages.map((file) => ({ file, url: URL.createObjectURL(file) })), [galleryImages]);
 
@@ -56,7 +58,6 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       if (!equipment && !primaryImage) {
         throw new Error("Ajoutez une photo principale pour publier ce matériel.");
       }
-      const existingImages = equipment?.images?.length ? equipment.images : equipment?.image ? [equipment.image] : [];
       const resultingImageCount = equipment
         ? (primaryImage ? 1 : Math.min(existingImages.length, 1)) + existingImages.slice(1).length + galleryImages.length
         : imageFiles.length;
@@ -77,7 +78,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
             ...uploadedGallery,
           ].filter((url): url is string => Boolean(url))))
         : uploadedImages.map((image) => image.url);
-      const imagesChanged = imageFiles.length > 0;
+      const imagesChanged = imageFiles.length > 0 || existingImagesChanged;
       const payload: CreateEquipmentPayload = {
           category_slug: String(formData.get("category_slug") ?? ""),
           title: String(formData.get("title") ?? ""),
@@ -226,7 +227,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
               onChange={(event) => setPrimaryImage(event.target.files?.[0] ?? null)}
               className="text-xs font-normal text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700"
             />
-            {primaryPreview ? <span className="block aspect-[16/10] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${primaryPreview})` }} aria-label="Aperçu de la photo principale" /> : equipment?.image ? <span className="block aspect-[16/10] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${equipment.image})` }} aria-label="Photo principale actuelle" /> : <span className="grid aspect-[16/10] place-items-center rounded-lg bg-neutral-100 text-center text-xs font-semibold text-neutral-500">La photo utilisée dans les résultats de recherche</span>}
+            {primaryPreview ? <span className="block aspect-[16/10] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${primaryPreview})` }} aria-label="Aperçu de la photo principale" /> : existingImages[0] ? <span className="block aspect-[16/10] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${existingImages[0]})` }} aria-label="Photo principale actuelle" /> : <span className="grid aspect-[16/10] place-items-center rounded-lg bg-neutral-100 text-center text-xs font-semibold text-neutral-500">La photo utilisée dans les résultats de recherche</span>}
           </div>
           <div className="grid content-start gap-3 rounded-xl border border-dashed border-neutral-300 bg-white p-4 text-sm font-semibold transition hover:border-orange-400">
             <label htmlFor="equipment-gallery-images" className="flex items-center gap-2 text-neutral-950"><Images size={19} className="text-orange-600" aria-hidden /> Images supplémentaires</label>
@@ -239,19 +240,28 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
               onChange={(event) => setGalleryImages(Array.from(event.target.files ?? []).slice(0, 7))}
               className="text-xs font-normal text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:font-bold file:text-orange-700"
             />
-            {galleryPreviews.length ? (
+            {existingImages.slice(1).length || galleryPreviews.length ? (
               <span className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {existingImages.slice(1).map((url, index) => (
+                  <span key={url} className="group relative aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }}>
+                    <span className="absolute bottom-1 left-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600">Photo {index + 2}</span>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setExistingImages((current) => current.filter((_, itemIndex) => itemIndex !== index + 1));
+                        setExistingImagesChanged(true);
+                      }}
+                      className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-white text-red-700 shadow transition hover:bg-red-50"
+                      aria-label={`Supprimer la photo supplémentaire ${index + 1}`}
+                    >
+                      <X size={14} aria-hidden />
+                    </button>
+                  </span>
+                ))}
                 {galleryPreviews.map(({ file, url }, index) => (
                   <span key={`${file.name}-${file.lastModified}`} className="group relative aspect-square rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} title={file.name}>
                     <button type="button" onClick={(event) => { event.preventDefault(); setGalleryImages((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-white text-neutral-800 shadow" aria-label={`Retirer ${file.name}`}><X size={14} aria-hidden /></button>
-                  </span>
-                ))}
-              </span>
-            ) : equipment?.images?.slice(1).length ? (
-              <span className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {equipment.images.slice(1).map((url, index) => (
-                  <span key={url} className="relative aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }}>
-                    <span className="absolute bottom-1 left-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600">Photo {index + 2}</span>
                   </span>
                 ))}
               </span>
@@ -259,7 +269,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
           </div>
         </div>
         <p className="text-xs leading-5 text-neutral-500">JPEG, PNG, WebP ou AVIF. 8 Mo maximum par image, 8 photos au total.</p>
-        {equipment?.images?.length ? <p className="text-xs font-semibold text-orange-700">{equipment.images.length} photo(s) actuellement enregistrée(s). Les nouvelles vues seront ajoutées à la galerie; une nouvelle photo principale remplacera uniquement la photo principale actuelle.</p> : null}
+        {existingImages.length ? <p className="text-xs font-semibold text-orange-700">{existingImages.length} photo(s) conservée(s). Les suppressions seront appliquées lorsque vous enregistrerez les modifications.</p> : null}
       </fieldset>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
         Description
