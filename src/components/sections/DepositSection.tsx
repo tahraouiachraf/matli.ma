@@ -26,7 +26,7 @@ export function DepositSection() {
             ))}
           </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/list-equipment">Déposer une machine</ButtonLink>
+            <ButtonLink href="/dashboard/equipment/new">Déposer une machine</ButtonLink>
           </div>
         </div>
         <div className="animate-soft-float rounded-md border border-neutral-200 bg-white p-5 shadow-xl shadow-neutral-950/10">

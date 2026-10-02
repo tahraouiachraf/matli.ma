@@ -35,7 +35,7 @@ const trustItems: Array<[LucideIcon, string, string]> = [
 
 const heroActions = [
   { label: "Je veux louer", href: "/rentals" },
-  { label: "Je veux déposer", href: "/list-equipment" },
+  { label: "Je veux déposer", href: "/register" },
 ];
 
 const popularSearches = [

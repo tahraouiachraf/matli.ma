@@ -9,22 +9,18 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 const nav = [
   ["Accueil", "/"],
   ["Louer", "/rentals"],
   ["Entreprises", "/companies"],
-  ["Déposer un matériel", "/list-equipment"],
   ["Comment ça marche ?", "/how-it-works"],
 ];
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { connected, user } = useAuth();
-  const canDeposit = connected && isOwnerWorkspaceRole(getWorkspaceRole(user));
-  const visibleNav = nav.filter(([, href]) => href !== "/list-equipment" || canDeposit);
+  const { connected } = useAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -50,7 +46,7 @@ export function Header() {
         <BrandLogo imageClassName="sm:size-11" textClassName="text-xl sm:text-2xl" />
 
         <nav className="hidden items-center gap-5 xl:flex 2xl:gap-7" aria-label="Navigation principale">
-          {visibleNav.map(([label, href]) => {
+          {nav.map(([label, href]) => {
             const active = isActive(href);
 
             return (
@@ -113,7 +109,7 @@ export function Header() {
 
             <nav className="mt-6" aria-label="Navigation mobile">
               <div className="grid gap-1">
-                {visibleNav.map(([label, href]) => {
+                {nav.map(([label, href]) => {
                   const active = isActive(href);
 
                   return (
@@ -140,12 +136,6 @@ export function Header() {
               <div className="mt-3">
                 <ButtonLink href="/register" className="w-full bg-[#F58220] text-white hover:bg-orange-600" onClick={() => setOpen(false)}>
                   Créer mon espace gratuit
-                </ButtonLink>
-              </div>
-            ) : canDeposit ? (
-              <div className="mt-3">
-                <ButtonLink href="/list-equipment" className="w-full bg-[#F58220] text-white hover:bg-orange-600" onClick={() => setOpen(false)}>
-                  Déposer une machine
                 </ButtonLink>
               </div>
             ) : null}

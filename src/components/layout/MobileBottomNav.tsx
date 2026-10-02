@@ -1,25 +1,23 @@
 "use client";
 
-import { CalendarDays, CircleUserRound, Home, PlusCircle, Search } from "lucide-react";
+import { CalendarDays, CircleUserRound, Home, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { connected, user } = useAuth();
+  const { connected } = useAuth();
   const authPage = pathname === "/login"
     || pathname === "/connexion"
     || pathname === "/register"
     || pathname === "/forgot-password"
     || pathname === "/reset-password";
-  const canDeposit = connected && isOwnerWorkspaceRole(getWorkspaceRole(user));
   const items: Array<[LucideIcon, string, string]> = [
     [Home, "Accueil", "/"],
     [Search, "Louer", "/rentals"],
-    canDeposit ? [PlusCircle, "Déposer", "/list-equipment"] : [CalendarDays, "Locations", "/my-rentals"],
+    [CalendarDays, "Locations", "/my-rentals"],
     [CircleUserRound, connected ? "Profil" : "Compte", connected ? "/profile" : "/login"],
   ];
 
