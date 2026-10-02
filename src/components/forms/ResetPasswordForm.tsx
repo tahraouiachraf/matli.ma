@@ -4,6 +4,7 @@ import { Loader2, LockKeyhole } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { resetPassword } from "@/services/api/matli";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 
 export function ResetPasswordForm({ email, token }: { email: string; token: string }) {
   const router = useRouter();
@@ -37,9 +38,10 @@ export function ResetPasswordForm({ email, token }: { email: string; token: stri
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</p> : null}
+      <RequiredFieldsLegend />
       {["password", "password_confirmation"].map((name) => (
         <label key={name} className="grid gap-2 text-sm font-black text-neutral-800">
-          {name === "password" ? "Nouveau mot de passe" : "Confirmer le mot de passe"}
+          <span>{name === "password" ? "Nouveau mot de passe" : "Confirmer le mot de passe"} <RequiredMark /></span>
           <span className="flex h-12 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 focus-within:border-orange-500">
             <LockKeyhole className="size-5 text-neutral-400" aria-hidden />
             <input name={name} type="password" autoComplete="new-password" minLength={10} required className="h-full min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none" placeholder="10 caractères minimum" />

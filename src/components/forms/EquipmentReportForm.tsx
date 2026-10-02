@@ -3,6 +3,7 @@
 import { Flag, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 import { reportEquipment } from "@/services/api/matli";
 
 export function EquipmentReportForm({ equipmentId }: { equipmentId?: string }) {
@@ -40,7 +41,8 @@ export function EquipmentReportForm({ equipmentId }: { equipmentId?: string }) {
       {message ? <p role="status" className="mt-3 text-sm font-semibold text-neutral-700">{message}</p> : null}
       {open ? (
         <form onSubmit={submit} className="mt-3 grid gap-3 rounded-lg bg-neutral-50 p-3">
-          <label className="grid gap-1 text-sm font-bold">Motif
+          <RequiredFieldsLegend />
+          <label className="grid gap-1 text-sm font-bold"><span>Motif <RequiredMark /></span>
             <select name="reason" required className="h-10 rounded-md border border-neutral-200 bg-white px-3 font-normal">
               <option value="unavailable">Machine indisponible</option>
               <option value="duplicate">Annonce en double</option>

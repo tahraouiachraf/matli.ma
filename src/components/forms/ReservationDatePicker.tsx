@@ -3,6 +3,7 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { formatDate } from "@/lib/format";
+import { RequiredMark } from "@/components/ui/RequiredField";
 import type { EquipmentBlockedPeriod } from "@/services/api/matli";
 
 type ReservationDatePickerProps = {
@@ -73,7 +74,7 @@ export function ReservationDatePicker({ blockedPeriods, start, end, onChange }: 
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="inline-flex items-center gap-2 text-sm font-black text-neutral-950">
-            <CalendarDays size={17} className="text-orange-600" aria-hidden /> Dates de location
+            <CalendarDays size={17} className="text-orange-600" aria-hidden /> Dates de location <RequiredMark />
           </p>
           <p className="mt-1 text-xs text-neutral-500">Choisissez le premier puis le dernier jour.</p>
         </div>
@@ -150,11 +151,11 @@ export function ReservationDatePicker({ blockedPeriods, start, end, onChange }: 
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
         <div className="rounded-md border border-neutral-200 bg-white p-2.5">
-          <span className="block font-semibold text-neutral-500">Début</span>
+          <span className="block font-semibold text-neutral-500">Début <RequiredMark /></span>
           <strong className="mt-1 block text-neutral-900">{start ? formatDate(start) : "À choisir"}</strong>
         </div>
         <div className="rounded-md border border-neutral-200 bg-white p-2.5">
-          <span className="block font-semibold text-neutral-500">Fin</span>
+          <span className="block font-semibold text-neutral-500">Fin <RequiredMark /></span>
           <strong className="mt-1 block text-neutral-900">{end ? formatDate(end) : "À choisir"}</strong>
         </div>
       </div>

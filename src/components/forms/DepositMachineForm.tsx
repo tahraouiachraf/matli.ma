@@ -4,6 +4,7 @@ import { ImagePlus, Images, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 import { categories, cities } from "@/lib/data";
 import { getWorkspaceRole, isAdminWorkspaceRole } from "@/lib/workspace-access";
 import { createWorkspaceEquipment, updateWorkspaceEquipment, uploadEquipmentImage } from "@/services/api/matli";
@@ -126,8 +127,9 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
     <form onSubmit={handleSubmit} className="grid gap-5 rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl shadow-neutral-950/5 sm:p-5 md:grid-cols-2">
       {message ? <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-700 md:col-span-2">{message}</p> : null}
       {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700 md:col-span-2">{error}</p> : null}
+      <RequiredFieldsLegend className="md:col-span-2" />
       <label className="grid gap-2 text-sm font-semibold">
-        Catégorie
+        <span>Catégorie <RequiredMark /></span>
         <select name="category_slug" defaultValue={categories.find((item) => item.name === equipment?.category)?.slug ?? ""} required className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
           <option value="" disabled>Choisir une catégorie</option>
           {categories.map((category) => (
@@ -136,7 +138,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
         </select>
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Titre de l&apos;annonce
+        <span>Titre de l&apos;annonce <RequiredMark /></span>
         <input name="title" defaultValue={equipment?.title} required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: Tractopelle JCB 3CX disponible" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
@@ -169,7 +171,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
         <input name="tonnage" defaultValue={equipment?.tonnage} type="number" min="0.1" max="1000" step="0.1" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 8.5" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Ville
+        <span>Ville <RequiredMark /></span>
         <select name="city" defaultValue={equipment?.city ?? ""} required className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
           <option value="" disabled>Choisir une ville</option>
           {cities.map((city) => (
@@ -182,7 +184,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
         <input name="region" defaultValue={equipment?.region} className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: Casablanca-Settat" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Prix / jour
+        <span>Prix / jour <RequiredMark /></span>
         <input name="price_day" defaultValue={equipment?.priceDay} type="number" min="1" required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 1500 DH" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
@@ -190,8 +192,8 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
         <input name="price_week" defaultValue={equipment?.priceWeek} type="number" min="1" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Ex: 8800 DH" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Statut
-        <select name="status" defaultValue={equipment?.status.toLowerCase() ?? "available"} className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
+        <span>Statut <RequiredMark /></span>
+        <select name="status" defaultValue={equipment?.status.toLowerCase() ?? "available"} required className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
           <option value="available">Disponible maintenant</option>
           <option value="reserved">Réservé</option>
           <option value="rented">En location</option>
@@ -217,7 +219,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
         <p className="-mt-3 text-sm leading-6 text-neutral-600">Présentez clairement la machine avec une photo principale et plusieurs angles complémentaires.</p>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
           <div className="grid gap-3 rounded-xl border border-dashed border-neutral-300 bg-white p-4 text-sm font-semibold transition hover:border-orange-400">
-            <label htmlFor="equipment-primary-image" className="flex items-center gap-2 text-neutral-950"><ImagePlus size={19} className="text-orange-600" aria-hidden /> Photo principale {!equipment ? <span className="text-red-600">*</span> : null}</label>
+            <label htmlFor="equipment-primary-image" className="flex items-center gap-2 text-neutral-950"><ImagePlus size={19} className="text-orange-600" aria-hidden /> Photo principale {!equipment ? <RequiredMark /> : null}</label>
             <input
               id="equipment-primary-image"
               name="primary_image"
