@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 
 const fieldClass = "flex h-12 min-w-0 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 transition focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/10";
 const controlClass = "h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-neutral-950 outline-none placeholder:text-neutral-400";
@@ -74,9 +75,10 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
         </button>
       ) : null}
       {resendMessage ? <p className="text-sm font-semibold text-emerald-700">{resendMessage}</p> : null}
+      <RequiredFieldsLegend />
 
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Adresse email
+        <span>Adresse email <RequiredMark /></span>
         <span className={fieldClass}>
           <Mail className="h-5 w-5 shrink-0 text-neutral-400" />
           <input
@@ -91,7 +93,7 @@ export function LoginForm({ notice, initialVerificationEmail }: { notice?: strin
       </label>
 
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Mot de passe
+        <span>Mot de passe <RequiredMark /></span>
         <span className={fieldClass}>
           <LockKeyhole className="h-5 w-5 shrink-0 text-neutral-400" />
           <input

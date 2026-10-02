@@ -4,6 +4,7 @@ import { AlertCircle, Building2, Check, ChevronDown, Eye, EyeOff, HardHat, Loade
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 import { cities } from "@/lib/data";
 
 const fieldClass = "flex h-12 min-w-0 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 transition focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-100";
@@ -51,8 +52,9 @@ export function RegisterForm() {
           {error}
         </p>
       ) : null}
+      <RequiredFieldsLegend className="md:col-span-2" />
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Nom complet
+        <span>Nom complet <RequiredMark /></span>
         <span className={fieldClass}>
           <UserRound className="size-5 shrink-0 text-neutral-400" aria-hidden />
           <input name="name" autoComplete="name" placeholder="Votre nom complet" className={controlClass} required />
@@ -66,14 +68,14 @@ export function RegisterForm() {
         </span>
       </label>
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Email
+        <span>Email <RequiredMark /></span>
         <span className={fieldClass}>
           <Mail className="size-5 shrink-0 text-neutral-400" aria-hidden />
           <input name="email" type="email" autoComplete="email" placeholder="nom@entreprise.ma" className={controlClass} required />
         </span>
       </label>
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Ville
+        <span>Ville <RequiredMark /></span>
         <span className={`${fieldClass} relative`}>
           <MapPin className="size-5 shrink-0 text-neutral-400" aria-hidden />
           <select name="city" defaultValue="" className={`${controlClass} appearance-none pr-7`} required>
@@ -86,10 +88,10 @@ export function RegisterForm() {
         </span>
       </label>
       <fieldset className="min-w-0 md:col-span-2">
-        <legend className="mb-2 text-sm font-black text-neutral-800">Je souhaite</legend>
+        <legend className="mb-2 text-sm font-black text-neutral-800">Je souhaite <RequiredMark /></legend>
         <div className="grid gap-2">
           <label className="cursor-pointer">
-            <input type="radio" name="account_type" value="client" defaultChecked className="peer sr-only" />
+            <input type="radio" name="account_type" value="client" defaultChecked required className="peer sr-only" />
             <span className="flex min-h-14 items-center gap-3 rounded-md border border-neutral-300 bg-neutral-50 px-4 text-sm font-bold text-neutral-700 transition hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-800 peer-checked:[&_.selection-mark]:opacity-100 peer-focus-visible:ring-4 peer-focus-visible:ring-orange-100">
               <Search className="size-5 shrink-0" aria-hidden />
               <span className="flex-1">Louer une machine</span>
@@ -114,7 +116,7 @@ export function RegisterForm() {
         </span>
       </label>
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Mot de passe
+        <span>Mot de passe <RequiredMark /></span>
         <span className={fieldClass}>
           <LockKeyhole className="size-5 shrink-0 text-neutral-400" aria-hidden />
           <input name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={10} placeholder="10 caractères minimum" className={controlClass} required />
@@ -124,7 +126,7 @@ export function RegisterForm() {
         </span>
       </label>
       <label className="grid min-w-0 gap-2 text-sm font-black text-neutral-800">
-        Confirmer le mot de passe
+        <span>Confirmer le mot de passe <RequiredMark /></span>
         <span className={fieldClass}>
           <LockKeyhole className="size-5 shrink-0 text-neutral-400" aria-hidden />
           <input name="password_confirmation" type={showConfirmation ? "text" : "password"} autoComplete="new-password" minLength={10} placeholder="Répéter le mot de passe" className={controlClass} required />

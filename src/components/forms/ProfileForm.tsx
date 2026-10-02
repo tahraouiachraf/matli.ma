@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Building2, UserRound } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 import { cities } from "@/lib/data";
 import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import { updateAccountProfile } from "@/services/api/matli";
@@ -61,6 +62,7 @@ export function ProfileForm() {
       <form onSubmit={handleSubmit} className="grid gap-6 rounded-md border border-neutral-200 bg-white p-5 md:grid-cols-2">
       {message ? <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800 md:col-span-2">{message}</p> : null}
       {error ? <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700 md:col-span-2">{error}</p> : null}
+      <RequiredFieldsLegend className="md:col-span-2" />
       {[
         ["Nom complet", "name", user?.name ?? ""],
         ["Téléphone", "phone", user?.phone ?? ""],
@@ -68,7 +70,7 @@ export function ProfileForm() {
         ["Email", "email", user?.email ?? ""],
       ].map(([label, name, defaultValue]) => (
         <label key={label} className="grid gap-2 text-sm font-semibold">
-          {label}
+          <span>{label} {name === "name" || name === "email" ? <RequiredMark /> : null}</span>
           <input
             name={name}
             type={name === "email" ? "email" : name === "phone" ? "tel" : "text"}

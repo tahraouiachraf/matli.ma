@@ -13,6 +13,7 @@ import {
   type EquipmentBlockedPeriod,
 } from "@/services/api/matli";
 import { ReservationDatePicker } from "@/components/forms/ReservationDatePicker";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 
 type EquipmentReservationFormProps = {
   equipmentId?: string;
@@ -157,16 +158,17 @@ export function EquipmentReservationForm({ equipmentId, equipmentSlug, equipment
           <p className="text-sm font-black text-orange-600">Réserver ce matériel</p>
           <h2 className="mt-1 text-xl font-black text-neutral-950">{equipmentTitle}</h2>
         </div>
+        <RequiredFieldsLegend />
         {message ? <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">{message}</p> : null}
         {error ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p> : null}
         {connected ? (
           <>
             <label className="grid gap-2 text-sm font-semibold">
-              Nom
+              <span>Nom <RequiredMark /></span>
               <input name="client_name" defaultValue={user?.name ?? ""} required className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom ou entreprise" />
             </label>
             <label className="grid gap-2 text-sm font-semibold">
-              Téléphone
+              <span>Téléphone <RequiredMark /></span>
               <input name="client_phone" defaultValue={user?.phone ?? ""} required inputMode="tel" className="h-11 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
             </label>
           </>

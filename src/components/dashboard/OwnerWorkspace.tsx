@@ -29,6 +29,7 @@ import { apiStatusLabels, categories, cities, requestStatusLabels, rentalStatusL
 import { OwnerPreview } from "@/components/dashboard/OwnerPreview";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { RequiredFieldsLegend, RequiredMark } from "@/components/ui/RequiredField";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { getWorkspaceRole, isOwnerWorkspaceRole } from "@/lib/workspace-access";
 import {
@@ -817,9 +818,10 @@ function WorkspaceCrudForm({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 md:grid-cols-2">
       {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700 md:col-span-2">{error}</p> : null}
+      <RequiredFieldsLegend className="md:col-span-2" />
       {fields.map((field) => (
         <label key={field.name} className={`grid gap-2 text-sm font-semibold ${field.kind === "textarea" ? "md:col-span-2" : ""}`}>
-          {field.label}
+          <span>{field.label} {field.required ? <RequiredMark /> : null}</span>
           {field.kind === "select" ? (
             <select name={field.name} required={field.required} defaultValue={stringValue(editing?.[field.name]) ?? ""} className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
               <option value="">Choisir</option>
@@ -1173,8 +1175,9 @@ function ReservationForm({
           Ajoutez d&apos;abord un matériel connecté au backend pour créer une réservation.
         </p>
       ) : null}
+      <RequiredFieldsLegend className="md:col-span-2" />
       <label className="grid gap-2 text-sm font-semibold">
-        Machine
+        <span>Machine <RequiredMark /></span>
         <select name="equipment_id" required className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
           <option value="">Choisir une machine</option>
           {apiEquipment.map((item) => (
@@ -1185,19 +1188,19 @@ function ReservationForm({
         </select>
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Client
+        <span>Client <RequiredMark /></span>
         <input name="client_name" required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom du client ou entreprise" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Téléphone client
+        <span>Téléphone client <RequiredMark /></span>
         <input name="client_phone" required inputMode="tel" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Date début
+        <span>Date début <RequiredMark /></span>
         <input name="date_start" type="date" required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Date fin
+        <span>Date fin <RequiredMark /></span>
         <input name="date_end" type="date" required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" />
       </label>
       <label className="grid gap-2 text-sm font-semibold md:col-span-2">
@@ -1251,8 +1254,9 @@ function ClientRequestForm({ onSaved }: { onSaved: (payload: CreateRentalRequest
     <form onSubmit={handleSubmit} className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 md:grid-cols-2">
       {message ? <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800 md:col-span-2">{message}</p> : null}
       {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700 md:col-span-2">{error}</p> : null}
+      <RequiredFieldsLegend className="md:col-span-2" />
       <label className="grid gap-2 text-sm font-semibold">
-        Machine demandée
+        <span>Machine demandée <RequiredMark /></span>
         <select name="machine" required className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
           <option value="">Choisir une catégorie</option>
           {categories.map((category) => (
@@ -1261,7 +1265,7 @@ function ClientRequestForm({ onSaved }: { onSaved: (payload: CreateRentalRequest
         </select>
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Ville
+        <span>Ville <RequiredMark /></span>
         <select name="city" required className="h-12 rounded-md border border-neutral-200 bg-white px-3 font-normal outline-none focus:border-orange-500">
           <option value="">Choisir une ville</option>
           {cities.map((city) => (
@@ -1270,11 +1274,11 @@ function ClientRequestForm({ onSaved }: { onSaved: (payload: CreateRentalRequest
         </select>
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Client
+        <span>Client <RequiredMark /></span>
         <input name="client_name" required className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="Nom du client ou entreprise" />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
-        Téléphone client
+        <span>Téléphone client <RequiredMark /></span>
         <input name="client_phone" required inputMode="tel" className="h-12 rounded-md border border-neutral-200 px-3 font-normal outline-none focus:border-orange-500" placeholder="+212 6..." />
       </label>
       <label className="grid gap-2 text-sm font-semibold">
