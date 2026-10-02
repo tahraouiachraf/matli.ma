@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useSyncExternalStore } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { demoAccount } from "@/lib/data";
 import { apiRequest } from "@/services/api/client";
 
@@ -97,8 +97,10 @@ function getServerReadySnapshot() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const connected = useSyncExternalStore(subscribeAuth, getConnectedSnapshot, getServerConnectedSnapshot);
   const userSnapshot = useSyncExternalStore(subscribeAuth, getUserSnapshot, getServerUserSnapshot);
-  const ready = useSyncExternalStore(subscribeReady, getReadySnapshot, getServerReadySnapshot);
+  const hydrated = useSyncExternalStore(subscribeReady, getReadySnapshot, getServerReadySnapshot);
   const token = typeof window === "undefined" ? null : window.localStorage.getItem("matli-api-token");
+  const [checkedToken, setCheckedToken] = useState<string | null>(null);
+  const ready = hydrated && (!connected || checkedToken === token);
   const user = useMemo(() => {
     try {
       return JSON.parse(userSnapshot) as AuthUser | null;
@@ -106,6 +108,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   }, [userSnapshot]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    let active = true;
+
+    apiRequest<{ user: AuthUser }>("/auth/me", { token })
+      .then((payload) => {
+        if (!active) return;
+        const serializedUser = JSON.stringify(payload.user);
+        if (window.localStorage.getItem("matli-user") !== serializedUser) {
+          window.localStorage.setItem("matli-user", serializedUser);
+          window.dispatchEvent(new Event("matli-auth-change"));
+        }
+        setCheckedToken(token);
+      })
+      .catch((error) => {
+        if (!active) return;
+        if (error instanceof Error && "status" in error && error.status === 401) {
+          window.localStorage.removeItem("matli-authenticated");
+          window.localStorage.removeItem("matli-api-token");
+          window.localStorage.removeItem("matli-user");
+          window.dispatchEvent(new Event("matli-auth-change"));
+          return;
+        }
+        setCheckedToken(token);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [token]);
 
   function persistAuth(payload: AuthPayload) {
     window.localStorage.setItem("matli-api-token", payload.access_token);
