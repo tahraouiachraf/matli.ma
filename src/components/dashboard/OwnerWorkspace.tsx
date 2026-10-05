@@ -15,7 +15,6 @@ import {
   Power,
   PowerOff,
   Search,
-  Send,
   Trash2,
   UserRound,
   UsersRound,
@@ -378,7 +377,7 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.archivedAt ? "bg-neutral-100 text-neutral-600" : "bg-emerald-50 text-emerald-700"}`}>
                     {item.archivedAt ? "Désactivée" : "Active"}
                   </span>
-                  {!item.archivedAt ? <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{{ draft: "Brouillon", pending_review: "En validation", approved: "Validée", rejected: "Refusée" }[item.moderationStatus ?? "approved"]}</span> : null}
+                  {!item.archivedAt ? <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.moderationStatus === "rejected" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>{{ draft: "Non publiée", pending_review: "Validée", approved: "Validée", rejected: "Bloquée" }[item.moderationStatus ?? "approved"]}</span> : null}
                 </div>
                 {item.moderationNotes ? <p className="mt-2 text-xs font-semibold text-red-700">{item.moderationNotes}</p> : null}
               </div>
@@ -396,7 +395,6 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   {item.archivedAt ? <Power size={17} aria-hidden /> : <PowerOff size={17} aria-hidden />}
                   {equipmentAction === item.backendId ? "Mise à jour..." : item.archivedAt ? "Activer" : "Désactiver"}
                 </button>
-                {item.moderationStatus === "rejected" || item.moderationStatus === "draft" ? <button type="button" onClick={() => changeEquipmentState(item, "submit")} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-orange-200 px-4 py-2 text-sm font-bold text-orange-700 transition hover:bg-orange-50"><Send size={16} aria-hidden />Envoyer en validation</button> : null}
                 <button type="button" onClick={() => setConfirmEquipmentDelete(item)} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-700 transition hover:bg-red-50"><Trash2 size={16} aria-hidden />Supprimer</button>
               </div>
             </article>

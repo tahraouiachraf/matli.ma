@@ -111,7 +111,7 @@ export function DepositMachineForm({ equipment, onCancel, onCreated, onUpdated }
       form.reset();
       setPrimaryImage(null);
       setGalleryImages([]);
-      setMessage(equipment ? "Machine modifiée et envoyée en validation." : "Machine ajoutée et envoyée en validation.");
+      setMessage(equipment ? "Machine modifiée et publiée avec succès." : "Machine ajoutée et publiée avec succès.");
       if (!equipment && !onCreated) {
         router.push("/dashboard/equipment");
         router.refresh();
