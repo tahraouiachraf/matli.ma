@@ -19,7 +19,7 @@ export default async function EditEquipmentPage({ params }: { params: Promise<{ 
         <div className="mt-5 border-b border-neutral-200 pb-6">
           <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700"><PencilLine size={18} aria-hidden /> Modification</p>
           <h1 className="mt-2 text-3xl font-black text-neutral-950 sm:text-4xl">Modifier le matériel</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 sm:text-base">Mettez à jour les informations, les tarifs ou les photos. Toute modification sera renvoyée en validation avant publication.</p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 sm:text-base">Mettez à jour les informations, les tarifs ou les photos. Les changements seront publiés immédiatement.</p>
         </div>
         <div className="mt-6"><EditEquipmentForm equipmentId={id} /></div>
       </div>
