@@ -58,6 +58,13 @@ export type Equipment = {
     status: "reserved" | "maintenance" | "unavailable";
     reason?: string | null;
   }>;
+  quality?: {
+    score: number;
+    level: "excellent" | "good" | "incomplete";
+    issues: string[];
+    reminders: string[];
+    lastUpdatedAt?: string;
+  };
 };
 
 export type ClientRequest = {

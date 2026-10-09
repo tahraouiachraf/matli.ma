@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --incremental false",
-    "lighthouse": "lhci autorun"
+    "lighthouse": "lhci autorun",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.75.0",
@@ -22,6 +23,8 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.55.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

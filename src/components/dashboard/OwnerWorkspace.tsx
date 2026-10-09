@@ -380,6 +380,19 @@ export function OwnerSectionContent({ section }: { section: string }) {
                   {!item.archivedAt ? <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.moderationStatus === "rejected" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>{{ draft: "Non publiée", pending_review: "Validée", approved: "Validée", rejected: "Bloquée" }[item.moderationStatus ?? "approved"]}</span> : null}
                 </div>
                 {item.moderationNotes ? <p className="mt-2 text-xs font-semibold text-red-700">{item.moderationNotes}</p> : null}
+                {item.quality ? (
+                  <div className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                    <div className="flex items-center justify-between gap-3 text-xs font-black">
+                      <span>Qualité de la fiche</span>
+                      <span className={item.quality.score >= 85 ? "text-emerald-700" : item.quality.score >= 65 ? "text-orange-700" : "text-red-700"}>{item.quality.score}/100</span>
+                    </div>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200" aria-label={`Score de qualité ${item.quality.score} sur 100`}>
+                      <div className="h-full rounded-full bg-orange-500" style={{ width: `${item.quality.score}%` }} />
+                    </div>
+                    {item.quality.issues.length ? <p className="mt-2 text-xs leading-5 text-neutral-600">À compléter: {item.quality.issues.slice(0, 3).join(", ")}.</p> : <p className="mt-2 text-xs font-bold text-emerald-700">Fiche complète et prête à convertir.</p>}
+                    {item.quality.reminders[0] ? <p className="mt-1 text-xs font-semibold text-orange-700">{item.quality.reminders[0]}</p> : null}
+                  </div>
+                ) : null}
               </div>
               <div className="grid grid-cols-2 gap-2 md:col-span-2 sm:flex xl:col-span-1 xl:grid xl:min-w-44">
                 {item.backendId && !item.archivedAt ? <Link href={`/dashboard/equipment/${item.backendId}/edit`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-neutral-950 px-4 py-2 text-sm font-black text-white transition hover:bg-neutral-800"><Pencil size={16} aria-hidden />Modifier</Link> : <span className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-neutral-100 px-4 py-2 text-sm font-black text-neutral-400"><Pencil size={16} aria-hidden />Modifier</span>}
@@ -973,8 +986,9 @@ function StatsCharts({
           </div>
           <p className="text-sm font-black text-orange-700">{conversion?.request_to_confirmation_rate ?? 0}% demandes confirmées</p>
         </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
+            ["Recherches marketplace", conversion?.searches ?? 0],
             ["Fiches de votre parc consultées", conversion?.equipment_views ?? 0],
             ["Demandes reçues", conversion?.reservation_requests ?? 0],
             ["Réservations confirmées", conversion?.confirmed_reservations ?? 0],
@@ -987,8 +1001,36 @@ function StatsCharts({
           ))}
         </div>
       </div>
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-bold text-neutral-500">Délai moyen de réponse</p>
+          <p className="mt-2 text-3xl font-black text-neutral-950">{formatResponseTime(conversion?.average_owner_response_minutes)}</p>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">Entre la demande client et la première décision du propriétaire.</p>
+        </div>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm xl:col-span-2">
+          <div className="flex items-end justify-between gap-3"><div><h3 className="font-black">Machines les plus consultées</h3><p className="mt-1 text-sm text-neutral-500">Votre parc sur les 30 derniers jours.</p></div><span className="text-sm font-black text-orange-700">{conversion?.search_to_view_rate ?? 0}% recherche → fiche</span></div>
+          <div className="mt-4 grid gap-2">
+            {conversion?.top_viewed_equipment?.length ? conversion.top_viewed_equipment.map((item, index) => (
+              <div key={item.id} className="flex items-center justify-between gap-4 rounded-xl bg-neutral-50 px-4 py-3 text-sm"><span className="min-w-0 truncate font-bold"><span className="mr-3 text-orange-600">0{index + 1}</span>{item.title}</span><span className="shrink-0 font-black">{item.views} vue{item.views > 1 ? "s" : ""}</span></div>
+            )) : <p className="rounded-xl bg-neutral-50 p-4 text-sm text-neutral-500">Les premières consultations apparaîtront ici.</p>}
+          </div>
+        </div>
+      </div>
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="font-black">Recherches sans résultat</h3><p className="mt-1 text-sm text-neutral-500">Opportunités pour enrichir le catalogue.</p></div><span className="text-sm font-black text-orange-700">{conversion?.zero_result_rate ?? 0}% des recherches</span></div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {conversion?.top_zero_result_searches?.length ? conversion.top_zero_result_searches.map((item) => <span key={item.query} className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm font-bold">{item.query} <strong className="ml-1 text-orange-700">{item.count}</strong></span>) : <p className="text-sm text-neutral-500">Aucune recherche sans résultat sur la période.</p>}
+        </div>
+      </div>
     </div>
   );
+}
+
+function formatResponseTime(minutes?: number | null) {
+  if (minutes == null) return "Pas encore mesuré";
+  if (minutes < 60) return `${minutes} min`;
+  if (minutes < 1440) return `${Math.round(minutes / 60)} h`;
+  return `${Math.round(minutes / 1440)} j`;
 }
 
 function groupCount(values: string[]) {

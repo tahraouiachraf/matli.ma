@@ -58,7 +58,7 @@ export function Footer() {
             ["Marketplace", [["Location", "/rentals"], ["Entreprises", "/companies"]]],
             ["Propriétaires", ownerLinks],
             ["Compte", [["Profil", "/profile"], ["Mes locations", "/my-rentals"], ["Dashboard", "/dashboard"]]],
-            ["MATLI", [["Fonctionnement", "/how-it-works"], ["Conseils location", "/how-it-works#conseils"], ["Contact", "mailto:contact@matli.ma"]]],
+            ["MATLI", [["Fonctionnement", "/how-it-works"], ["Aide et support", "/help"], ["Conseils location", "/how-it-works#conseils"], ["Contact", "/help#contact"]]],
           ].filter(([, links]) => (links as string[][]).length > 0).map(([title, links]) => (
             <div key={title as string}>
               <h3 className="font-semibold text-neutral-950">{title}</h3>

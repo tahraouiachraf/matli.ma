@@ -125,6 +125,13 @@ type ApiEquipment = {
   reviews_avg_rating?: number | string | null;
   reviews_count?: number;
   reviews?: Array<{ id: string; rating: number; comment: string | null; created_at: string; user?: { name: string } | null }>;
+  quality?: {
+    score: number;
+    level: "excellent" | "good" | "incomplete";
+    issues: string[];
+    reminders: string[];
+    last_updated_at?: string | null;
+  };
 };
 
 type ApiRentalRequest = {
@@ -182,6 +189,10 @@ export type WorkspaceDashboard = {
     confirmed_reservations: number;
     view_to_request_rate: number;
     request_to_confirmation_rate: number;
+    search_to_view_rate: number;
+    zero_result_rate: number;
+    average_owner_response_minutes: number | null;
+    top_viewed_equipment: Array<{ id: string; title: string; slug?: string | null; views: number }>;
     top_zero_result_searches: Array<{ query: string; count: number }>;
   };
   recent_reservations: ApiReservation[];
@@ -324,7 +335,33 @@ export function mapEquipment(item: ApiEquipment, index = 0): Equipment {
       status: period.status,
       reason: period.reason,
     })) ?? [],
+    quality: item.quality ? {
+      score: item.quality.score,
+      level: item.quality.level,
+      issues: item.quality.issues,
+      reminders: item.quality.reminders,
+      lastUpdatedAt: item.quality.last_updated_at ?? undefined,
+    } : undefined,
   };
+}
+
+export type SupportTicketPayload = {
+  category: "general" | "reservation" | "payment" | "dispute" | "refund" | "technical";
+  role_context?: "visitor" | "client" | "owner";
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  reservation_reference?: string;
+};
+
+export function createSupportTicket(payload: SupportTicketPayload, token?: string | null) {
+  return apiRequest<{ message: string; reference: string }>("/support/tickets", {
+    method: "POST",
+    token: token ?? undefined,
+    body: JSON.stringify(payload),
+  });
 }
 
 function mapCategory(item: ApiCategory, index = 0): Category {
