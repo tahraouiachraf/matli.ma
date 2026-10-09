@@ -10,7 +10,7 @@ type BrandLogoProps = {
 
 export function BrandLogo({ className = "", imageClassName = "", onClick, textClassName = "" }: BrandLogoProps) {
   return (
-    <Link href="/" onClick={onClick} className={`inline-flex shrink-0 items-center gap-2 ${className}`} aria-label="MATLI.ma accueil">
+    <Link href="/" onClick={onClick} className={`inline-flex shrink-0 items-center gap-2 ${className}`} aria-label="MATLI.ma accueil" data-brand-logo>
       <Image
         src="/favicon.png"
         alt=""

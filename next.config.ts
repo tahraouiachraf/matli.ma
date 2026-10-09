@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs/config";
 
 const isProduction = process.env.NODE_ENV === "production";
+const isE2E = process.env.MATLI_E2E === "1";
 const defaultApiUrl = "https://admin.matli.ma/api";
 //const defaultApiUrl = "http://127.0.0.1:8000/api";
 const configuredApiUrl = process.env.API_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? defaultApiUrl;
@@ -10,6 +11,8 @@ const backendApiUrl = /^https?:\/\//i.test(configuredApiUrl)
   : defaultApiUrl;
 
 const nextConfig: NextConfig = {
+  distDir: isE2E ? ".next/e2e" : ".next",
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   poweredByHeader: false,
   reactStrictMode: true,
   async redirects() {
@@ -49,6 +52,7 @@ const nextConfig: NextConfig = {
       { source: "/verification-email", destination: "/verify-email", permanent: true },
       { source: "/machines", destination: "/rentals", permanent: true },
       { source: "/guide", destination: "/how-it-works", permanent: true },
+      { source: "/aide", destination: "/help", permanent: true },
       { source: "/compte", destination: "/profile", permanent: true },
     ];
   },
@@ -76,6 +80,7 @@ const nextConfig: NextConfig = {
       { source: "/dashboard/clients", destination: "/espace/clients" },
       { source: "/dashboard", destination: "/espace" },
       { source: "/how-it-works", destination: "/fonctionnement" },
+      { source: "/help", destination: "/aide" },
       { source: "/register", destination: "/inscription" },
       { source: "/rentals/:path*", destination: "/location/:path*" },
       { source: "/equipment/:path*", destination: "/materiel/:path*" },
@@ -106,10 +111,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     const securityHeaders = [
-      {
+      ...(isProduction && !isE2E ? [{
         key: "Strict-Transport-Security",
         value: "max-age=63072000; includeSubDomains; preload",
-      },
+      }] : []),
       {
         key: "X-Frame-Options",
         value: "SAMEORIGIN",
@@ -142,7 +147,7 @@ const nextConfig: NextConfig = {
           "style-src 'self' 'unsafe-inline'",
           `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://www.googletagmanager.com https://www.google-analytics.com`,
           `connect-src 'self'${isProduction ? "" : " http://127.0.0.1:8000"} https://admin.matli.ma https://www.google-analytics.com https://region1.google-analytics.com https://*.ingest.sentry.io`,
-          ...(isProduction ? ["upgrade-insecure-requests"] : []),
+          ...(isProduction && !isE2E ? ["upgrade-insecure-requests"] : []),
         ].join("; "),
       },
     ];
