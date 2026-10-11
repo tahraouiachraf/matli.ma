@@ -55,7 +55,7 @@ export function Footer() {
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["Marketplace", [["Location", "/rentals"], ["Entreprises", "/companies"]]],
+            ["Marketplace", [["Location", "/rentals"], ["Tractopelles", "/rentals/tractopelles"], ["Mini-pelles", "/rentals/mini-pelles"], ["Entreprises", "/companies"]]],
             ["Propriétaires", ownerLinks],
             ["Compte", [["Profil", "/profile"], ["Mes locations", "/my-rentals"], ["Dashboard", "/dashboard"]]],
             ["MATLI", [["Fonctionnement", "/how-it-works"], ["Aide et support", "/help"], ["Conseils location", "/how-it-works#conseils"], ["Contact", "/help#contact"]]],

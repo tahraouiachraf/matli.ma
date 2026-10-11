@@ -256,10 +256,11 @@ export const ownerDashboardMetrics: DashboardMetric[] = [
 ];
 
 export const seoLandingPages = [
-  { title: "Location tractopelle Casablanca", href: "/rentals?machine=tractopelles&ville=Casablanca" },
-  { title: "Location mini-pelle Marrakech", href: "/rentals?machine=mini-pelles&ville=Marrakech" },
-  { title: "Location chariot télescopique Tanger", href: "/rentals?machine=chariots-telescopiques&ville=Tanger" },
-  { title: "Location chargeuse Agadir", href: "/rentals?machine=chargeuses-sur-pneumatiques&ville=Agadir" },
+  { title: "Location tractopelle Casablanca", href: "/rentals/tractopelles-casablanca" },
+  { title: "Location mini-pelle Marrakech", href: "/rentals/mini-pelles-marrakech" },
+  { title: "Location chariot télescopique Tanger", href: "/rentals/chariots-telescopiques-tanger" },
+  { title: "Location chargeuse Marrakech", href: "/rentals/chargeuses-sur-pneumatiques-marrakech" },
+  { title: "Location JCB 3CX", href: "/rentals/jcb-3cx" },
 ];
 
 export const demoAccount = {

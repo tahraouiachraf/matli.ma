@@ -31,13 +31,8 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
     category ? readableSlug(category) : null,
     city ? `à ${city}` : "au Maroc",
   ].filter(Boolean);
-  const query = new URLSearchParams();
-  if (search) query.set("q", search);
-  if (category) query.set("category", category);
-  if (city) query.set("city", city);
-  if (brand) query.set("brand", brand);
-  if (model) query.set("model", model);
-  const canonical = query.toString() ? `/rentals?${query.toString()}` : "/rentals";
+  const hasFilters = Boolean(params && Object.values(params).some((value) => Array.isArray(value) ? value.length : value));
+  const canonical = "/rentals";
   const description = machineName
     ? `Comparez les offres de ${machineName} disponibles ${city ? `à ${city}` : "au Maroc"}, les prix par jour, la livraison et les options avec ou sans opérateur.`
     : city
@@ -61,6 +56,7 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
     alternates: {
       canonical,
     },
+    robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
     openGraph: {
       title: `${titleParts.join(" ")} | MATLI`,
       description,

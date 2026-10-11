@@ -20,6 +20,7 @@ import { ClientDemandSection } from "@/components/sections/ClientDemandSection";
 import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
 import { MachinesSection } from "@/components/sections/MachinesSection";
 import { RequestsPreviewSection } from "@/components/sections/RequestsPreviewSection";
+import { SeoPagesSection } from "@/components/sections/SeoPagesSection";
 import { ValuePropositionSection } from "@/components/sections/ValuePropositionSection";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -39,10 +40,10 @@ const heroActions = [
 ];
 
 const popularSearches = [
-  { label: "JCB 3CX", href: "/rentals?brand=JCB&model=3CX" },
-  { label: "Mini-pelle", href: "/rentals?category=mini-pelles" },
-  { label: "Telescopic", href: "/rentals?category=chariots-telescopiques" },
-  { label: "Chargeuse", href: "/rentals?category=chargeuses-sur-pneumatiques" },
+  { label: "JCB 3CX", href: "/rentals/jcb-3cx" },
+  { label: "Mini-pelle", href: "/rentals/mini-pelles" },
+  { label: "Telescopic", href: "/rentals/chariots-telescopiques" },
+  { label: "Chargeuse", href: "/rentals/chargeuses-sur-pneumatiques" },
 ];
 
 export const metadata: Metadata = {
@@ -203,6 +204,7 @@ export default async function Home() {
 
       <ValuePropositionSection />
       <MachinesSection />
+      <SeoPagesSection />
       <ClientDemandSection />
 
       <section className="bg-white">

@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
-import { categories } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
-import { localSeoPages } from "@/lib/local-seo";
-import { getCompanies, getEquipmentList, getNewsArticlesStrict } from "@/services/api/matli";
+import { equipmentMatchesLanding, seoLandingPages } from "@/lib/local-seo";
+import { getCompanies, getEquipmentPageStrict, getNewsArticlesStrict } from "@/services/api/matli";
+import type { Equipment } from "@/types";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [equipment, companies, news] = await Promise.all([
-    getEquipmentList({ perPage: 30 }),
+    getAllEquipment(),
     getCompanies(),
     getNewsArticlesStrict(30).catch(() => []),
   ]);
@@ -25,22 +25,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/legal-notice", 0.3, "yearly"),
   ];
 
-  const highIntentCategories = new Set(["mini-pelles", "chariots-telescopiques", "chargeuses-sur-pneumatiques"]);
-  const categoryPages = categories.map((category) =>
-    page(
-      `/rentals?category=${category.slug}`,
-      highIntentCategories.has(category.slug) ? 0.82 : 0.78,
-      highIntentCategories.has(category.slug) ? "daily" : "weekly",
-    ),
-  );
-
-  const popularMachinePages: MetadataRoute.Sitemap = [
-    page("/rentals?brand=JCB&model=3CX", 0.84, "daily"),
-  ];
-
-  const localPages = localSeoPages.map((item) =>
-    page(`/rentals/${item.slug}`, 0.8, "daily"),
-  );
+  const landingPages = seoLandingPages
+    .filter((landing) => equipment.some((item) => equipmentMatchesLanding(item, landing)))
+    .map((landing) => page(`/rentals/${landing.slug}`, landing.city ? 0.8 : 0.84, "daily"));
 
   const equipmentPages = equipment.map((item) =>
     page(`/equipment/${item.slug}`, 0.82, item.status === "AVAILABLE" ? "daily" : "weekly"),
@@ -55,7 +42,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(article.updatedAt),
   }));
 
-  return [...staticPages, ...categoryPages, ...popularMachinePages, ...localPages, ...equipmentPages, ...companyPages, ...newsPages];
+  return [...staticPages, ...landingPages, ...equipmentPages, ...companyPages, ...newsPages];
+}
+
+async function getAllEquipment(): Promise<Equipment[]> {
+  try {
+    const firstPage = await getEquipmentPageStrict({ perPage: 30, page: 1 });
+    if (firstPage.lastPage <= 1) return firstPage.items;
+
+    const remainingPages = await Promise.all(
+      Array.from({ length: firstPage.lastPage - 1 }, (_, index) =>
+        getEquipmentPageStrict({ perPage: 30, page: index + 2 }),
+      ),
+    );
+
+    return [firstPage, ...remainingPages].flatMap((result) => result.items);
+  } catch {
+    return [];
+  }
 }
 
 function page(
