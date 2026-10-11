@@ -7,6 +7,7 @@ const cityMap: Record<string, string[]> = {
   "nacelles-telescopiques-articules": ["Oujda", "Safi"],
   "pelles-sur-chenilles": ["Tétouan", "Kénitra", "Béni Mellal", "Casablanca"],
   "chargeuses-sur-pneumatiques": ["El Jadida", "Safi", "Rabat", "Marrakech"],
+  "compacteurs-rouleaux-compresseurs": ["Casablanca", "Rabat"],
   grues: ["Béni Mellal", "Tanger"],
 };
 
@@ -15,24 +16,63 @@ const categoryNames: Record<string, string> = {
   grues: "Grues mobiles",
 };
 
-export type LocalSeoPage = {
+export type SeoLandingPage = {
   slug: string;
-  category: string;
-  categoryName: string;
-  city: string;
+  name: string;
+  category?: string;
+  categoryName?: string;
+  city?: string;
+  brand?: string;
+  model?: string;
 };
 
-export const localSeoPages: LocalSeoPage[] = Object.entries(cityMap).flatMap(([category, cities]) =>
+export const categorySeoPages: SeoLandingPage[] = Object.entries(categoryNames).map(([category, categoryName]) => ({
+  slug: category,
+  name: `Location ${categoryName.toLowerCase()} au Maroc`,
+  category,
+  categoryName,
+}));
+
+export const localSeoPages: SeoLandingPage[] = Object.entries(cityMap).flatMap(([category, cities]) =>
   cities.map((city) => ({
     slug: `${category}-${slugify(city)}`,
+    name: `Location ${categoryNames[category].toLowerCase()} à ${city}`,
     category,
     categoryName: categoryNames[category],
     city,
   })),
 );
 
-export function getLocalSeoPage(slug: string) {
-  return localSeoPages.find((page) => page.slug === slug);
+export const featuredMachineSeoPages: SeoLandingPage[] = [
+  {
+    slug: "jcb-3cx",
+    name: "Location JCB 3CX au Maroc",
+    brand: "JCB",
+    model: "3CX",
+  },
+];
+
+export const seoLandingPages = [...categorySeoPages, ...featuredMachineSeoPages, ...localSeoPages];
+
+export function getSeoLandingPage(slug: string) {
+  return seoLandingPages.find((page) => page.slug === slug);
+}
+
+export function equipmentMatchesLanding(
+  item: { category: string; city: string; brand: string; model: string },
+  page: SeoLandingPage,
+) {
+  const categoryMatches = !page.category
+    || normalize(item.category) === normalize(page.categoryName ?? page.category);
+  const cityMatches = !page.city || normalize(item.city) === normalize(page.city);
+  const brandMatches = !page.brand || normalize(item.brand) === normalize(page.brand);
+  const modelMatches = !page.model || normalize(item.model).includes(normalize(page.model));
+
+  return categoryMatches && cityMatches && brandMatches && modelMatches;
+}
+
+function normalize(value: string) {
+  return slugify(value);
 }
 
 function slugify(value: string) {

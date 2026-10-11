@@ -16,7 +16,7 @@ export function organizationJsonLd() {
     name: siteName,
     url: siteUrl,
     logo: absoluteUrl("/favicon.png"),
-    sameAs: ["https://www.instagram.com/matlimaroc/", "https://www.linkedin.com/"],
+    sameAs: ["https://www.instagram.com/matlimaroc/"],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",
@@ -42,7 +42,7 @@ export function websiteJsonLd() {
 
 export function marketplaceJsonLd() {
   const categories = [
-    { name: "JCB 3CX", slug: "?brand=JCB&model=3CX" },
+    { name: "JCB 3CX", slug: "jcb-3cx" },
     { name: "Tractopelles", slug: "tractopelles" },
     { name: "Mini-pelles", slug: "mini-pelles" },
     { name: "Chariots télescopiques", slug: "chariots-telescopiques" },
@@ -58,9 +58,7 @@ export function marketplaceJsonLd() {
       "@type": "ListItem",
       position: index + 1,
       name: category.name,
-      url: category.slug.startsWith("?")
-        ? absoluteUrl(`/rentals${category.slug}`)
-        : absoluteUrl(`/rentals?category=${category.slug}`),
+      url: absoluteUrl(`/rentals/${category.slug}`),
     })),
   };
 }
@@ -75,9 +73,18 @@ export function equipmentJsonLd(item: Equipment) {
       name: item.brand,
     },
     model: item.model,
-    image: item.image.startsWith("http") ? item.image : absoluteUrl(item.image),
+    image: (item.images?.length ? item.images : [item.image]).map((image) => image.startsWith("http") ? image : absoluteUrl(image)),
     description: item.description,
     category: item.category,
+    ...(item.reviewsCount && item.rating ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: item.rating,
+        reviewCount: item.reviewsCount,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    } : {}),
     offers: {
       "@type": "Offer",
       price: item.priceDay,

@@ -31,7 +31,7 @@ export function CategoryGrid({ items = categories }: { items?: Category[] }) {
         return (
           <Link
             key={category.slug}
-            href={`/rentals?machine=${category.slug}`}
+            href={`/rentals/${category.slug}`}
             className={`group relative flex min-h-full flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl hover:shadow-orange-950/10 ${desktopSpan(items.length, index)}`}
           >
             <span className="absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-orange-500 transition-transform duration-300 group-hover:scale-x-100" aria-hidden />
