@@ -14,14 +14,27 @@ export default defineConfig({
     video: "retain-on-failure",
   },
   projects: [
+    { name: "Desktop Chrome", use: { ...devices["Desktop Chrome"] } },
     { name: "Android Chrome", use: { ...devices["Pixel 7"] } },
     { name: "iPhone Safari", use: { ...devices["iPhone 13"] } },
   ],
-  webServer: {
-    command: "npm run dev -- --port 3100",
-    url: "http://127.0.0.1:3100",
-    env: { MATLI_E2E: "1" },
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: "node e2e/mock-api.mjs",
+      url: "http://127.0.0.1:3200/api/health",
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+    {
+      command: "npm run dev -- --port 3100",
+      url: "http://127.0.0.1:3100",
+      env: {
+        MATLI_E2E: "1",
+        API_BACKEND_URL: "http://127.0.0.1:3200/api",
+        NEXT_PUBLIC_API_URL: "http://127.0.0.1:3100/api/matli",
+      },
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
 });

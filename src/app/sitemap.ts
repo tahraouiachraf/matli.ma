@@ -18,7 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/news", 0.72, "weekly"),
     page("/how-it-works", 0.7, "monthly"),
     page("/help", 0.55, "monthly"),
-    page("/register", 0.35, "monthly"),
     page("/terms", 0.3, "yearly"),
     page("/privacy", 0.3, "yearly"),
     page("/cancellation-policy", 0.3, "yearly"),
@@ -69,7 +68,6 @@ function page(
 ): MetadataRoute.Sitemap[number] {
   return {
     url: absoluteUrl(path),
-    lastModified: new Date(),
     changeFrequency,
     priority,
   };

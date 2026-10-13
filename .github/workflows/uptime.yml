@@ -1,0 +1,26 @@
+name: Production uptime
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check frontend
+        run: curl --fail --silent --show-error --location --max-time 20 https://www.matli.ma/ > /dev/null
+      - name: Check public API
+        run: curl --fail --silent --show-error --max-time 20 https://admin.matli.ma/api/meta > /dev/null
+      - name: Check backend health
+        run: curl --fail --silent --show-error --max-time 20 https://admin.matli.ma/api/health | tee health.json
+      - name: Send optional alert webhook
+        if: failure() && secrets.UPTIME_ALERT_WEBHOOK != ''
+        env:
+          UPTIME_ALERT_WEBHOOK: ${{ secrets.UPTIME_ALERT_WEBHOOK }}
+        run: curl --fail --silent --show-error --max-time 15 -X POST -H "Content-Type: application/json" --data '{"text":"MATLI.ma: un contrôle uptime a échoué. Consultez GitHub Actions."}' "$UPTIME_ALERT_WEBHOOK"

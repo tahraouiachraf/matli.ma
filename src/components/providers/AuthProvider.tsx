@@ -35,8 +35,13 @@ type AuthContextValue = {
 
 type AuthPayload = {
   access_token: string;
+  expires_at?: string;
   token_type: "Bearer";
   user: AuthUser;
+};
+
+type SessionPayload = {
+  expires_at?: string | null;
 };
 
 type RegisterPayload = {
@@ -114,9 +119,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let active = true;
 
-    apiRequest<{ user: AuthUser }>("/auth/me", { token })
-      .then((payload) => {
+    apiRequest<{ user: AuthUser; session?: SessionPayload | null }>("/auth/me", { token })
+      .then(async (payload) => {
         if (!active) return;
+        const expiresAt = payload.session?.expires_at ?? window.localStorage.getItem("matli-api-token-expires-at");
+        const shouldRotate = expiresAt
+          ? new Date(expiresAt).getTime() - Date.now() < 72 * 60 * 60 * 1000
+          : false;
+
+        if (shouldRotate) {
+          const rotated = await apiRequest<AuthPayload>("/auth/token/rotate", { method: "POST", token });
+          if (active) persistAuth(rotated);
+          return;
+        }
         const serializedUser = JSON.stringify(payload.user);
         if (window.localStorage.getItem("matli-user") !== serializedUser) {
           window.localStorage.setItem("matli-user", serializedUser);
@@ -129,6 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error instanceof Error && "status" in error && error.status === 401) {
           window.localStorage.removeItem("matli-authenticated");
           window.localStorage.removeItem("matli-api-token");
+          window.localStorage.removeItem("matli-api-token-expires-at");
           window.localStorage.removeItem("matli-user");
           window.dispatchEvent(new Event("matli-auth-change"));
           return;
@@ -143,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function persistAuth(payload: AuthPayload) {
     window.localStorage.setItem("matli-api-token", payload.access_token);
+    if (payload.expires_at) window.localStorage.setItem("matli-api-token-expires-at", payload.expires_at);
     window.localStorage.setItem("matli-user", JSON.stringify(payload.user));
     window.localStorage.setItem("matli-authenticated", "true");
     window.dispatchEvent(new Event("matli-auth-change"));
@@ -190,6 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.localStorage.removeItem("matli-authenticated");
         window.localStorage.removeItem("matli-demo-account");
         window.localStorage.removeItem("matli-api-token");
+        window.localStorage.removeItem("matli-api-token-expires-at");
         window.localStorage.removeItem("matli-user");
         window.dispatchEvent(new Event("matli-auth-change"));
       },
