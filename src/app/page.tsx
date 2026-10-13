@@ -78,7 +78,7 @@ export default async function Home() {
   return (
     <>
       <JsonLd data={marketplaceJsonLd()} />
-      <section className="bg-neutral-100 px-3 py-5 sm:px-6 sm:py-10 lg:px-8">
+      <section className="bg-white-100 px-3 py-5 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 px-4 py-7 text-white shadow-2xl shadow-orange-950/20 sm:rounded-xl sm:px-8 md:px-12 lg:py-14">
           <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="min-w-0 animate-fade-up">
