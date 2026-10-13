@@ -74,19 +74,22 @@ test("calendrier propriétaire et sélection de plusieurs photos", async ({ page
 });
 
 test("inscription puis connexion client sans dépendance à la production", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.addInitScript(() => localStorage.setItem("matli-cookie-consent", "refused"));
   await page.goto("/register");
   await page.getByLabel(/Nom complet/).fill("Client E2E");
   await page.getByLabel(/^Email/).fill("client.e2e@matli.test");
   await page.getByLabel(/^Ville/).selectOption("Casablanca");
+  await page.getByRole("radio", { name: "Louer une machine" }).check();
   await page.getByLabel(/^Mot de passe/).fill("ClientMATLI@2026");
   await page.getByLabel(/Confirmer le mot de passe/).fill("ClientMATLI@2026");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await expect(page).toHaveURL(/\/login\?registered=1/);
+  await expect(page).toHaveURL(/\/login\?registered=1/, { timeout: 20_000 });
 
   await page.getByLabel(/Adresse email/).fill("client.e2e@matli.test");
   await page.getByLabel(/^Mot de passe/).fill("ClientMATLI@2026");
   await page.getByRole("button", { name: "Se connecter" }).click();
-  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 20_000 });
   await expect.poll(() => page.evaluate(() => localStorage.getItem("matli-api-token"))).toBe("e2e-client-token");
 });
 

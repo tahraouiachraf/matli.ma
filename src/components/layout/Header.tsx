@@ -69,7 +69,7 @@ export function Header() {
           <NotificationBell />
           <AuthNav />
           {!connected ? (
-            <ButtonLink href="/register" className="ml-1 bg-[#F58220] px-5 text-white shadow-sm hover:bg-orange-600">
+            <ButtonLink href="/register" className="ml-1 bg-[#F58220] px-5 text-neutral-950 shadow-sm hover:bg-orange-400">
               S&apos;inscrire
             </ButtonLink>
           ) : null}
@@ -134,7 +134,7 @@ export function Header() {
 
             {!connected ? (
               <div className="mt-3">
-                <ButtonLink href="/register" className="w-full bg-[#F58220] text-white hover:bg-orange-600" onClick={() => setOpen(false)}>
+                <ButtonLink href="/register" className="w-full bg-[#F58220] text-neutral-950 hover:bg-orange-400" onClick={() => setOpen(false)}>
                   Créer mon espace gratuit
                 </ButtonLink>
               </div>
