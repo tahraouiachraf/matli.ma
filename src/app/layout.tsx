@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/matli-social-preview.webp",
+        url: "/matli-thumbnail-v2.jpg",
         width: 1200,
         height: 630,
         alt: "Location de machines BTP au Maroc avec MATLI",
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MATLI.ma - Location de matériel BTP au Maroc",
     description: siteDescription,
-    images: ["/matli-social-preview.webp"],
+    images: ["/matli-thumbnail-v2.jpg"],
   },
   icons: {
     icon: [

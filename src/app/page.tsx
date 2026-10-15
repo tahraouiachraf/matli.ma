@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     description: "Comparez les prix et disponibilités des JCB 3CX, mini-pelles, télescopiques et chargeuses au Maroc.",
     url: "/",
     type: "website",
-    images: ["/matli-social-preview.webp"],
+    images: ["/matli-thumbnail-v2.jpg"],
   },
 };
 
