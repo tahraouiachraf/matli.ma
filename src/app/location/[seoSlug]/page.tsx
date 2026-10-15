@@ -29,13 +29,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonical,
       type: "website",
       locale: "fr_MA",
-      images: ["/matli-social-preview.webp"],
+      images: ["/matli-thumbnail-v2.jpg"],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | MATLI`,
       description,
-      images: ["/matli-social-preview.webp"],
+      images: ["/matli-thumbnail-v2.jpg"],
     },
   };
 }

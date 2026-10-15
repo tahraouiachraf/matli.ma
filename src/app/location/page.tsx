@@ -62,7 +62,7 @@ export async function generateMetadata({ searchParams }: LocationPageProps): Pro
       description,
       url: canonical,
       type: "website",
-      images: ["/matli-social-preview.webp"],
+      images: ["/matli-thumbnail-v2.jpg"],
     },
   };
 }
