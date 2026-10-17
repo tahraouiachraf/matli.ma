@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getCompaniesStrict } from "@/services/api/matli";
 import type { Company } from "@/types";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { JsonLd, collectionJsonLd } from "@/lib/seo";
 
 function DirectorySkeleton() {
   return (
@@ -65,8 +67,12 @@ export function CompaniesDirectory({ initialCompanies }: { initialCompanies: Com
   const equipmentCount = companies.reduce((total, company) => total + company.equipmentCount, 0);
 
   return (
-    <main className="bg-neutral-50">
+    <div className="bg-neutral-50">
+      <JsonLd data={collectionJsonLd("/companies", "Entreprises de location de matériel BTP au Maroc",
+        "Consultez les parcs des propriétaires et leurs machines disponibles au Maroc.",
+        companies.map((company) => ({ name: company.name, path: `/company/${company.slug}` })))} />
       <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-6 max-w-7xl"><Breadcrumbs items={[{ name: "Accueil", path: "/" }, { name: "Entreprises", path: "/companies" }]} /></div>
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>
             <p className="inline-flex items-center gap-2 text-sm font-black text-orange-700">
@@ -154,6 +160,6 @@ export function CompaniesDirectory({ initialCompanies }: { initialCompanies: Com
           </div>
         ) : null}
       </section>
-    </main>
+    </div>
   );
 }

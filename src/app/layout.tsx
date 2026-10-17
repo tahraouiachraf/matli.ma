@@ -56,10 +56,6 @@ export const metadata: Metadata = {
   description: siteDescription,
   alternates: {
     canonical: "/",
-    languages: {
-      "fr-MA": "/",
-      fr: "/",
-    },
   },
   robots: {
     index: true,

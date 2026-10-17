@@ -4,7 +4,8 @@ import { BadgeCheck, Building2, MapPin, RefreshCw, ShieldCheck, Wrench } from "l
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
-import { JsonLd, absoluteUrl } from "@/lib/seo";
+import { JsonLd, absoluteUrl, collectionJsonLd, companyJsonLd } from "@/lib/seo";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ApiError } from "@/services/api/client";
 import { getCompanyDetailStrict } from "@/services/api/matli";
 import type { Company, Equipment } from "@/types";
@@ -16,7 +17,7 @@ export type CompanyDetailPayload = {
 
 function ProfileSkeleton() {
   return (
-    <main className="bg-neutral-50" aria-busy="true">
+    <div className="bg-neutral-50" aria-busy="true">
       <p className="sr-only" role="status">Chargement de l’entreprise</p>
       <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl animate-pulse">
@@ -34,7 +35,7 @@ function ProfileSkeleton() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 
@@ -95,7 +96,7 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
 
   if (missing) {
     return (
-      <main className="grid min-h-[60vh] place-items-center bg-neutral-50 px-4 py-16">
+      <div className="grid min-h-[60vh] place-items-center bg-neutral-50 px-4 py-16">
         <div className="max-w-xl text-center">
           <Building2 className="mx-auto text-orange-500" size={42} aria-hidden />
           <p className="mt-5 text-sm font-black uppercase text-orange-700">Entreprise introuvable</p>
@@ -105,13 +106,13 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
             Voir les entreprises
           </Link>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (!payload) {
     return (
-      <main className="grid min-h-[60vh] place-items-center bg-neutral-50 px-4 py-16">
+      <div className="grid min-h-[60vh] place-items-center bg-neutral-50 px-4 py-16">
         <div className="max-w-xl rounded-md border border-red-200 bg-white p-8 text-center shadow-sm" role="alert">
           <Building2 className="mx-auto text-orange-500" size={38} aria-hidden />
           <h1 className="mt-4 text-2xl font-black text-neutral-950">Impossible de charger cette entreprise</h1>
@@ -120,35 +121,26 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
             <RefreshCw size={17} aria-hidden /> Réessayer
           </button>
         </div>
-      </main>
+      </div>
     );
   }
 
   const { company, equipment: items } = payload;
 
   return (
-    <main className="bg-neutral-50">
+    <div className="bg-neutral-50">
       <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          name: company.name,
-          description: company.description,
-          url: absoluteUrl(`/company/${company.slug}`),
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: company.city,
-            addressRegion: company.region,
-            addressCountry: "MA",
+        data={[
+          companyJsonLd(company),
+          {
+            ...collectionJsonLd(`/company/${company.slug}`, company.name, company.description,
+              items.map((item) => ({ name: item.title, path: `/equipment/${item.slug}` }))),
+            about: { "@id": absoluteUrl(`/company/${company.slug}#organization`) },
           },
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: company.rating,
-            reviewCount: Math.max(company.equipmentCount, 1),
-          },
-        }}
+        ]}
       />
       <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-6 max-w-7xl"><Breadcrumbs items={[{ name: "Accueil", path: "/" }, { name: "Entreprises", path: "/companies" }, { name: company.name, path: `/company/${company.slug}` }]} /></div>
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="max-w-3xl">
             <div className="grid size-16 place-items-center rounded-md bg-orange-500 text-xl font-black text-white shadow-sm">{company.logo}</div>
@@ -205,6 +197,6 @@ export function CompanyProfile({ slug, initialPayload }: { slug: string; initial
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }

@@ -7,9 +7,10 @@ import { EquipmentReportForm } from "@/components/forms/EquipmentReportForm";
 import { EquipmentGallery } from "@/components/marketplace/EquipmentGallery";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { statusLabels } from "@/lib/data";
 import { formatDh } from "@/lib/format";
-import { JsonLd, absoluteUrl, equipmentJsonLd } from "@/lib/seo";
+import { JsonLd, absoluteUrl, equipmentJsonLd, pageJsonLd } from "@/lib/seo";
 import { ApiError } from "@/services/api/client";
 import { getEquipmentDetailStrict, getSimilarEquipment } from "@/services/api/matli";
 
@@ -57,7 +58,16 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
 
   return (
     <div className="bg-white">
-      <JsonLd data={equipmentJsonLd(item)} />
+      <JsonLd data={[
+        equipmentJsonLd(item),
+        {
+          ...pageJsonLd(`/equipment/${item.slug}`, item.title, item.description, "ItemPage"),
+          mainEntity: { "@id": absoluteUrl(`/equipment/${item.slug}#equipment`) },
+        },
+      ]} />
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <Breadcrumbs items={[{ name: "Accueil", path: "/" }, { name: "Location", path: "/rentals" }, { name: item.title, path: `/equipment/${item.slug}` }]} />
+      </div>
       <CommercialEventTracker eventName="equipment_viewed" equipmentId={item.backendId} city={item.city} category={item.category} pagePath={`/equipment/${item.slug}`} />
       <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div>

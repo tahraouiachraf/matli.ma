@@ -2,7 +2,7 @@ import { EquipmentCardSkeleton } from "@/components/marketplace/EquipmentCardSke
 
 export default function CompanyLoading() {
   return (
-    <main aria-busy="true" className="bg-white">
+    <div aria-busy="true" className="bg-white">
       <p className="sr-only" role="status">Chargement de l’entreprise et de ses machines</p>
       <section className="border-b border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
@@ -31,6 +31,6 @@ export default function CompanyLoading() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

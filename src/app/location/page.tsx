@@ -8,7 +8,8 @@ import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
 import { MarketplaceSearch } from "@/components/marketplace/MarketplaceSearch";
 import { ResponsiveFilters } from "@/components/marketplace/ResponsiveFilters";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { JsonLd, marketplaceJsonLd } from "@/lib/seo";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { JsonLd, collectionJsonLd } from "@/lib/seo";
 import { getCatalogMetaStrict, getCategoriesStrict, getEquipmentPageStrict } from "@/services/api/matli";
 import { filterHref } from "@/lib/marketplace-filters";
 
@@ -114,7 +115,13 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
 
   return (
     <div>
-      <JsonLd data={marketplaceJsonLd()} />
+      <JsonLd data={collectionJsonLd(
+        `/rentals${analyticsQuery ? `?${analyticsQuery}` : ""}`,
+        "Machines BTP disponibles à la location",
+        "Comparez les matériels disponibles près de votre chantier et envoyez une demande directement au propriétaire.",
+        catalog.items.map((item) => ({ name: item.title, path: `/equipment/${item.slug}` })),
+        (catalog.currentPage - 1) * 12,
+      )} />
       {hasSearchIntent ? (
         <CommercialEventTracker
           eventName="search_performed"
@@ -137,6 +144,7 @@ export default async function LocationPage({ searchParams }: LocationPageProps) 
       ) : null}
       <section className="border-b border-neutral-200 bg-white px-4 py-8 sm:px-6 sm:py-14 lg:px-8">
         <div className="mx-auto max-w-7xl">
+          <div className="mb-6"><Breadcrumbs items={[{ name: "Accueil", path: "/" }, { name: "Location", path: "/rentals" }]} /></div>
           <div className="max-w-4xl lg:mx-auto lg:text-center">
             <p className="inline-flex items-center gap-2 rounded-md border border-orange-200 bg-white px-3 py-1.5 text-xs font-black uppercase text-orange-700">
               <HardHat size={15} aria-hidden /> Marketplace BTP au Maroc

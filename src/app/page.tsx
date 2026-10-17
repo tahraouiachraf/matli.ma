@@ -24,7 +24,7 @@ import { SeoPagesSection } from "@/components/sections/SeoPagesSection";
 import { ValuePropositionSection } from "@/components/sections/ValuePropositionSection";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { JsonLd, marketplaceJsonLd } from "@/lib/seo";
+import { JsonLd, marketplaceJsonLd, pageJsonLd } from "@/lib/seo";
 import { getEquipmentListStrict, getMarketplaceRequestsStrict } from "@/services/api/matli";
 
 const trustItems: Array<[LucideIcon, string, string]> = [
@@ -77,7 +77,10 @@ export default async function Home() {
 
   return (
     <>
-      <JsonLd data={marketplaceJsonLd()} />
+      <JsonLd data={[
+        marketplaceJsonLd(),
+        { ...pageJsonLd("/", "Location de matériel BTP au Maroc", metadata.description ?? ""), mainEntity: { "@id": "https://www.matli.ma/#rental-service" } },
+      ]} />
       <section className="bg-white-100 px-3 py-5 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 px-4 py-7 text-white shadow-2xl shadow-orange-950/20 sm:rounded-xl sm:px-8 md:px-12 lg:py-14">
           <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">

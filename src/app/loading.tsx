@@ -1,6 +1,6 @@
 export default function GlobalLoading() {
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div aria-busy="true" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <section className="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
         <div>
           <div className="h-5 w-32 animate-pulse rounded-full bg-neutral-200" />
@@ -25,6 +25,6 @@ export default function GlobalLoading() {
           </div>
         ))}
       </section>
-    </main>
+    </div>
   );
 }

@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EquipmentCard } from "@/components/marketplace/EquipmentCard";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { getSeoLandingPage, seoLandingPages, type SeoLandingPage } from "@/lib/local-seo";
-import { JsonLd, absoluteUrl } from "@/lib/seo";
+import { JsonLd, collectionJsonLd } from "@/lib/seo";
 import { getEquipmentListStrict } from "@/services/api/matli";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,6 @@ export default async function SeoLocationPage({ params }: PageProps) {
 
   const title = landingTitle(page);
   const description = landingDescription(page);
-  const canonical = absoluteUrl(`/rentals/${page.slug}`);
   const filterQuery = new URLSearchParams();
   if (page.category) filterQuery.set("category", page.category);
   if (page.city) filterQuery.set("city", page.city);
@@ -68,51 +68,15 @@ export default async function SeoLocationPage({ params }: PageProps) {
     ))
     .slice(0, 6);
 
-  const structuredData = [
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      name: title,
-      description,
-      url: canonical,
-      inLanguage: "fr-MA",
-      isPartOf: { "@type": "WebSite", name: "MATLI.ma", url: absoluteUrl("/") },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Accueil", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Location de matériel BTP", item: absoluteUrl("/rentals") },
-        { "@type": "ListItem", position: 3, name: title, item: canonical },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      name: title,
-      numberOfItems: equipment.length,
-      itemListElement: equipment.map((item, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: item.title,
-        url: absoluteUrl(`/equipment/${item.slug}`),
-      })),
-    },
-  ];
+  const structuredData = collectionJsonLd(`/rentals/${page.slug}`, title, description,
+    equipment.map((item) => ({ name: item.title, path: `/equipment/${item.slug}` })));
 
   return (
-    <main>
+    <div>
       <JsonLd data={structuredData} />
       <section className="border-y border-neutral-200 bg-white px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="mx-auto max-w-7xl">
-          <nav aria-label="Fil d’Ariane" className="text-sm font-semibold text-neutral-500">
-            <Link href="/" className="hover:text-orange-700">Accueil</Link>
-            <span className="mx-2" aria-hidden>/</span>
-            <Link href="/rentals" className="hover:text-orange-700">Location</Link>
-            <span className="mx-2" aria-hidden>/</span>
-            <span aria-current="page">{page.city ?? page.categoryName ?? page.name}</span>
-          </nav>
+          <Breadcrumbs items={[{ name: "Accueil", path: "/" }, { name: "Location", path: "/rentals" }, { name: title, path: `/rentals/${page.slug}` }]} />
           <p className="mt-8 text-xs font-black uppercase text-orange-700">Matériel BTP disponible au Maroc</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-black leading-tight text-neutral-950 sm:text-5xl">{title}</h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-neutral-600 sm:text-lg">{description}</p>
@@ -169,7 +133,7 @@ export default async function SeoLocationPage({ params }: PageProps) {
           </div>
         </section>
       ) : null}
-    </main>
+    </div>
   );
 }
 
