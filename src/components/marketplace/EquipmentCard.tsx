@@ -6,6 +6,8 @@ import { statusLabels } from "@/lib/data";
 import type { Equipment } from "@/types";
 
 export function EquipmentCard({ item }: { item: Equipment }) {
+  const equipmentHref = `/equipment/${item.slug}`;
+
   return (
     <article className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition duration-300 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-xl hover:shadow-orange-950/8">
       <div className="relative aspect-[16/11] overflow-hidden bg-orange-50 sm:aspect-[4/3]">
@@ -29,7 +31,14 @@ export function EquipmentCard({ item }: { item: Equipment }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase text-orange-700">{item.category}</p>
-            <h3 className="mt-1 line-clamp-2 text-lg font-bold text-neutral-950 sm:text-xl">{item.title}</h3>
+            <h3 className="mt-1 line-clamp-2 text-lg font-bold text-neutral-950 sm:text-xl">
+              <Link
+                href={equipmentHref}
+                className="transition-colors hover:text-orange-700 hover:underline focus-visible:text-orange-700 focus-visible:underline"
+              >
+                {item.title}
+              </Link>
+            </h3>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-sm text-neutral-600">
@@ -60,7 +69,7 @@ export function EquipmentCard({ item }: { item: Equipment }) {
             <p className="text-xl font-black text-neutral-950">{formatDh(item.priceDay)} / jour</p>
           </div>
           <Link
-            href={`/equipment/${item.slug}`}
+            href={equipmentHref}
             className="inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-orange-600 px-4 text-sm font-bold text-white hover:bg-orange-700 max-[379px]:w-full"
           >
             Voir le matériel

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { BadgeCheck, CalendarCheck, CalendarDays, ChevronRight, CircleHelp, ClipboardCheck, Clock3, Handshake, HardHat, MapPin, Search, ShieldCheck, Truck, UserRoundCheck } from "lucide-react";
 import { FunctioningExperience } from "@/components/sections/FunctioningExperience";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { JsonLd } from "@/lib/seo";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { JsonLd, pageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Fonctionnement et conseils",
   description: "Découvrez comment louer, comparer, déposer et gérer du matériel BTP sur MATLI.",
+  alternates: { canonical: "/how-it-works" },
 };
 
 const tips = [
@@ -26,6 +28,8 @@ const faq = [
 const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
+  "@id": "https://www.matli.ma/how-it-works#faq",
+  isPartOf: { "@id": "https://www.matli.ma/how-it-works#webpage" },
   mainEntity: faq.map(([question, answer]) => ({
     "@type": "Question",
     name: question,
@@ -36,7 +40,10 @@ const faqJsonLd = {
 export default function HowItWorksPage() {
   return (
     <>
-      <JsonLd data={faqJsonLd} />
+      <JsonLd data={[faqJsonLd, pageJsonLd("/how-it-works", "Fonctionnement et conseils", metadata.description ?? "")]} />
+      <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
+        <Breadcrumbs items={[{ name: "Accueil", path: "/" }, { name: "Comment ça marche ?", path: "/how-it-works" }]} />
+      </div>
       <section className="bg-white px-3 pb-8 pt-5 sm:px-6 sm:pb-12 sm:pt-8 lg:px-8">
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-xl border border-orange-400 bg-orange-500 text-white shadow-2xl shadow-orange-950/10">
           <div className="relative px-5 py-9 sm:px-9 sm:py-12 lg:px-12 lg:py-14">
